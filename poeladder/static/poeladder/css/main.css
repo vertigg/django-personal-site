@@ -1,0 +1,84 @@
+@font-face 
+{
+    font-family: "Fontin-Regular";
+    src: url("../fonts/Fontin-Regular.ttf");
+}
+
+ .ladder-link:link, .ladder-link:visited{
+    color: white;
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+}
+
+.cell-link {height: 100%;width: 100%}
+
+body 
+{
+    background-image: url('../img/poe.jpg');
+    background-color: black;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    margin: 0;
+}
+
+h1 
+{
+    color: white;
+    font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+}
+
+div.ladder_main
+{
+    margin: auto;
+    width: 55%;
+}
+
+table.LadderTable 
+{
+    font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+    width: 100%;
+    border-collapse: collapse;
+    border-width: 0px;
+    color: #808080;
+}
+    
+table.LadderTable td, table.LadderTable th 
+{
+    color: white;
+    border-width: 0px;
+    padding: 5px;
+}
+
+table.LadderTable td.row-link:hover {background: #808080;}
+
+tr.LadderHeader
+{
+    background: #181818;
+    font-size: 2vh;
+    text-align: left;
+}
+
+table.LadderTable tr.LadderRows:nth-child(odd) { background: #111111 }
+table.LadderTable tr.LadderRows:nth-child(even) { background: #0D0F0D }
+
+table.LadderTable thead 
+{
+    background-color: #121212;
+}
+
+.row-rank { width: 8%; }
+
+img#header-icon
+{
+    max-height: 14px;
+    vertical-align: middle;
+}
+
+img#class-icon
+{
+    max-height: 25px;
+    vertical-align: middle;
+}
+

@@ -1,0 +1,16 @@
+{% extends "base.html"%}
+{% block css %}
+{% load static%}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'main.css' %}" />
+{% endblock %}
+{% block title%}Home page{% endblock %}
+{% block content%}
+    <video playsinline autoplay muted loop id="bgvid">
+        <source src="{% static 'home_page_app/video/example.mp4' %}" type="video/mp4">
+    </video>
+    <div id="WorkingTitle">
+        <h1>site under construction</h1>
+        <h2>Django {{ django }}  |  Python {{ python }}</h2>
+        <!-- <h2><a href="{% url 'asteroids' %}">Link to asteroids url</a></h2> -->
+    </div>
+{% endblock %}
