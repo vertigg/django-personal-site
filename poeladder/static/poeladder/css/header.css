@@ -22,14 +22,18 @@ ul.topnav li a, #header-text {
     text-decoration: none;
 }
 
+#header-search{
+    padding: 8px 16px;
+    text-align: center;
+}
+
 ul.topnav li a:hover:not(.active):not(.active-league) {background-color: #111;}
 
 
 ul.topnav li a.active {background-color: #4CAF50;}
 ul.topnav li a.active-league {background-color: #0066cc}
 
-ul.topnav li.right 
-{
+ul.topnav li.right {
     float: right;
 }
 

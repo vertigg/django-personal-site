@@ -3,18 +3,14 @@ from django.http import HttpResponse, Http404
 from .models import PoeCharacter, PoeInfo, PoeLeague
 from django.shortcuts import get_object_or_404
 from .filters import PoeCharacterFilter
+from .forms import SearchForm
 
-def media_url(request):
-    from django.conf import settings
-    return {'media_url': settings.MEDIA_URL}
-
-def ladder_view(request):
-    leagues = [x.name for x in PoeLeague.objects.all()]
-    print(leagues)
+def ladder(request):
     return render(request, 'poeladder/ladder.html', {'title':None})
 
-def league_ladder_view(request, league):
 
+def league_ladder(request, league):
+    """View for league-specific ladder """
     requested_league = league.replace('-', ' ').strip()
     league_object = get_object_or_404(PoeLeague, name=requested_league)
     title = '{} League'.format(requested_league)
@@ -28,3 +24,15 @@ def league_ladder_view(request, league):
         'requested_league':requested_league,
         'league_characters': league_characters,
         })
+
+
+def search(request):
+    """View for cross-league character search by name"""
+    response = {'search' : True, 'title' : 'Search results'}
+    if request.method == 'GET':
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            response['search_query'] = request.GET['name'] if name else 'All characters' 
+            response['search_results'] = PoeCharacter.objects.filter(name__icontains=name)
+    return render(request, 'poeladder/ladder.html', response)

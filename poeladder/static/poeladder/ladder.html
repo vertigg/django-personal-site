@@ -19,15 +19,46 @@
             {% endfor %}
         <li class="right"><a href="https://github.com/EpicVertigo/django-personal-site"><img id="header-icon" src="{% get_static_prefix %}poeladder/img/github_icon.png"> GitHub</a></li>
         <li class="right" id="header-text"> Last updated {{ last_update }}</li>
-        <li class="right" id="header-text"></li>
+        <li class="right" id="header-search">
+            <form class="poe-search-form" action="{% url 'ladder_search' %}" method="get">
+                {{ poe_search_form.name }}
+            </form>
+        </li>
     </ul>
 {% endblock %}
         
 {% block title%} {{ title|default_if_none:"Path of Exile Clown Ladder"}} {% endblock %}
 
 {% block content%}
+
+{% if search %}
+<div class="search-main">
+    <h1>Search results</h1>
+        {% if poe_search_form.errors %}
+            <h2>{{ poe_search_form.errors }}</h2>
+        {% else %}
+            <h2>Found {{ search_results|length }} result{{ search_results|pluralize }} for «{{ search_query }}» </h2>
+        {% endif %}
+        <div class="flex-container">
+        {% for result in search_results %}
+            <div class="search-result">
+                <img class="search-icon" src="{% get_static_prefix %}poeladder/img/characters/{{result.class_name}}_avatar.png">
+                <div class="info-line1">
+                    <a class="result-link" href="https://www.pathofexile.com/account/view-profile/{{result.profile.poe_profile}}/characters?characterName={{result.name}}">{{ result.name }}</a>
+                </div>
+                <div class="info-line2">Level {{ result.level }}</div>
+                <div class="info-line3">
+                    <a class="result-link" href="https://www.pathofexile.com/account/view-profile/{{result.profile.poe_profile}}/characters">{{ result.profile }}</a><br>
+                    <a class="result-link" href="{% url 'ladder_url' league=result.league.name|to_dash %}"> {{ result.league }}</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+</div>
+{% endif %}
+
 {% if requested_league %}
-<div class="ladder_main">
+<div class="ladder-main">
     <a class="ladder-link" href={{league_object.url}}><h1>{{ league_object.name }} Ladder </h1></a> 
     <table class="LadderTable">
             <thead>
@@ -58,7 +89,7 @@
                                 </div>
                             </a> 
                         </td>
-                        <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/{{character.class_name}}_avatar.png"> {{ character.class_name }}</td>
+                        <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{ character.class_name }}</td>
                         <td>{{ character.level }}</td>
                     </tr>
                 {% endfor %}

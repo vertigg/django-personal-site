@@ -1,7 +1,8 @@
 from django.conf.urls import include, url
-from .views import ladder_view, league_ladder_view
+import poeladder.views as views
 
 urlpatterns = [
-    url(r'^$', ladder_view),
-    url(r'^(?P<league>[\w\-]+)/$', league_ladder_view, name='ladder_url'),
+    url(r'^$', views.ladder),
+    url(r'^search/$', views.search, name="ladder_search"),
+    url(r'^(?P<league>[\w\-]+)/$', views.league_ladder, name='ladder_url'),
 ]

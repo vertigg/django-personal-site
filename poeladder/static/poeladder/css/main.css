@@ -4,17 +4,25 @@
     src: url("../fonts/Fontin-Regular.ttf");
 }
 
- .ladder-link:link, .ladder-link:visited{
+ .ladder-link:link, .ladder-link:visited {
     color: white;
     text-decoration: none;
     width: 100%;
     height: 100%;
 }
 
-.cell-link {height: 100%;width: 100%}
+.result-link:link, .result-link:visited {
+    color: wheat;
+    text-decoration: none;
+}
+.result-link:hover {color: white}
 
-body 
-{
+.cell-link {
+    height: 100%;
+    width: 100%;
+}
+
+body {
     background-image: url('../img/poe.jpg');
     background-color: black;
     background-repeat: no-repeat;
@@ -23,20 +31,25 @@ body
     margin: 0;
 }
 
-h1 
-{
+h1 {
     color: white;
     font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+    margin: 15px 0 15px 0;
 }
 
-div.ladder_main
-{
+h2 {
+    color: white;
+    font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+    margin: 10px 0 10px 0;
+    
+}
+
+div.ladder-main {
     margin: auto;
     width: 55%;
 }
 
-table.LadderTable 
-{
+table.LadderTable {
     font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
     width: 100%;
     border-collapse: collapse;
@@ -44,8 +57,7 @@ table.LadderTable
     color: #808080;
 }
     
-table.LadderTable td, table.LadderTable th 
-{
+table.LadderTable td, table.LadderTable th {
     color: white;
     border-width: 0px;
     padding: 5px;
@@ -53,8 +65,7 @@ table.LadderTable td, table.LadderTable th
 
 table.LadderTable td.row-link:hover {background: #808080;}
 
-tr.LadderHeader
-{
+tr.LadderHeader {
     background: #181818;
     font-size: 2vh;
     text-align: left;
@@ -63,15 +74,13 @@ tr.LadderHeader
 table.LadderTable tr.LadderRows:nth-child(odd) { background: #111111 }
 table.LadderTable tr.LadderRows:nth-child(even) { background: #0D0F0D }
 
-table.LadderTable thead 
-{
+table.LadderTable thead {
     background-color: #121212;
 }
 
 .row-rank { width: 8%; }
 
-img#header-icon
-{
+img#header-icon {
     max-height: 14px;
     vertical-align: middle;
 }
@@ -82,3 +91,79 @@ img#class-icon
     vertical-align: middle;
 }
 
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: auto;
+}
+
+
+.search-main {
+    margin: auto;
+    width: 55%;
+    min-width: 320px;
+}
+
+.search-result {
+    background-image: url('../img/search-bg.png');
+    background-repeat: repeat-x;
+    font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+    color: wheat;
+    height: 80px;
+    min-width: 320px;
+    max-width: 320px;
+}
+
+.search-icon {
+    position: absolute;
+    max-width: 103px;
+    max-height: 80px;
+}
+
+.info-line1 {
+    font-size: 16px;
+    padding: 16px 120px;
+}
+
+.info-line2 {
+    font-size: 14px;
+    position: relative;
+    top: -6px;
+    padding: 0px 120px;
+}
+
+.info-line3 {
+    font-size: 12px;
+    position: relative;
+    text-align: right;
+    left: -10px;
+    top: -26px;
+    line-height: 95%;
+    padding: 0px 5px;
+}
+
+.poe-search-input {
+    font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+    background-color: #a2a2a2;
+    border: 2px solid #797979;
+    border-radius: 6px;
+    color: black;
+    width: 200px;
+    height: 24px;
+    font-size: 18px;
+    padding: 0 10px;
+}
+
+.poe-search-input:focus {
+    border: 2px solid wheat;
+}
+
+.ladder-select {
+    width: 100px;
+    border-radius: 2px;
+    text-align: right;
+    vertical-align: middle;
+    font-family: 'Fontin-Regular', 'Segoe UI', 'Tahoma', 'Verdana', 'sans-serif';
+    background: #181818;
+    color: white;
+}
