@@ -53,6 +53,7 @@ def update_characters_table():
     poe_profiles = {x.id : x.poe_profile for x in query}
 
     try:
+        PoeCharacter.objects.all().delete()
         for key, value in poe_profiles.items():
             r = requests.get(POE_PROFILE.format(value))
             characters = json.loads(r.text)
