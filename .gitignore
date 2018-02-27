@@ -272,4 +272,4 @@ db.sqlite3
 .mp4
 .webm
 books/
-data.db
+*.db
