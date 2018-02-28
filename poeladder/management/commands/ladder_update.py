@@ -26,7 +26,7 @@ logging.basicConfig(
     ])
 
 POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
-POE_PROFILE = 'https://www.pathofexile.com/character-window/get-api_data?accountName={}'
+POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
 DB_TIMEOUT = 10
 DB_RETRIES = 5
 
