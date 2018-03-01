@@ -5,15 +5,16 @@ from datetime import datetime
 
 import requests
 from django.core.management.base import BaseCommand, CommandError
-from django.db import connection
 from django.db.utils import OperationalError
 from django.utils import timezone
+from django.conf import settings
 
 from discordbot.models import DiscordUser
 from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 
 from .utils import retry_on_lock
 
+    
 start_time = time.time()
 
 logging.basicConfig(
@@ -24,6 +25,9 @@ logging.basicConfig(
         logging.FileHandler('logs/ladder_update.log'),
         logging.StreamHandler()
     ])
+
+if settings.DEBUG:
+    from django.db import connection
 
 POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
 POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
@@ -114,4 +118,5 @@ class Command(BaseCommand):
         update_characters_table()
         update_ladder_info()
         logging.info('Done in {} seconds'.format(round(time.time() - start_time, 2)))
-        logging.info('Total db queries: {}'.format(len(connection.queries)))
+        if settings.DEBUG:
+            logging.info('Total db queries: {}'.format(len(connection.queries)))
