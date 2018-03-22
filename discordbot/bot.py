@@ -10,9 +10,23 @@ import time
 from datetime import datetime, timedelta
 
 import discord
-import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VertigoProject.settings")
-django.setup()
+
+def __setup_django(root_path):
+    import os
+    import django
+
+    os.chdir(root_path)
+
+    # Django settings
+    sys.path.append(root_path)
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VertigoProject.settings")
+
+    django.setup()
+
+PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
+
+__setup_django(PROJECT_PATH)
+
 from discord.ext import commands
 
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Wisdom, Gachi
