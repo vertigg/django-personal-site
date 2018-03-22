@@ -11,7 +11,7 @@ start_time = time.time()
 logger = logging.getLogger('stats')
 logger.setLevel(logging.DEBUG)
 
-handler = logging.FileHandler(filename='logs/steamstats.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename='discordbot/logs/steamstats.log', encoding='utf-8', mode='w')
 handler.setLevel(logging.DEBUG)
 
 console = logging.StreamHandler()
@@ -37,9 +37,9 @@ parser.add_argument('-v','--version', action='version', version='1.3')
 args = vars(parser.parse_args())
 logger.debug(args)
 
-with open('credentials.json','r', encoding='utf-8') as jsonFile:
+with open('discordbot/credentials.json','r', encoding='utf-8') as jsonFile:
             credentials = json.load(jsonFile)
-with open('StatsFiles/data.json','r', encoding='utf-8') as jsonFile:
+with open('discordbot/StatsFiles/data.json','r', encoding='utf-8') as jsonFile:
             settings = json.load(jsonFile)
 master = {}
 gameSettings = {}
@@ -53,7 +53,7 @@ def openGameSettingsFile():
     """Open GameSettings file for given GAMEID"""
     global gameSettings
     try:
-        with open('StatsFiles/'+args['GAMEID']+'.json','r',encoding='utf-8') as f:
+        with open('discordbot/StatsFiles/'+args['GAMEID']+'.json','r',encoding='utf-8') as f:
             gameSettings = json.load(f)
         if not 'selfCreated' in gameSettings or not gameSettings['selfCreated']:
             logger.warning('Settings file is wrong or corrupted')
@@ -64,7 +64,7 @@ def openGameSettingsFile():
         createGameSettingsFile()
 
 def saveGameSettingsFile(gameSettings):
-    with open('StatsFiles/'+args['GAMEID']+'.json','w+',encoding='utf-8') as jsonFile:
+    with open('discordbot/StatsFiles/'+args['GAMEID']+'.json','w+',encoding='utf-8') as jsonFile:
             jsonFile.write(json.dumps(gameSettings,sort_keys=True, indent=4,ensure_ascii=False))
     logger.info('Game Settings saved')
 
@@ -111,7 +111,7 @@ def authorizeGoogle():
     logger.info ('Logging into Google Drive...')
     scope = ['https://spreadsheets.google.com/feeds']
     try:
-        gcredentials = ServiceAccountCredentials.from_json_keyfile_name('google-drive.json', scope)
+        gcredentials = ServiceAccountCredentials.from_json_keyfile_name('discordbot/google-drive.json', scope)
         gs = gspread.authorize(gcredentials)
         ws = gs.open(args['GSNAME']).worksheet(args['WSNAME'])
     except gspread.SpreadsheetNotFound:

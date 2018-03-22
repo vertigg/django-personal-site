@@ -398,6 +398,7 @@ async def update():  # Update kf2 gdrive file
                               "-ws", "KF2"],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
+        #logger.info(p.communicate()) # for debug
         await bot.say("`Скрипт запущен, помолимся.`")
         logger.info('[KFGOOGLE]: Script started')
         extScriptLock = True
