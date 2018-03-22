@@ -62,7 +62,7 @@ class DiscordUser(models.Model):
         null=False, 
         primary_key=True,
         max_length=25)
-    display_name = models.TextField(unique=True, max_length=40)
+    display_name = models.TextField(max_length=40)
     steam_id = models.IntegerField(blank=True, null=True)
     blizzard_id = models.TextField(blank=True, null=True)
     poe_profile = models.TextField(blank=True, null=True)
