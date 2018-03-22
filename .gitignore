@@ -273,3 +273,13 @@ db.sqlite3
 .webm
 books/
 *.db
+
+# Discord bot
+google-drive.json
+__pycache__
+.vscode
+credentials.json
+*.log
+.vs/
+examples/
+data.db

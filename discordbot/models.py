@@ -2,63 +2,59 @@ from django.db import models
 
 
 class Brawl(models.Model):
-    names = models.TextField(blank=True, null=True)
-    actions = models.TextField(blank=True, null=True)
-    victims = models.TextField(blank=True, null=True)
-    tools = models.TextField(blank=True, null=True)
-    actions2 = models.TextField(blank=True, null=True)
-    places = models.TextField(blank=True, null=True)
+    name = models.TextField(blank=True, null=True)
+    action = models.TextField(blank=True, null=True)
+    victim = models.TextField(blank=True, null=True)
+    tool = models.TextField(blank=True, null=True)
+    action2 = models.TextField(blank=True, null=True)
+    place = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'brawl'
-
-
-class CachedNicknames(models.Model):
-    id = models.TextField(unique=True, primary_key=True, null=False)
-    display_name = models.TextField(blank=True, null=True)
-    date = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'cached_nicknames'
+        db_table = 'discord_brawl'
 
 
 class Gachi(models.Model):
-    pid = models.IntegerField(blank=True, null=True)
+    pid = models.IntegerField(blank=True, null=True, default=0)
     url = models.URLField(unique=True, blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'gachi'
+        db_table = 'discord_gachi'
+
+    def __str__(self):
+        return self.url
 
 
-class Imgur(models.Model):
+class DiscordPicture(models.Model):
     id = models.IntegerField(primary_key=True, null=False)
-    pid = models.IntegerField(db_column='pID')  # Field name made lowercase.
+    pid = models.IntegerField(db_column='pID', default=0)  # Field name made lowercase.
     url = models.URLField(unique=True)
     date = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        db_table = 'imgur'
+        db_table = 'discord_pictures'
 
 
-class Links(models.Model):
+class DiscordLink(models.Model):
     key = models.TextField()
-    url = models.TextField(unique=True)
+    url = models.URLField()
 
     class Meta:
-        managed = False
-        db_table = 'links'
+        db_table = 'discord_links'
+
+    def __str__(self):
+        return self.url
 
 
-class Settings(models.Model):
+class DiscordSettings(models.Model):
     key = models.TextField(unique=True, blank=True, null=True)
-    value = models.TextField(blank=True, null=True)
+    value = models.TextField()
 
     class Meta:
-        managed = False
-        db_table = 'settings'
+        verbose_name_plural = 'Discord Settings'
+        db_table = 'discord_settings'
+
+    def __str__(self):
+        return self.value
 
 class DiscordUser(models.Model):
     id = models.TextField(unique=True, 
@@ -70,8 +66,8 @@ class DiscordUser(models.Model):
     steam_id = models.IntegerField(blank=True, null=True)
     blizzard_id = models.TextField(blank=True, null=True)
     poe_profile = models.TextField(blank=True, null=True)
-    admin = models.IntegerField(blank=True, null=True)
-    mod_group = models.IntegerField(blank=True, null=True)
+    admin = models.IntegerField(blank=True, null=True, default=0)
+    mod_group = models.IntegerField(blank=True, null=True, default=0)
 
     class Meta:
         db_table = 'discord_users'
@@ -90,11 +86,8 @@ class Wisdom(models.Model):
     date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
 
     class Meta:
-        db_table = 'wisdom'
+        db_table = 'discord_wisdoms'
 
     def __str__(self):
-        if len(self.text) > 50:
-            return '{}...'.format(self.text[:50])
-        else:
-            return self.text
+        return self.text
             

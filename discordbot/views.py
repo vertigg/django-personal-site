@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from discordbot.models import Wisdom, Imgur, DiscordUser
+from discordbot.models import Wisdom, DiscordPicture, DiscordUser
 from django.http import JsonResponse, HttpResponse
 import time
 
@@ -15,11 +15,11 @@ def get_random_entry(model):
 
 def mix(request):
     random_wisdom = get_random_entry(Wisdom)
-    random_bg = get_random_entry(Imgur)
+    random_bg = get_random_entry(DiscordPicture)
     return render(request, 'home_page_app/mix.html', {'wisdom_text' : random_wisdom.text, 'bg' : random_bg.url})
 
 def mix_api(request):
     random_wisdom = get_random_entry(Wisdom)
-    random_bg = get_random_entry(Imgur)
+    random_bg = get_random_entry(DiscordPicture)
     return JsonResponse({'wisdom_text' : random_wisdom.text, 'imgur_picture' : random_bg.url})
     
