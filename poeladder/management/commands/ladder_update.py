@@ -84,9 +84,10 @@ def update_characters_table():
                         p = PoeCharacter.objects.get(name=character['name'])
                         p.league_id = poe_leagues[character['league']]
                         p.class_name = character['class']
+                        p.class_id = character['classId']
                         p.ascendancy_id = character['ascendancyClass']
                         p.level = character['level']
-                        p.save(update_fields=['league_id', 'class_name', 'level', 'ascendancy_id'])
+                        p.save(update_fields=['league_id', 'class_name', 'level', 'ascendancy_id', 'class_id'])
 
                 else:
                     # create new

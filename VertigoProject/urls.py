@@ -16,6 +16,7 @@ admin.autodiscover()
 
 urlpatterns = [
 
+    # url('^', include('django.contrib.auth.urls')),
     url(r'^$', home_view, name='home'),
     url(r'^asteroids/$', asteroids_view, name='asteroids'),
     url(r'^date/', show_datetime),

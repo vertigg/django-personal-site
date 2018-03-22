@@ -1,12 +1,15 @@
-from django.shortcuts import render
-from django.http import HttpResponse, Http404
-from .models import PoeCharacter, PoeInfo, PoeLeague
-from django.shortcuts import get_object_or_404
+import random
+
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render
+
 from .filters import PoeCharacterFilter
 from .forms import SearchForm
+from .models import PoeCharacter, PoeInfo, PoeLeague
+
 
 def ladder(request):
-    return render(request, 'poeladder/ladder.html', {'title':None})
+    return render(request, 'poeladder/ladder.html', {'title' : None})
 
 
 def league_ladder(request, league):
