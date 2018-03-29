@@ -411,4 +411,4 @@ if __name__ == '__main__':
     extScriptLock = False
     ow_lock = False
 
-    bot.run(TEST_TOKEN)
+    bot.run(BOT_TOKEN)
