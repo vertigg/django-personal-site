@@ -6,7 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import time
 import argparse
 import logging
-from discordbot.credentials import STEAM_API_KEY
+from credentials import STEAM_API_KEY
 start_time = time.time()
 
 logger = logging.getLogger('stats')
