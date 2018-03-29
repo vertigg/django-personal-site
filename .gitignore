@@ -279,6 +279,7 @@ google-drive.json
 __pycache__
 .vscode
 credentials.json
+credentials.py
 *.log
 .vs/
 examples/

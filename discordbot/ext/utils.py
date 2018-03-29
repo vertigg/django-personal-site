@@ -20,18 +20,8 @@ from django.core.exceptions import FieldError
 from discordbot.models import (DiscordPicture, DiscordSettings, DiscordUser,
                                Wisdom)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('botLogger')
 wisdom_history = deque([], maxlen=5)
-
-def get_credentials():
-    """Get credentials from file"""
-    try:
-        with open('discordbot/credentials.json', 'r', encoding='utf-8') as jsonPrivate:
-            credentials = json.load(jsonPrivate)
-            return credentials
-            logger.debug('Credentials loaded')
-    except Exception as e:
-        logger.error(e)
         
 def get_nickname_cache():
     """Get nickname dictionary from discord user model"""

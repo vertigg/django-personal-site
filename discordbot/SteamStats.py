@@ -6,6 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import time
 import argparse
 import logging
+from discordbot.credentials import STEAM_API_KEY
 start_time = time.time()
 
 logger = logging.getLogger('stats')
@@ -37,15 +38,12 @@ parser.add_argument('-v','--version', action='version', version='1.3')
 args = vars(parser.parse_args())
 logger.debug(args)
 
-with open('discordbot/credentials.json','r', encoding='utf-8') as jsonFile:
-            credentials = json.load(jsonFile)
 with open('discordbot/StatsFiles/data.json','r', encoding='utf-8') as jsonFile:
             settings = json.load(jsonFile)
 master = {}
 gameSettings = {}
 gameName = None
 ws = None
-STEAM_API_KEY = credentials['steamAPI']
 PLAYER_ACHIEVMENTS_URL = 'http://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/'
 ALLPLAYERS = settings['steam']['users']
 

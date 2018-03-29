@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 import discord
 
 def __setup_django(root_path):
-    import os
     import django
 
     os.chdir(root_path)
@@ -25,39 +24,21 @@ def __setup_django(root_path):
     django.setup()
 
 PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
+#PROJECT_PATH = r"C:\Users\EpicVertigo\Desktop\HomeSite"
 
 __setup_django(PROJECT_PATH)
+
 
 from discord.ext import commands
 
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Wisdom, Gachi
+from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
 from discordbot.ext.utils import admin_command, mod_command, wisdom_info_formatter, get_random_entry
-from discordbot.ext import utils, google_brawl, imgur_hb, playfab
+from discordbot.ext import utils, google_brawl, imgur_hb
 
-discordLogger = logging.getLogger('discord')
-discordLogger.setLevel(logging.INFO)
-discordHandler = logging.FileHandler(
-    filename='discordbot/logs/discord.log', encoding='utf-8', mode='w')
-discordHandler.setFormatter(logging.Formatter(
-    fmt='[%(asctime)s] [%(levelname)s] %(message)s', datefmt='%I:%M:%S'))
-discordLogger.addHandler(discordHandler)
-
-logger = logging.getLogger('TonyBot')
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(
-    filename='discordbot/logs/TonyBot.log', encoding='utf-8', mode='w')
-
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-
-formatter = logging.Formatter(
-    fmt='[%(asctime)s] [%(levelname)s] %(message)s', datefmt='%I:%M:%S')
-handler.setFormatter(formatter)
-console.setFormatter(formatter)
-
-logger.addHandler(handler)
-logger.addHandler(console)
-
+logging.config.fileConfig('discordbot/logger.ini')
+discordLogger = logging.getLogger('discordLogger')
+botLogger = logging.getLogger('botLogger')
 
 bot = commands.Bot(command_prefix='!',
                    description='Super duper halal bot for clowans. List of commands below')
@@ -65,7 +46,7 @@ bot = commands.Bot(command_prefix='!',
 @bot.event
 async def on_ready():
     await bot.change_presence(game=discord.Game(name=DiscordSettings.objects.get(key='game').value))
-    logger.info('Logged in as {0}:{1}'.format(bot.user.name, bot.user.id))
+    botLogger.info('Logged in as {0}:{1}'.format(bot.user.name, bot.user.id))
 
 
 @bot.command(pass_context=True, hidden=True)
@@ -98,14 +79,6 @@ async def cytube():
 async def shles():
     """SHLES"""
     await bot.say(DiscordLink.objects.get(key='shles'))
-
-
-# @bot.command(hidden=True)
-# async def asteroids():
-#     """Показывает топ игрока epicvertigo.xyz/asteroids.html"""
-#     topPlayer = PlayFab.GetLeaderboard(credentials['PlayFabTitleID'])
-#     if topPlayer is not None:
-#         await bot.say("Top Asteroids player: {} with {} points".format(topPlayer['DisplayName'], topPlayer['StatValue']))
 
 
 @bot.command(pass_context=True)
@@ -249,7 +222,7 @@ async def wiki(ctx):
             try:
                 await bot.say('`{}`'.format(utils.wiki(article)[0]))
             except Exception as e:
-                logger.error(e)
+                botLogger.error(e)
                 await bot.say(str(e))
 
 
@@ -276,7 +249,7 @@ async def hb(ctx):
 @hb.command()
 async def update():
     """Обновить список картинок из альбома ХБ"""
-    await bot.say(imgur_hb.update(credentials))
+    await bot.say(imgur_hb.update())
 
 
 @bot.group(pass_context=True)
@@ -398,9 +371,9 @@ async def update():  # Update kf2 gdrive file
                               "-ws", "KF2"],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
-        #logger.info(p.communicate()) # for debug
+        #botLogger.info(p.communicate()) # for debug
         await bot.say("`Скрипт запущен, помолимся.`")
-        logger.info('[KFGOOGLE]: Script started')
+        botLogger.info('[KFGOOGLE]: Script started')
         extScriptLock = True
         sleeptime = 5
         while p.poll() == None:
@@ -408,7 +381,7 @@ async def update():  # Update kf2 gdrive file
         else:
             await bot.say("`Таблицы ачивок обновлены`")
             extScriptLock = False
-            logger.info('[KFGOOGLE]: Script finished')
+            botLogger.info('[KFGOOGLE]: Script finished')
 
 
 @bot.command(pass_context=True)
@@ -431,12 +404,11 @@ async def on_message(message):
     await bot.process_commands(message)
 
 if __name__ == '__main__':
-    logger.info('Script started')
+    botLogger.info('Script started')
 
     brawl_list = google_brawl.check_for_updates()
-    credentials = utils.get_credentials()
-    imgur_hb.update(credentials)
+    imgur_hb.update()
     extScriptLock = False
     ow_lock = False
 
-    bot.run(credentials['token'])
+    bot.run(TEST_TOKEN)

@@ -1,5 +1,0 @@
-DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): api.pathofexile.com
-DEBUG:urllib3.connectionpool:http://api.pathofexile.com:80 "GET /leagues?type=main&compact=1 HTTP/1.1" 200 None
-INFO:root:121371550405361664 - EpicVertigo
-DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.pathofexile.com
-DEBUG:urllib3.connectionpool:https://www.pathofexile.com:443 "GET /character-window/get-characters?123accountName=EpicVertigo HTTP/1.1" 401 None

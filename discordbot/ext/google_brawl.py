@@ -9,7 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from discordbot.models import Brawl, DiscordSettings
 
-logger = logging.getLogger('TonyBot')
+logger = logging.getLogger('botLogger')
 
 def authorize_google(json_file, token):
     try:
