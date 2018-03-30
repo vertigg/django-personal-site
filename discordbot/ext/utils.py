@@ -70,7 +70,7 @@ def update_display_names(servers):
             u = DiscordUser.objects.filter(id=discord_id).update(display_name=name)
     
     DiscordSettings.objects.filter(key='cache_update').update(value=datetime.now())
-    logger.info('HYPERLUL')
+    logger.info('Discord users table has been updated')
 
 def refresh_wisdom_history():
     """Updates current lastwisdom deque if wisdom table changes
@@ -82,8 +82,8 @@ def refresh_wisdom_history():
     wisdom_history.clear()
     for item in Wisdom.objects.filter(id__in=tempIDs):
         wisdom_history.append(item)
-    logger.info('monkaS')
-    return "Wisdom history updated"
+    logger.info('Wisdom deque has been updated')
+    return "Wisdom history has been updated"
 
 # move this crap to imgur_hb
 def get_random_picture():
@@ -114,7 +114,7 @@ def admin_command(func):
     @wraps(func)
     async def decorated(*args, **kwargs):
         try:
-            admin_list = DiscordUser.objects.filter(admin=1).values_list('id', flat=True)
+            admin_list = DiscordUser.objects.filter(admin=True).values_list('id', flat=True)
             if args[0].message.author.id in admin_list:
                 return await func(*args, **kwargs)
         except Exception as e:
@@ -126,7 +126,7 @@ def mod_command(func):
     @wraps(func)
     async def decorated(*args, **kwargs):
         try:
-            mod_list = DiscordUser.objects.filter(mod_group=1).values_list('id', flat=True)
+            mod_list = DiscordUser.objects.filter(mod_group=True).values_list('id', flat=True)
             if args[0].message.author.id in mod_list:
                 return await func(*args, **kwargs)
         except Exception as e:
@@ -168,7 +168,7 @@ def compare_timestamps(timestamp):
     else:
         return 1
 
-async def ow_rank(id, playerBase):
+async def check_ow_rank(id, playerBase):
     """OW rank checker"""
     if id in playerBase:
         blizzID = playerBase[id]

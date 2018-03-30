@@ -59,7 +59,7 @@ def update_ladders_table():
 @retry_on_lock(DB_TIMEOUT, retries=DB_RETRIES)
 def update_characters_table():
 
-    poe_profiles = {x[0] : x[1] for x in DiscordUser.objects.exclude(poe_profile__isnull=True).values_list('id', 'poe_profile')}
+    poe_profiles = {x[0] : x[1] for x in DiscordUser.objects.exclude(poe_profile__exact='').values_list('id', 'poe_profile')}
     poe_leagues = {x[0]:x[1] for x in PoeLeague.objects.values_list('name', 'id')}
     
     for key, value in poe_profiles.items():

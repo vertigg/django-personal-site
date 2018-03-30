@@ -1,4 +1,6 @@
 from django.db import models
+from django.template.defaultfilters import truncatechars
+from django.core.validators import RegexValidator
 
 
 class Brawl(models.Model):
@@ -39,6 +41,7 @@ class DiscordLink(models.Model):
     url = models.URLField()
 
     class Meta:
+        verbose_name_plural = 'Discord Links'
         db_table = 'discord_links'
 
     def __str__(self):
@@ -57,19 +60,48 @@ class DiscordSettings(models.Model):
         return self.value
 
 class DiscordUser(models.Model):
-    id = models.TextField(unique=True, 
+    id = models.CharField(
+        "Discord ID",
+        unique=True, 
         blank=True, 
         null=False, 
         primary_key=True,
-        max_length=25)
-    display_name = models.TextField(max_length=40)
-    steam_id = models.IntegerField(blank=True, null=True, default=None)
-    blizzard_id = models.TextField(blank=True, null=True, default=None)
-    poe_profile = models.TextField(blank=True, null=True, default=None)
-    admin = models.IntegerField(blank=True, null=True, default=0)
-    mod_group = models.IntegerField(blank=True, null=True, default=0)
+        max_length=18,
+        help_text='Required. 18 characters, digits only.',
+        validators=[RegexValidator(r'^\d{1,18}$')])
+
+    display_name = models.TextField(
+        "Username", 
+        max_length=40, 
+        help_text="Current discord display name")
+
+    steam_id = models.CharField(
+        "Steam ID", 
+        blank=True, 
+        null=False, 
+        default='', 
+        max_length=17, 
+        validators=[RegexValidator(r'^\d{1,17}$')], 
+        help_text="17 characters, digits only.")
+
+    blizzard_id = models.TextField(
+        "Blizzard Tag", 
+        blank=True, 
+        null=False, 
+        default='', 
+        help_text="Example: Username-0000")
+
+    poe_profile = models.TextField(
+        "PoE Account", 
+        blank=True, 
+        null=False, 
+        default='')
+        
+    admin = models.BooleanField(default=False, blank=False, null=False, help_text="User can execute @admin commands")
+    mod_group = models.BooleanField("Moderator", default=False, blank=False, null=False, help_text="User can execute @mod commands")
 
     class Meta:
+        verbose_name_plural = 'Discord Users'
         db_table = 'discord_users'
 
     def __str__(self):
@@ -89,5 +121,5 @@ class Wisdom(models.Model):
         db_table = 'discord_wisdoms'
 
     def __str__(self):
-        return self.text
+        return truncatechars(self.text, 50)
             

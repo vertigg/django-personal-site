@@ -131,11 +131,13 @@ async def low(ctx):
 async def ow(ctx):
     """Overwatch Rank"""
     if ctx.invoked_subcommand is None:
-        query_set = DiscordUser.objects.exclude(blizzard_id__isnull=True).values_list('id', 'blizzard_id')
+        query_set = (DiscordUser.objects
+            .exclude(blizzard_id__exact='')
+            .values_list('id', 'blizzard_id'))
         playerBase = {x[0] : x[1] for x in query_set}
         if ctx.message.content == '!ow':
             if ctx.message.author.id in playerBase:
-                message = await utils.ow_rank(ctx.message.author.id, playerBase)
+                message = await utils.check_ow_rank(ctx.message.author.id, playerBase)
                 await bot.say('`{0}, Current rank {1}`'.format(ctx.message.author.name, message))
             return
         else:
@@ -148,7 +150,7 @@ async def ow(ctx):
                 await bot.say('`How to use - !ow @User`')
                 return
             if mention in playerBase:
-                message = await utils.ow_rank(mention, playerBase)
+                message = await utils.check_ow_rank(mention, playerBase)
                 await bot.say('`{0}, Current rank {1}`'.format(playerBase[mention].split('-')[0], message))
             else:
                 await bot.say("Can't find player in database")
@@ -158,14 +160,16 @@ async def ow(ctx):
 async def ladder():
     global ow_lock
     if not ow_lock:
-        query_set = DiscordUser.objects.exclude(blizzard_id__isnull=True).values_list('id', 'blizzard_id')
+        query_set = (DiscordUser.objects
+            .exclude(blizzard_id__exact='')
+            .values_list('id', 'blizzard_id'))
         playerBase = {x[0] : x[1] for x in query_set}
         ow_lock = True
         tmp = await bot.say('`Loading player list 0/{}`'.format(len(playerBase)))
         playerNum = 0
         lad = {}
         for id in playerBase:
-            lad[playerBase[id].split('-')[0]] = await utils.ow_rank(id, playerBase)
+            lad[playerBase[id].split('-')[0]] = await utils.check_ow_rank(id, playerBase)
             playerNum += 1
             await bot.edit_message(tmp, '`Loading player list {0}/{1}`'.format(str(playerNum), len(playerBase)))
         lad = {k: v for k, v in lad.items() if v is not None}
@@ -185,7 +189,7 @@ async def ladder():
 async def gachi(ctx):
     """Take it boy"""
     if not ctx.invoked_subcommand:
-        await bot.say(get_random_entry(Gachi))
+        await bot.say(get_random_entry(Gachi).url)
 
 
 @gachi.command(pass_context=True)
@@ -256,7 +260,7 @@ async def update():
 async def wisdom(ctx):
     """Спиздануть мудрость клоунов"""
     if not ctx.invoked_subcommand:
-        await bot.say(get_random_entry(Wisdom))
+        await bot.say(get_random_entry(Wisdom).text)
 
 
 @wisdom.command(pass_context=True)
@@ -287,7 +291,7 @@ async def remove(ctx, wisdom_id:int):
 async def info(ctx):
     """Show 5 last wisdoms with id and author's name and some info"""
     last_update_time = DiscordSettings.objects.get(key='cache_update').value
-    if datetime.now() - datetime.strptime(last_update_time, '%Y-%m-%d %H:%M:%S.%f') > timedelta(minutes=1):
+    if datetime.now() - datetime.strptime(last_update_time, '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=1):
         utils.update_display_names(bot.servers)
         utils.refresh_wisdom_history()
     cached_nicknames = utils.get_nickname_cache()
@@ -315,7 +319,7 @@ async def update():
     """Обновить текущий словарь"""
     brawl_list = google_brawl.check_for_updates()
     if brawl_list:
-        await bot.say('`Lists are successfully updated`')
+        await bot.say('`Brawl table has been successfully updated`')
     else:
         await bot.say("`Something wrong with brawl lists. Please check logs for more info`")
 
@@ -405,7 +409,6 @@ async def on_message(message):
 
 if __name__ == '__main__':
     botLogger.info('Script started')
-
     brawl_list = google_brawl.check_for_updates()
     imgur_hb.update()
     extScriptLock = False
