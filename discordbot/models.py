@@ -37,7 +37,7 @@ class DiscordPicture(models.Model):
 
 
 class DiscordLink(models.Model):
-    key = models.TextField()
+    key = models.CharField(unique=True, blank=False, null=True, max_length=20)
     url = models.URLField()
 
     class Meta:
@@ -49,8 +49,8 @@ class DiscordLink(models.Model):
 
 
 class DiscordSettings(models.Model):
-    key = models.TextField(unique=True, blank=True, null=True)
-    value = models.TextField()
+    key = models.CharField(unique=True, blank=False, null=True, max_length=20)
+    value = models.CharField(blank=False, null=True, max_length=50)
 
     class Meta:
         verbose_name_plural = 'Discord Settings'

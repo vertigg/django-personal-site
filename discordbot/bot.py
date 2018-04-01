@@ -115,9 +115,11 @@ async def ip():
 async def mix(ctx):
     """Mixes !hb and !wisdom commands"""
     if not ctx.invoked_subcommand:
-        await bot.say('{0}\n{1}'.format(get_random_entry(Wisdom),
-                                        utils.get_random_picture()))
-
+        wisdom_obj = get_random_entry(Wisdom)
+        pic_url = utils.get_random_picture()
+        if wisdom_obj is not None:
+            await bot.say('{0}\n{1}'.format(wisdom_obj.text, pic_url))
+                                        
 
 @bot.command(pass_context=True, hidden=True)
 async def low(ctx):
@@ -189,7 +191,9 @@ async def ladder():
 async def gachi(ctx):
     """Take it boy"""
     if not ctx.invoked_subcommand:
-        await bot.say(get_random_entry(Gachi).url)
+        gachi_obj = get_random_entry(Gachi)
+        if gachi_obj is not None:
+            await bot.say(gachi_obj.url)
 
 
 @gachi.command(pass_context=True)
@@ -260,7 +264,9 @@ async def update():
 async def wisdom(ctx):
     """Спиздануть мудрость клоунов"""
     if not ctx.invoked_subcommand:
-        await bot.say(get_random_entry(Wisdom).text)
+        wisdom_obj = get_random_entry(Wisdom)
+        if wisdom_obj is not None:
+            await bot.say(wisdom_obj.text)
 
 
 @wisdom.command(pass_context=True)

@@ -6,7 +6,9 @@ from django.template.defaultfilters import truncatechars
 
 class DiscordLinkAdmin(admin.ModelAdmin):
     list_display = ('key', 'url')
-
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size':20})},
+    }
 
 class DiscordSettingsAdmin(admin.ModelAdmin):
     list_display = ('key', 'value')
@@ -24,7 +26,6 @@ class WisdomAdmin(admin.ModelAdmin):
     }
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        print(db_field.name)
         if db_field.name == "author":
             kwargs["queryset"] = DiscordUser.objects.filter(mod_group=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

@@ -47,7 +47,7 @@ def get_random_entry(model):
         model.objects.filter(id=random_entry.id).update(pid=1)
     except FieldError as ex:
         logger.error(ex)
-        return str(ex).split('.')[0]
+        return None
 
     if model.__name__ is 'Wisdom':
         wisdom_history.append(random_entry)
