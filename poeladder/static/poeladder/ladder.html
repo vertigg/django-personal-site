@@ -17,7 +17,6 @@
                     <li><a href="{% url 'ladder_url' league=name|to_dash %}"> {{ name }}</a></li>
                 {% endif %}
             {% endfor %}
-        <li class="right"><a href="https://github.com/EpicVertigo/django-personal-site"><img id="header-icon" src="{% get_static_prefix %}poeladder/img/github_icon.png"> GitHub</a></li>
         <li class="right" id="header-text"> Last updated: {{ last_update|date:"F d" }}</li>
         <li class="right" id="header-search">
             <form class="poe-search-form" action="{% url 'ladder_search' %}" method="get">

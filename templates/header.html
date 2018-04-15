@@ -1,9 +1,19 @@
-{% load static %}
-<link rel="stylesheet" type="text/css" media="screen" href="{% static "header.css" %}" />
-
-<ul class="topnav">
-    <li><a class="active" href="{% url 'home' %}">Home</a></li>
-    <li><a href="{% url 'asteroids' %}">Asteroids</a></li>
-    <!-- <li class="right"><a href="#about">About</a></li> -->
-</ul>
-        
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Vertig's hideout</a>
+    {% if user.is_authenticated %}
+        {% if user.is_staff %}
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="admin">Administration</a>
+            </li>
+        </ul>
+        {% endif %}
+        <ul class="navbar-nav mr-auto"></ul>
+        <span class="navbar-text">
+            {{ user }} (<a href="logout">logout</a>)
+        </span>
+    {% else %}
+        <ul class="navbar-nav mr-auto"></ul>
+        <a href="login" class="btn btn-primary">Login</a>
+    {% endif %}
+</nav>

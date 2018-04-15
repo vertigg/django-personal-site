@@ -1,17 +1,27 @@
-from django.http import HttpResponse, Http404
+import platform
+
 from django import get_version
-from django.shortcuts import render
-import datetime
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
 
-def show_datetime(request):
-    now = datetime.datetime.now()
-    return render(request, 'current_date.html', {"current_date":now})
 
-def hours_ahead(request, offset):
-    try:
-        offset = int(offset)
-    except ValueError:
-        raise Http404()
-    dt = datetime.datetime.now() + datetime.timedelta(hours=offset)
-    html = '<html><body><h1>After {0} hour(s), it will be {1} </body></html>'.format(offset, dt)
-    return HttpResponse(html)
+def home_view(request):
+    django_version = get_version()
+    python_version = platform.python_version
+    return render(request, 'home.html', {'django' : django_version, 'python' : python_version})
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})

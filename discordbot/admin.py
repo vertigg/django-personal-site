@@ -45,9 +45,11 @@ class DiscordUserAdmin(admin.ModelAdmin):
         models.CharField: {'widget': TextInput(attrs={'size':20})},
     }
 
+class GachiAdmin(admin.ModelAdmin):
+    fields = ('url',)
 
 admin.site.register(Wisdom, WisdomAdmin)
 admin.site.register(DiscordUser, DiscordUserAdmin)
-admin.site.register(Gachi)
+admin.site.register(Gachi, GachiAdmin)
 admin.site.register(DiscordSettings, DiscordSettingsAdmin)
 admin.site.register(DiscordLink, DiscordLinkAdmin)
