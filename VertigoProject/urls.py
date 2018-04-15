@@ -10,6 +10,7 @@ from django.contrib.auth import views as auth_views
 
 from django.contrib import admin
 from VertigoProject.views import home_view, signup
+from VertigoProject.forms import StyledAuthenticationForm
 from UnityAsteroidsClone.views import asteroids_view
 
 admin.autodiscover()
@@ -22,10 +23,10 @@ urlpatterns = [
     url(r'^ladder/', include('poeladder.urls')),
     url(r'^api/v1/', include('discordbot.urls')),
     #url(r'^books', include('books.urls')),
-    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^login/$', auth_views.login, {'authentication_form':StyledAuthenticationForm}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'home'}, name='logout'),
-    #url(r'^signup/$', signup, name='signup'),
+    url(r'^signup/$', signup, name='signup'),
     
-    #Uncomment the next line to enable the admin:
+    #Admin
     url('admin/', admin.site.urls),
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

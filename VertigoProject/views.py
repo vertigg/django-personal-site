@@ -2,7 +2,7 @@ import platform
 
 from django import get_version
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import UserCreationForm
+from VertigoProject.forms import StyledUserCreationForm
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
@@ -14,7 +14,7 @@ def home_view(request):
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = StyledUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
@@ -23,5 +23,5 @@ def signup(request):
             login(request, user)
             return redirect('home')
     else:
-        form = UserCreationForm()
+        form = StyledUserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
