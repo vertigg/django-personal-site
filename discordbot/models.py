@@ -1,6 +1,11 @@
-from django.db import models
-from django.template.defaultfilters import truncatechars
+import uuid
+
+from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.template.defaultfilters import truncatechars
 
 
 class Brawl(models.Model):
@@ -60,6 +65,10 @@ class DiscordSettings(models.Model):
         return self.value
 
 class DiscordUser(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
+    token = models.CharField(unique=True, blank=True, null=True, max_length=20)
+
     id = models.CharField(
         "Discord ID",
         unique=True, 
@@ -99,6 +108,7 @@ class DiscordUser(models.Model):
         
     admin = models.BooleanField(default=False, blank=False, null=False, help_text="User can execute @admin commands")
     mod_group = models.BooleanField("Moderator", default=False, blank=False, null=False, help_text="User can execute @mod commands")
+    avatar_url = models.URLField(default=None, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Discord Users'
@@ -123,3 +133,10 @@ class Wisdom(models.Model):
     def __str__(self):
         return truncatechars(self.text, 50)
             
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'discorduser'):
+        instance.discorduser.save()
+
+def create_discord_token():
+    return uuid.uuid4().hex[:20].upper()

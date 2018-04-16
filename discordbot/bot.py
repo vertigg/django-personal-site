@@ -65,6 +65,10 @@ async def debug(ctx, *, code: str):
         return
     await bot.say(python.format(result))
 
+@bot.command(pass_context=True)
+async def register(ctx):
+    token = utils.generate_token(ctx.message.author.id)
+    await bot.send_message(ctx.message.author, token)
 
 @bot.command()
 async def cytube():

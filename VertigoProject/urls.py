@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
 from django.contrib import admin
-from VertigoProject.views import home_view, signup
+from VertigoProject.views import home_view, signup, profile, unlink
 from VertigoProject.forms import StyledAuthenticationForm
 from UnityAsteroidsClone.views import asteroids_view
 
@@ -26,6 +26,8 @@ urlpatterns = [
     url(r'^login/$', auth_views.login, {'authentication_form':StyledAuthenticationForm}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'home'}, name='logout'),
     url(r'^signup/$', signup, name='signup'),
+    url(r'^profile/$', profile, name='profile'),
+    url(r'^unlink/$', unlink, name='unlink'),
     
     #Admin
     url('admin/', admin.site.urls),

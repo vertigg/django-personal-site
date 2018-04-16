@@ -2,9 +2,15 @@ import platform
 
 from django import get_version
 from django.contrib.auth import authenticate, login
-from VertigoProject.forms import StyledUserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
+
+from discordbot.models import DiscordUser
+from VertigoProject.forms import (DiscordProfileForm, DiscordTokenForm,
+                                  StyledUserCreationForm)
 
 
 def home_view(request):
@@ -25,3 +31,57 @@ def signup(request):
     else:
         form = StyledUserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+@login_required(login_url='/login/')
+def unlink(request):
+    if hasattr(request.user, 'discorduser'):
+        request.user.discorduser.user_id = None
+        request.user.save()
+    return redirect('profile')
+
+@login_required(login_url='/login/')
+def profile(request):
+
+    is_linked = hasattr(request.user, 'discorduser')
+    invalid_token = False
+    token_form = DiscordTokenForm
+    if is_linked:
+        profile_form = DiscordProfileForm(initial={
+            'steam_id' : request.user.discorduser.steam_id,
+            'blizzard_id' : request.user.discorduser.blizzard_id,
+            'poe_profile' : request.user.discorduser.poe_profile,
+            })
+    else:
+        profile_form = DiscordProfileForm
+
+    if request.method == "POST":
+        if 'token_link' in request.POST:
+            form = DiscordTokenForm(request.POST)
+            if form.is_valid():
+                clean_token = form.cleaned_data.get('token')
+                try:
+                    discord_user = DiscordUser.objects.get(token=clean_token)
+                    discord_user.user = request.user
+                    request.user.save()
+                    return redirect('profile')
+                except ObjectDoesNotExist:
+                    invalid_token = True
+
+        if 'profile_update' in request.POST:
+            form = DiscordProfileForm(request.POST)
+            if form.is_valid():
+                request.user.discorduser.steam_id = form.cleaned_data.get('steam_id')
+                request.user.discorduser.blizzard_id = form.cleaned_data.get('blizzard_id')
+                request.user.discorduser.poe_profile = form.cleaned_data.get('poe_profile')
+                request.user.save()
+                return redirect('profile')
+            else:
+                profile_form = form
+
+    
+    return render(request, 'profile.html', {
+        'is_linked' : is_linked,
+        'token_form' : token_form,
+        'profile_form' : profile_form,
+        'invalid_token' : invalid_token,
+        })

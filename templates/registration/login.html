@@ -29,9 +29,12 @@
         </div>
         <div>
             <input class="btn btn-primary float-right" type="submit" value="Login" />
-            <input type="hidden" name="next" value="{{ next }}" />
         </div>
     </form>
+    <div class="form-group has-errors text-muted small">
+            Don't have an account? Make one <a href="{% url 'signup' %}">here</a>
+        </div>    <div class="form-group has-errors text-muted small">
+        </div>
     {% if form.errors %}
     <div class="form-group has-errors text-danger small">
         <p>Your username and password didn't match. Please try again.</p>

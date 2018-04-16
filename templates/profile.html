@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static%}
+{% block css %}
+{% include "bootstrap4.html" %}
+{% endblock %}
+{% block title %}
+Profile - {{ user }}
+{% endblock title %}
+{% block content  %}
+{% include "header.html" %}
+
+<div class="container w-75">
+    <br>
+    {% if is_linked %}
+    <h1 class="display-6">Welcome back, {{user}}</h1><br>
+        <div class="row">
+          <div class="col-md-4">
+                <div ><br>
+                        <img style="height: 50%; width: 50%; display: block; margin-left:auto; margin-right:auto;" 
+                        src= 
+                            {% if user.discorduser.avatar_url %}
+                            "{{ user.discorduser.avatar_url }}"
+                            {% else %}
+                            {% static 'main_page/image/default_avatar.png'%}
+                            {% endif %} 
+                        alt="User avatar" class="img-thumbnail text-center">
+                        <div class="card-body text-center">
+                            <h3>{{ user.discorduser }}</h3>
+                            <small class="text-muted">{{ user.discorduser.id }}</small>
+                            <div id="badges">
+                                    {% if user.discorduser.admin %}
+                                        <span class="badge badge-primary">Admin</span>
+                                    {% endif %}
+                                    {% if user.discorduser.mod_group %}
+                                        <span class="badge badge-warning">Moderator</span>
+                                        {% endif %}
+                                </div>
+                        </div>
+                        <div class="card-body text-center">
+                          <a href="{% url 'unlink' %}" class="card-link">Unlink your account</a>
+                        </div>
+                      </div>
+            </div>
+          <div class="col-md-6">    
+              <h3>Personal info</h3>
+                <form action="{% url 'profile' %}" method="post">
+                        {% csrf_token %}
+                        {% for field in profile_form  %}
+                            {{ field.label }}<br>
+                            {{ field }}
+                        {% if field.help_text %}
+                            {% autoescape off %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endautoescape %}
+                        {% endif %}
+                        {% for error in field.errors  %}
+                        <div class="form-group has-errors text-danger small">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                        {% endfor %}
+                        <input class="btn btn-primary float-right" type="submit" name="profile_update" value="Update" />
+                        <input type="hidden" name="next" value="XD" />
+                    </form>
+                </div>
+        {% else %}
+        <div class="col-sm-6">
+            <p>Your Discord Account is not linked yet</p>
+            <small>Enter your discord token</small><br>
+            <form action="{% url 'profile' %}" method="post">
+                <div class="input-group mb-6">
+                    {% csrf_token %}
+                    {{ token_form.token}}
+                    <div class="input-group-append">
+                        <input class="btn btn-primary" type="submit" name="token_link" value="Link" />
+                    </div>
+                </div>
+            </form>
+              {% if invalid_token %}
+              <div class="form-group has-errors text-danger small">
+                      <p>Wrong token</p>
+                  </div>
+              {% endif %}
+              {% endif %}
+        </div>
+{% endblock content %}
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}
