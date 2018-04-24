@@ -14,25 +14,24 @@ re_invasion = r'\((.*?)\)'
 
 @csrf_exempt
 def warframe_webhook(request):
-    if request.method == "POST":
-        json_data = json.loads(request.body)
-        if 'api_key' in json_data and json_data['api_key'] == settings.WARFRAME_KEY:
-            content = json_data['content']
-            new_alert = WFAlert(content = content)
-            if 'Invasion' in content:
-                filtered_data = re.findall(re_invasion, content)
-                filtered_data.pop(0)
-                new_alert.keywords = ','.join(filtered_data)
-            elif 'Sortie' in content:
-                new_alert.keywords = 'Sortie'
-            else:
-                raw_data = content.split('-')
-                if len(raw_data) is 4:
-                    new_alert.keywords = raw_data[3].strip()
-            new_alert.save()
-            return JsonResponse({'status': 200})
-    return redirect('home')
-
-def clean_up(model, hours=7):
-    delta = now() - timedelta(hours=hours)
-    model.objects.filter(created_at__lte=delta).delete()
+    try:
+        if request.method == "POST":
+            json_data = json.loads(request.body.decode('utf-8'))
+            if 'api_key' in json_data and json_data['api_key'] == settings.WARFRAME_KEY:
+                content = json_data['content']
+                new_alert = WFAlert(content = content)
+                if 'Invasion' in content:
+                    filtered_data = re.findall(re_invasion, content)
+                    filtered_data.pop(0)
+                    new_alert.keywords = ','.join(filtered_data)
+                elif 'Sortie' in content:
+                    new_alert.keywords = 'Sortie'
+                else:
+                    raw_data = content.split('-')
+                    if len(raw_data) is 4:
+                        new_alert.keywords = raw_data[3].strip()
+                new_alert.save()
+                return JsonResponse({'status': 200})
+        return redirect('home')
+    except Exception as e:
+        return HttpResponse(e)
