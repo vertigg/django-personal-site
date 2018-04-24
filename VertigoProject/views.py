@@ -15,9 +15,7 @@ from VertigoProject.forms import (DiscordProfileForm, DiscordTokenForm,
 
 
 def home_view(request):
-    django_version = get_version()
-    python_version = platform.python_version
-    return render(request, 'home.html', {'django' : django_version, 'python' : python_version})
+    return render(request, 'home.html')
 
 def signup(request):
     if request.method == 'POST':
