@@ -17,7 +17,12 @@ class WFAlert(models.Model):
     keywords = models.TextField(blank=True, null=True)
 
     class Meta:
+        verbose_name = 'Warframe Alert'
+        verbose_name_plural = 'Warframe Alerts'
         db_table = 'discord_alerts'
+    
+    def __str__(self):
+        return self.content
 
 
 class WFSettings(models.Model):

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import TextInput, Textarea, NumberInput
 from django.db import models
-from .models import Wisdom, DiscordUser, Gachi, DiscordSettings, DiscordLink
+from .models import Wisdom, DiscordUser, Gachi, DiscordSettings, DiscordLink, WFAlert
 from django.template.defaultfilters import truncatechars
 
 class DiscordLinkAdmin(admin.ModelAdmin):
@@ -53,3 +53,4 @@ admin.site.register(DiscordUser, DiscordUserAdmin)
 admin.site.register(Gachi, GachiAdmin)
 admin.site.register(DiscordSettings, DiscordSettingsAdmin)
 admin.site.register(DiscordLink, DiscordLinkAdmin)
+admin.site.register(WFAlert)
