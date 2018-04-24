@@ -420,7 +420,7 @@ async def on_message(message):
 
 async def warframe_alert_watchdog():
     await bot.wait_until_ready()
-    server = bot.get_server(id='121372102522699778')
+    server = bot.get_server(id='178976406288465920')
     while not bot.is_closed:
         new_alerts = WFAlert.objects.filter(announced=False)
         for alert in new_alerts:
