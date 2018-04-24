@@ -453,7 +453,7 @@ async def warframe_alert_watchdog():
                 pass
             alert.announced=True
             alert.save()
-        await asyncio.sleep(10)
+        await asyncio.sleep(60)
 
 
 if __name__ == '__main__':
