@@ -30,11 +30,12 @@ __setup_django(PROJECT_PATH)
 
 
 from discord.ext import commands
+from discord.errors import InvalidArgument
 
-from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Wisdom, Gachi
+from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Wisdom, Gachi, WFAlert
 from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
 from discordbot.ext.utils import admin_command, mod_command, wisdom_info_formatter, get_random_entry
-from discordbot.ext import utils, google_brawl, imgur_hb
+from discordbot.ext import utils, google_brawl, imgur_hb, warframe
 
 logging.config.fileConfig('discordbot/logger.ini')
 discordLogger = logging.getLogger('discordLogger')
@@ -417,6 +418,44 @@ async def on_message(message):
         return
     await bot.process_commands(message)
 
+async def warframe_alert_watchdog():
+    await bot.wait_until_ready()
+    server = bot.get_server(id='121372102522699778')
+    while not bot.is_closed:
+        new_alerts = WFAlert.objects.filter(announced=False)
+        for alert in new_alerts:
+            try:
+                matches = []
+                if alert.keywords:
+                    keywords = alert.keywords.split(',')
+
+                    for key in keywords:
+                        if key in warframe.RESOURCES:
+                            matches.append(warframe.RESOURCES[key])
+                
+                if matches:
+                    if len(matches) is 2:
+                        q1 = DiscordUser.objects.select_related().filter(**{'wf_settings__{}'.format(matches[0]):True})
+                        q2 = DiscordUser.objects.select_related().filter(**{'wf_settings__{}'.format(matches[1]):True})
+                        subscribers = q1.union(q2)
+                    else:
+                        query_filter = {'wf_settings__{}'.format(matches[0]) : True}
+                        subscribers = DiscordUser.objects.select_related().filter(**query_filter)  
+                    
+                    for sub in subscribers:
+                        try:
+                            user = server.get_member(sub.id)
+                            await bot.send_message(user, '```{}```'.format(alert.content))
+                        except InvalidArgument:
+                            pass
+            except Exception as e:
+                logging.error(e)
+                pass
+            alert.announced=True
+            alert.save()
+        await asyncio.sleep(10)
+
+
 if __name__ == '__main__':
     botLogger.info('Script started')
     brawl_list = google_brawl.check_for_updates()
@@ -424,4 +463,5 @@ if __name__ == '__main__':
     extScriptLock = False
     ow_lock = False
 
+    bot.loop.create_task(warframe_alert_watchdog())
     bot.run(BOT_TOKEN)

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static%}
+{% load webp %}
 {% block css %}
 {% include "bootstrap4.html" %}
 {% endblock %}
@@ -19,7 +20,7 @@ Profile - {{ user }}
                         <img style="height: 50%; width: 50%; display: block; margin-left:auto; margin-right:auto;" 
                         src= 
                             {% if user.discorduser.avatar_url %}
-                            "{{ user.discorduser.avatar_url }}"
+                            "{{ user.discorduser.avatar_url|webp }}"
                             {% else %}
                             {% static 'main_page/image/default_avatar.png'%}
                             {% endif %} 
@@ -59,12 +60,24 @@ Profile - {{ user }}
                             </div>
                         {% endfor %}
                         {% endfor %}
+                        <br>
+                <h3>Warframe Resource Alerts</h3>
+                        <div class="container">
+                        <div class="form-group">
+                            {% for field in wf_settings_form  %}
+                            <div class="custom-control custom-checkbox">
+                                {{ field }}
+                              <label class="custom-control-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                            </div>
+                              {% endfor %}
+                            </div>
+                        </div>
                         <input class="btn btn-primary float-right" type="submit" name="profile_update" value="Update" />
                         <input type="hidden" name="next" value="XD" />
                     </form>
                 </div>
         {% else %}
-        <div class="col-sm-6">
+        <div class="col-sm-8">
             <p>Your Discord Account is not linked yet</p>
             <small>Enter your discord token</small><br>
             <form action="{% url 'profile' %}" method="post">
@@ -81,6 +94,7 @@ Profile - {{ user }}
                       <p>Wrong token</p>
                   </div>
               {% endif %}
+              <small class="form-text text-muted">Don't know where you can get a token? Just send a message to bot with command !register</small>
               {% endif %}
         </div>
 {% endblock content %}

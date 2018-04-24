@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
-from .views import mix_api
+from .views import warframe_webhook
 
 urlpatterns = [
-    url(r'mix/', mix_api, name='mix_api'),
+    url(r'warframe-webhook', warframe_webhook, name='warframe_webhook'),
 ]

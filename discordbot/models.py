@@ -8,6 +8,30 @@ from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 
 
+class WFAlert(models.Model):
+    id = models.IntegerField(primary_key=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    announced = models.BooleanField(default=False)
+
+    content = models.TextField(blank=False, null=False)
+    keywords = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'discord_alerts'
+
+
+class WFSettings(models.Model):
+    nitain_extract = models.BooleanField(default=False)
+    orokin_cell = models.BooleanField(default=False)
+    orokin_reactor = models.BooleanField(default=False)
+    orokin_catalyst = models.BooleanField(default=False)
+    tellurium = models.BooleanField(default=False)
+    forma_bp = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'discord_wf_settings'
+    
+
 class Brawl(models.Model):
     name = models.TextField(blank=True, null=True)
     action = models.TextField(blank=True, null=True)
@@ -67,6 +91,7 @@ class DiscordSettings(models.Model):
 class DiscordUser(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
+    wf_settings = models.OneToOneField(WFSettings, on_delete=models.CASCADE, blank=True, null=True)
     token = models.CharField(unique=True, blank=True, null=True, max_length=20)
 
     id = models.CharField(
@@ -137,6 +162,7 @@ class Wisdom(models.Model):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'discorduser'):
         instance.discorduser.save()
+
 
 def create_discord_token():
     return uuid.uuid4().hex[:20].upper()

@@ -8,6 +8,26 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
+from django.forms import ModelForm
+from discordbot.models import WFSettings
+
+
+class WFSettingsForm(forms.ModelForm):
+
+    class Meta:
+        model = WFSettings
+        fields = '__all__'
+        widgets = {
+            'nitain_extract' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'orokin_cell' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'orokin_reactor' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'orokin_catalyst' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'tellurium' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+            'forma_bp' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
+        }
+        labels = {
+            'forma_bp': _('Forma Blueprint'),
+        }
 
 class StyledAuthenticationForm(AuthenticationForm):
     username = UsernameField(
@@ -44,7 +64,7 @@ class DiscordTokenForm(forms.Form):
     )
 
 class DiscordProfileForm(forms.Form):
-
+    
     steam_id = forms.CharField(
         label= _("Steam ID"),
         required=False,
