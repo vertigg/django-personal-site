@@ -2,9 +2,14 @@ RESOURCES = {
     'Nitain Extract (Resource)' : 'nitain_extract',
     'Orokin Cell (Resource)' : 'orokin_cell',
     'Orokin Cell Resource' : 'orokin_cell',
-    'Orokin Reactor (Blueprint)' : 'orokin_reactor',
-    'Orokin Catalyst Blueprint' : 'orokin_catalyst',
-    'Orokin Catalyst (Blueprint)' : 'orokin_catalyst',
+    'Orokin Reactor (Blueprint)' : 'orokin_reactor_bp',
+    'Orokin Catalyst Blueprint' : 'orokin_catalyst_bp',
+    'Orokin Catalyst (Blueprint)' : 'orokin_catalyst_bp',
     'Tellurium (Resource)' : 'tellurium',
-    'Forma Blueprint' : 'forma_bp'
+    'Forma Blueprint' : 'forma_bp',
+    'Exilus Adapter Blueprint' : 'exilus_bp',
+    'Exilus Adapter' : 'exilus_ap',
+    'kavat' : 'kavat',
+    '5x Kavat Genetic Code (Resource)' : 'kavat',
+    '10x Kavat Genetic Code (Resource)' : 'kavat',
 }

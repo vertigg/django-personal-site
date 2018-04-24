@@ -9,8 +9,9 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 
 from discordbot.models import DiscordUser, WFSettings
+from discordbot.forms import WFSettingsForm
 from VertigoProject.forms import (DiscordProfileForm, DiscordTokenForm,
-                                  StyledUserCreationForm, WFSettingsForm)
+                                  StyledUserCreationForm)
 
 
 def home_view(request):
@@ -44,6 +45,7 @@ def unlink(request):
 def profile(request):
 
     is_linked = hasattr(request.user, 'discorduser')
+    is_updated = False
     invalid_token = False
     token_form = DiscordTokenForm
 
@@ -52,19 +54,8 @@ def profile(request):
             request.user.discorduser.wf_settings = WFSettings.objects.create()
             request.user.discorduser.save()
 
-        profile_form = DiscordProfileForm(initial={
-            'steam_id' : request.user.discorduser.steam_id,
-            'blizzard_id' : request.user.discorduser.blizzard_id,
-            'poe_profile' : request.user.discorduser.poe_profile,
-            })
-        wf_settings_form = WFSettingsForm(initial={
-            'nitain_extract' : request.user.discorduser.wf_settings.nitain_extract,
-            'orokin_cell' : request.user.discorduser.wf_settings.orokin_cell,
-            'orokin_reactor' : request.user.discorduser.wf_settings.orokin_reactor,
-            'orokin_catalyst' : request.user.discorduser.wf_settings.orokin_catalyst,
-            'tellurium' : request.user.discorduser.wf_settings.tellurium,
-            'forma_bp' : request.user.discorduser.wf_settings.forma_bp,
-        })
+        profile_form = DiscordProfileForm(initial=get_profile_data(request))
+        wf_settings_form = WFSettingsForm(initial=get_wfsettings_data(request))
     else:
         profile_form = DiscordProfileForm
         wf_settings_form = WFSettingsForm
@@ -91,19 +82,27 @@ def profile(request):
                 request.user.discorduser.blizzard_id = form.cleaned_data.get('blizzard_id')
                 request.user.discorduser.poe_profile = form.cleaned_data.get('poe_profile')
 
-                wf_settings = request.user.discorduser.wf_settings
-                wf_settings.nitain_extract = form2.cleaned_data.get('nitain_extract')
-                wf_settings.orokin_cell = form2.cleaned_data.get('orokin_cell')
-                wf_settings.orokin_reactor = form2.cleaned_data.get('orokin_reactor')
-                wf_settings.orokin_catalyst = form2.cleaned_data.get('orokin_catalyst')
-                wf_settings.tellurium = form2.cleaned_data.get('tellurium')
-                wf_settings.forma_bp = form2.cleaned_data.get('forma_bp')
-                wf_settings.save()
+                wfs = request.user.discorduser.wf_settings
+                wf_data = form2.cleaned_data
+
+                wfs.nitain_extract = wf_data.get('nitain_extract')
+                wfs.orokin_cell = wf_data.get('orokin_cell')
+                wfs.orokin_reactor_bp = wf_data.get('orokin_reactor_bp')
+                wfs.orokin_catalyst_bp = wf_data.get('orokin_catalyst_bp')
+                wfs.tellurium = wf_data.get('tellurium')
+                wfs.forma_bp = wf_data.get('forma_bp')
+                wfs.exilus_bp = wf_data.get('exilus_bp')
+                wfs.exilus_ap = wf_data.get('exilus_ap')
+                wfs.kavat = wf_data.get('kavat')
+                
+                wfs.save()
                 request.user.save()
-                return redirect('profile')
+                if request.POST.get('update'):
+                    is_updated = True
+                profile_form = DiscordProfileForm(initial=get_profile_data(request))
+                wf_settings_form = WFSettingsForm(initial=get_wfsettings_data(request))
             else:
                 profile_form = form
-
     
     return render(request, 'profile.html', {
         'is_linked' : is_linked,
@@ -111,4 +110,29 @@ def profile(request):
         'profile_form' : profile_form,
         'invalid_token' : invalid_token,
         'wf_settings_form' : wf_settings_form,
+        'update_success' : is_updated
         })
+
+
+def get_wfsettings_data(request):
+    wfs = request.user.discorduser.wf_settings
+    initial_wfsettings = {
+                        'nitain_extract' : wfs.nitain_extract,
+                        'orokin_cell' : wfs.orokin_cell,
+                        'orokin_reactor_bp' : wfs.orokin_reactor_bp,
+                        'orokin_catalyst_bp' : wfs.orokin_catalyst_bp,
+                        'tellurium' : wfs.tellurium,
+                        'forma_bp' : wfs.forma_bp,
+                        'exilus_bp' : wfs.exilus_bp,
+                        'exilus_ap' : wfs.exilus_ap,
+                        'kavat' : wfs.kavat,
+                        }
+    return initial_wfsettings
+
+def get_profile_data(request):
+    initian_profile_data = {
+            'steam_id' : request.user.discorduser.steam_id,
+            'blizzard_id' : request.user.discorduser.blizzard_id,
+            'poe_profile' : request.user.discorduser.poe_profile,
+            }
+    return initian_profile_data           

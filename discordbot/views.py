@@ -29,7 +29,10 @@ def warframe_webhook(request):
                 else:
                     raw_data = content.split('-')
                     if len(raw_data) is 4:
-                        new_alert.keywords = raw_data[3].strip()
+                        if 'kavat' in raw_data[3].lower():
+                            new_alert.keywords = 'kavat'
+                        else:
+                            new_alert.keywords = raw_data[3].strip()
                 new_alert.save()
                 return JsonResponse({'status': 200})
         return redirect('home')

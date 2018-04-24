@@ -28,10 +28,13 @@ class WFAlert(models.Model):
 class WFSettings(models.Model):
     nitain_extract = models.BooleanField(default=False)
     orokin_cell = models.BooleanField(default=False)
-    orokin_reactor = models.BooleanField(default=False)
-    orokin_catalyst = models.BooleanField(default=False)
+    orokin_reactor_bp = models.BooleanField(default=False)
+    orokin_catalyst_bp = models.BooleanField(default=False)
     tellurium = models.BooleanField(default=False)
     forma_bp = models.BooleanField(default=False)
+    exilus_bp = models.BooleanField(default=False)
+    exilus_ap = models.BooleanField(default=False)
+    kavat = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'discord_wf_settings'

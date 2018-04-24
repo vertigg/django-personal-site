@@ -10,31 +10,27 @@ Profile - {{ user }}
 {% block content  %}
 {% include "header.html" %}
 
+{% if update_success %}
+<div class="alert alert-dismissible alert-success fade show" id="success-alert" style="position: fixed; z-index:9999; width:100%">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    Changes applied!
+  </div>
+{% endif %}
+
 <div class="container w-75">
     <br>
     {% if is_linked %}
     <h1 class="display-6">Welcome back, {{user}}</h1><br>
         <div class="row">
           <div class="col-md-4">
-                <div ><br>
-                        <img style="height: 50%; width: 50%; display: block; margin-left:auto; margin-right:auto;" 
-                        src= 
-                            {% if user.discorduser.avatar_url %}
-                            "{{ user.discorduser.avatar_url|webp }}"
-                            {% else %}
-                            {% static 'main_page/image/default_avatar.png'%}
-                            {% endif %} 
-                        alt="User avatar" class="img-thumbnail text-center">
+                <div><br>
+                        <img src= {% if user.discorduser.avatar_url %}"{{ user.discorduser.avatar_url|webp }}"{% else %}{% static 'main_page/image/default_avatar.png'%}{% endif %} alt="User avatar" class="discord-avatar img-thumbnail text-center ">
                         <div class="card-body text-center">
                             <h3>{{ user.discorduser }}</h3>
                             <small class="text-muted">{{ user.discorduser.id }}</small>
                             <div id="badges">
-                                    {% if user.discorduser.admin %}
-                                        <span class="badge badge-primary">Admin</span>
-                                    {% endif %}
-                                    {% if user.discorduser.mod_group %}
-                                        <span class="badge badge-warning">Moderator</span>
-                                        {% endif %}
+                                    {% if user.discorduser.admin %}<span class="badge badge-primary">Admin</span>{% endif %}
+                                    {% if user.discorduser.mod_group %}<span class="badge badge-warning">Moderator</span>{% endif %}
                                 </div>
                         </div>
                         <div class="card-body text-center">
@@ -62,18 +58,21 @@ Profile - {{ user }}
                         {% endfor %}
                         <br>
                 <h3>Warframe Resource Alerts</h3>
-                        <div class="container">
-                        <div class="form-group">
-                            {% for field in wf_settings_form  %}
-                            <div class="custom-control custom-checkbox">
-                                {{ field }}
-                              <label class="custom-control-label" for="{{field.id_for_label}}">{{field.label}}</label>
-                            </div>
-                              {% endfor %}
-                            </div>
-                        </div>
+                <table class="form-group w-100">
+                        {% for field in wf_settings_form %}
+                            {% cycle 'row' ''  as row silent %}
+                            {% if row %}<tr>{% endif %}
+                                <td>
+                                <div class="custom-control custom-checkbox"%>
+                                        {{ field }}
+                                        <label class="custom-control-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                                    </div>
+                                </td>
+                            {% if not row %}</tr>{% endif %}
+                        {% endfor %}
+                    </table>
                         <input class="btn btn-primary float-right" type="submit" name="profile_update" value="Update" />
-                        <input type="hidden" name="next" value="XD" />
+                        <input type="hidden" name="update" value="test" />
                     </form>
                 </div>
         {% else %}
@@ -97,6 +96,8 @@ Profile - {{ user }}
               <small class="form-text text-muted">Don't know where you can get a token? Just send a message to bot with command !register</small>
               {% endif %}
         </div>
+        </div>
+</div>
 {% endblock content %}
 {% block footer %}
 {% include "footer.html" %}

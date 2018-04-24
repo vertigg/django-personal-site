@@ -50,6 +50,14 @@
           box-sizing: border-box;
 }
 
+.discord-avatar {
+  height: 50%;
+  width: 50%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .signup-centered{
   margin-top:10%;
 }
