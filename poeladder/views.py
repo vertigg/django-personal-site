@@ -9,7 +9,10 @@ from .models import PoeCharacter, PoeInfo, PoeLeague
 
 
 def ladder(request):
-    return render(request, 'poeladder/ladder.html', {'title' : None})
+    return render(request, 'poeladder/ladder.html', {
+        'title' : None,
+        'ladder_main' : True
+        })
 
 
 def league_ladder(request, league):
@@ -22,9 +25,9 @@ def league_ladder(request, league):
     league_characters = PoeCharacterFilter(request.GET, query_set)
 
     return render(request, 'poeladder/ladder.html', {
-        'title':title,
+        'title': title,
         'league_object': league_object, 
-        'requested_league':requested_league,
+        'requested_league': requested_league,
         'league_characters': league_characters,
         })
 

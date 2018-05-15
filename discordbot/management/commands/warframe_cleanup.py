@@ -7,5 +7,5 @@ class Command(BaseCommand):
     help = 'Removes old alerts from db'
 
     def handle(self, *args, **options):
-        delta = now() - timedelta(hours=12)
+        delta = now() - timedelta(hours=3)
         WFAlert.objects.filter(created_at__lte=delta).delete()

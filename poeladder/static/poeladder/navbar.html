@@ -1,0 +1,53 @@
+{% load ladder_extras %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-ladder topnav">
+    <a class="navbar-brand navbar-home" href="{% url 'home' %}">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02"
+        aria-expanded="false" aria-label="Toggle navigation" style="">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor02">
+        <ul class="navbar-nav mr-auto">
+
+            {% for name in temp_leagues %} {% if name == requested_league %}
+            <li class="nav-item active">
+                <a class="nav-link active-league" href="{% url 'ladder_url' league=name|to_dash %}">{{ name }}
+                    <span class="sr-only"></span>
+                </a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'ladder_url' league=name|to_dash %}">{{ name }}
+                    <span class="sr-only"></span>
+                </a>
+            </li>
+            {% endif %} {% endfor %}
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
+                <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
+                    {% for name in old_leagues %}
+                    <a class="dropdown-item" href="{% url 'ladder_url' league=name|to_dash %}">{{ name }}
+                        <span class="sr-only"></span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+                    <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
+                      <a class="dropdown-item" href="http://poe.trade/">poe.trade</a>
+                      <a class="dropdown-item" href="https://poeapp.com/">PoeApp</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="https://siveran.github.io/calc.html">Vorici Calculator</a>
+                      <a class="dropdown-item" href="https://poe.mikelat.com/">Aura Calculator</a>
+                      <a class="dropdown-item" href="http://poeaffix.net/">PoeAffix</a>
+                    </div>
+                  </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0" action="{% url 'ladder_search' %}" method="get">
+            {{ poe_search_form.name }}
+        </form>
+        <a class="float-right " > Last updated: {{ last_update|date:"F d" }}</a>
+    </div>
+</nav>

@@ -3,42 +3,38 @@
 {% load static %}
 
 {% block css %}
+{% include "bootstrap4.html" %}
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'poeladder/css/main.css' %}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'poeladder/css/header.css' %}" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static 'poeladder/js/jquery.plugin.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'poeladder/js/jquery.countdown.min.js' %}"></script> 
+    <script src="{% static 'poeladder/js/ext.js' %}"></script>
 {% endblock %}
 
 {% block header %}
-    <ul class="topnav">
-        <li><a class="active" href="{% url 'home' %}">Home</a></li>
-            {% for name in header_urls %}
-                {% if name == requested_league %}
-                    <li><a class="active-league" href="{% url 'ladder_url' league=name|to_dash %}"> {{ name }}</a></li>
-                {% else %}
-                    <li><a href="{% url 'ladder_url' league=name|to_dash %}"> {{ name }}</a></li>
-                {% endif %}
-            {% endfor %}
-        <li class="right" id="header-text"> Last updated: {{ last_update|date:"F d" }}</li>
-        <li class="right" id="header-search">
-            <form class="poe-search-form" action="{% url 'ladder_search' %}" method="get">
-                {{ poe_search_form.name }}
-            </form>
-        </li>
-    </ul>
+{% include "poeladder/navbar.html" %}
 {% endblock %}
         
 {% block title%} {{ title|default_if_none:"Path of Exile Clown Ladder"}} {% endblock %}
 
 {% block content%}
 
+{% if ladder_main %}
+<div class="d-flex h-100 justify-content-center flex-column" style="margin-top:150px">
+    <div class='mx-auto' style="min-width:470px;"><img src="{% static 'poeladder/img/IncursionTitle.png' %}"> </div>
+    <div id='timer' class='mx-auto text-center'>League released!</div>
+</div>
+{% endif %}
+
 {% if search %}
-<div class="search-main">
-    <h1>Search results</h1>
+<div class="container h-100 justify-content-center align-items-center ">
+    <h1 class="ladder-title">Search results</h1>
         {% if poe_search_form.errors %}
             <h2>{{ poe_search_form.errors }}</h2>
         {% else %}
             <h2>Found {{ search_results|length }} result{{ search_results|pluralize }} for «{{ search_query }}» </h2>
         {% endif %}
-        <div class="flex-container">
+        <div class="row d-flex flex-wrap justify-content-center">
         {% for result in search_results %}
             <div class="search-result">
                 <img class="search-icon" src="{% get_static_prefix %}poeladder/img/characters/{{result.class_name}}_avatar.png">
@@ -57,15 +53,15 @@
 {% endif %}
 
 {% if requested_league %}
-<div class="ladder-main">
-    <a class="ladder-link" href={{league_object.url}}><h1>{{ league_object.name }} Ladder </h1></a> 
+<div class="container col-lg-8">
+    <a class="ladder-link" href={{league_object.url}}><h1 class="ladder-title">{{ league_object.name }} Ladder </h1></a> 
     <table class="LadderTable">
             <thead>
               <tr class="LadderHeader">
                 <th class="row-rank">Rank</th>
                 <th>Account</th>
                 <th>Name</th>
-                <th>Class <form id="filter-form" method="get" style="float:right">{{ league_characters.form.class_id }}</form>
+                <th>Class <form id="" method="get" style="float:right">{{ league_characters.form.class_id }}</form>
                 </th>
                 <th class="row-level">Level</th>
               </tr>
@@ -95,5 +91,7 @@
             </tbody>
           </table>
     </div>
+    <div class="col-xs-12" style="height:50px;"></div>
 {% endif %}
+
 {% endblock %}

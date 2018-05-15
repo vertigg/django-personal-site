@@ -6377,6 +6377,10 @@ button.close {
   background-color: #DF691A !important;
 }
 
+.bg-ladder {
+  background-color: #333333 !important;
+}
+
 a.bg-primary:hover, a.bg-primary:focus,
 button.bg-primary:hover,
 button.bg-primary:focus {

@@ -2,12 +2,17 @@ from .models import PoeLeague, PoeInfo
 from datetime import datetime
 from django.utils import timezone
 from .forms import SearchForm
-
+from django.utils import timezone
 
 def header_urls(request):
-    leagues_names = [x.name for x in PoeLeague.objects.filter(poecharacter__isnull=False).distinct().order_by('-start_date')]
-    return {'header_urls': leagues_names}
+    leagues_with_players = PoeLeague.objects.filter(poecharacter__isnull=False).distinct()
+    temp_leagues_query = leagues_with_players.filter(end_date__gt=timezone.localtime())
+    temp_leagues = [x.name for x in temp_leagues_query]
+    old_leagues = [x.name for x in leagues_with_players.exclude(id__in=temp_leagues_query)]
+    return {'old_leagues': old_leagues, 'temp_leagues': temp_leagues}
 
+def temp_leagues(request):
+    return None
 
 def last_ladder_update(request):
     try:

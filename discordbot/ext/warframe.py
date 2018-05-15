@@ -9,6 +9,7 @@ RESOURCES = {
     'Orokin Catalyst (Item)' : 'orokin_catalyst_bp',
     'Tellurium (Resource)' : 'tellurium',
     'Forma Blueprint' : 'forma_bp',
+    'Forma (Item)' : 'forma_bp',
     'Exilus Adapter Blueprint' : 'exilus_bp',
     'Exilus Adapter (Blueprint)' : 'exilus_bp',
     'Exilus Adapter' : 'exilus_ap',

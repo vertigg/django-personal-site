@@ -6,7 +6,8 @@ class SearchForm(forms.Form):
         required=False, 
         max_length=25, 
         widget=forms.TextInput(attrs={
-            'class' : 'poe-search-input', 
+            'class' : 'form-control mr-sm-2',
+            'type' : 'text', 
             'placeholder' : "Search by name"}
             )
         )
