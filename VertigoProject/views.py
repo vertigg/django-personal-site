@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 
+from poeladder.models import PoeCharacter
 from discordbot.models import DiscordUser, WFSettings
 from discordbot.forms import WFSettingsForm
 from VertigoProject.forms import (DiscordProfileForm, DiscordTokenForm,
@@ -46,12 +47,12 @@ def profile(request):
     is_updated = False
     invalid_token = False
     token_form = DiscordTokenForm
+    user = request.user
 
     if is_linked:
-        if request.user.discorduser.wf_settings is None:
-            request.user.discorduser.wf_settings = WFSettings.objects.create()
-            request.user.discorduser.save()
-
+        if user.discorduser.wf_settings is None:
+            user.discorduser.wf_settings = WFSettings.objects.create()
+            user.discorduser.save()
         profile_form = DiscordProfileForm(initial=get_profile_data(request))
         wf_settings_form = WFSettingsForm(initial=get_wfsettings_data(request))
     else:
@@ -59,6 +60,7 @@ def profile(request):
         wf_settings_form = WFSettingsForm
 
     if request.method == "POST":
+        
         if 'token_link' in request.POST:
             form = DiscordTokenForm(request.POST)
             if form.is_valid():
@@ -66,21 +68,25 @@ def profile(request):
                 try:
                     discord_user = DiscordUser.objects.get(token=clean_token)
                     discord_user.user = request.user
-                    request.user.save()
+                    user.save()
                     return redirect('profile')
                 except ObjectDoesNotExist:
                     invalid_token = True
 
         if 'profile_update' in request.POST:
-            form = DiscordProfileForm(request.POST)
+            form = DiscordProfileForm(request.POST, user=request.user)
             form2 = WFSettingsForm(request.POST)
             if form.is_valid() and form2.is_valid():
+                user.discorduser.steam_id = form.cleaned_data.get('steam_id')
+                user.discorduser.blizzard_id = form.cleaned_data.get('blizzard_id')
 
-                request.user.discorduser.steam_id = form.cleaned_data.get('steam_id')
-                request.user.discorduser.blizzard_id = form.cleaned_data.get('blizzard_id')
-                request.user.discorduser.poe_profile = form.cleaned_data.get('poe_profile')
+                # Path of Exile profile
+                passed_poe_profile = form.cleaned_data.get('poe_profile')
+                if passed_poe_profile is None or passed_poe_profile == '' or passed_poe_profile != user.discorduser.poe_profile:
+                    PoeCharacter.objects.filter(profile=user.discorduser.id).delete()
+                user.discorduser.poe_profile = passed_poe_profile
 
-                wfs = request.user.discorduser.wf_settings
+                wfs = user.discorduser.wf_settings
                 wf_data = form2.cleaned_data
 
                 wfs.nitain_extract = wf_data.get('nitain_extract')
@@ -95,7 +101,7 @@ def profile(request):
                 wfs.corrosive = wf_data.get('corrosive')
                 
                 wfs.save()
-                request.user.save()
+                user.save()
                 if request.POST.get('update'):
                     is_updated = True
                 profile_form = DiscordProfileForm(initial=get_profile_data(request))
@@ -130,9 +136,9 @@ def get_wfsettings_data(request):
     return initial_wfsettings
 
 def get_profile_data(request):
-    initian_profile_data = {
+    initial_profile_data = {
             'steam_id' : request.user.discorduser.steam_id,
             'blizzard_id' : request.user.discorduser.blizzard_id,
             'poe_profile' : request.user.discorduser.poe_profile,
             }
-    return initian_profile_data           
+    return initial_profile_data           

@@ -27,7 +27,7 @@ class WFSettingsForm(forms.ModelForm):
             'orokin_cell': _('Orokin Cell'),
             'orokin_reactor_bp': _('Orokin Reactor (Blueprint)'),
             'orokin_catalyst_bp': _('Orokin Catalyst (Blueprint)'),
-            'forma_bp': _('Forma Blueprint'),
+            'forma_bp': _('Forma or Forma Blueprint'),
             'exilus_bp': _('Exilus Adapter (Blueprint)'),
             'exilus_ap': _('Exilus Adapter'),
             'kavat': _('Kavat Genetic Code'),

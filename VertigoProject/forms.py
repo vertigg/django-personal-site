@@ -2,14 +2,15 @@ import requests
 from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm,
                                        UsernameField, password_validation)
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
-from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
-from django.forms import ModelForm
-from discordbot.models import WFSettings
+
+from discordbot.models import DiscordUser, WFSettings
 
 
 class StyledAuthenticationForm(AuthenticationForm):
@@ -47,6 +48,10 @@ class DiscordTokenForm(forms.Form):
     )
 
 class DiscordProfileForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(DiscordProfileForm, self).__init__(*args, **kwargs)
     
     steam_id = forms.CharField(
         label= _("Steam ID"),
@@ -69,7 +74,7 @@ class DiscordProfileForm(forms.Form):
         label =_("Path of Exile Profile"),
         required=False,
         widget=forms.TextInput(attrs={'class':'form-control'}),
-        help_text="'Character' tab must be public"
+        help_text="'Character' tab in your profile must be public. Ladder updates every 24 hours"
     )
 
     def clean_poe_profile(self):
@@ -77,6 +82,9 @@ class DiscordProfileForm(forms.Form):
         check_link = 'https://pathofexile.com/character-window/get-characters?accountName={}'
         if profile_passed is None or profile_passed == '':
             return profile_passed
+        if DiscordUser.objects.filter(poe_profile=profile_passed).exists():
+            if not self.user.discorduser.poe_profile == profile_passed:
+                raise ValidationError(('"{}" profile already exists'.format(profile_passed)))
         if requests.get(check_link.format(profile_passed)).status_code != 200:
             raise ValidationError(("Account name is wrong or private".format(profile_passed)))
         return profile_passed
