@@ -19,4 +19,6 @@ RESOURCES = {
     'kavat' : 'kavat',
     '5x Kavat Genetic Code (Resource)' : 'kavat',
     '10x Kavat Genetic Code (Resource)' : 'kavat',
+    'Corrosive Projection (Aura)', 'corrosive',
+    'corrosive' : 'corrosive',
 }
