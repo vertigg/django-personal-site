@@ -20,6 +20,7 @@ class PoeLeague(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
+        verbose_name_plural = 'Leagues'
         db_table = 'poeladder_leagues'
 
     def __str__(self):
@@ -36,6 +37,7 @@ class PoeActiveGem(models.Model):
         return self.name
     
     class Meta:
+        verbose_name_plural = 'Gems'
         db_table = 'poeladder_gems'
         ordering = ('name',)
 
@@ -53,6 +55,7 @@ class PoeCharacter(models.Model):
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
 
     class Meta:
+        verbose_name_plural = 'Characters'
         db_table = 'poeladder_characters'
 
     def __str__(self):

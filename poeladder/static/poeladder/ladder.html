@@ -119,13 +119,17 @@
                             </td>
                         <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{ character.class_name }}</td>
                         <td class="text-center">{{ character.level }}</td>
-                        <td style="width:50px"> 
+
+                        {% with character|level_progress as level_progress %}
+                        <td style="width:50px" title="{{level_progress}}%"> 
                             <div class="progress-bar-level center-block">
-                                <div class="progress-level" role="progressbar" style='width: {{character|level_progress}}%;' aria-valuenow="{{character|level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-level" role="progressbar" style='width: {{level_progress}}%;' aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
-                            </td>
+                        </td>
+                        {% endwith %}
+                        
                         <td class="text-center">{{ character.experience }}</td>
-                        <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}" >  {% endfor %}</td>
+                        <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
