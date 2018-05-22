@@ -35,7 +35,6 @@ class WFSettings(models.Model):
     exilus_bp = models.BooleanField(default=False)
     exilus_ap = models.BooleanField(default=False)
     kavat = models.BooleanField(default=False)
-    corrosive = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'discord_wf_settings'

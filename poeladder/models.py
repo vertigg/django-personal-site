@@ -28,6 +28,17 @@ class PoeLeague(models.Model):
     def get_absolute_url(self):
         return reverse('league_ladder_view', kwargs={'league':self.name}, current_app='poeladder')
 
+class PoeActiveGem(models.Model):
+    name = models.CharField(max_length=40)
+    icon = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        db_table = 'poeladder_gems'
+        ordering = ('name',)
+
 
 class PoeCharacter(models.Model):
     id = models.AutoField(blank=True, null=False, primary_key=True)
@@ -37,6 +48,8 @@ class PoeCharacter(models.Model):
     class_id = models.IntegerField(blank=True, null=True)
     ascendancy_id = models.IntegerField(blank=True, null=True)
     level = models.IntegerField(blank=True, null=True)
+    gems = models.ManyToManyField(PoeActiveGem)
+    experience = models.BigIntegerField(blank=True, null=True)
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
 
     class Meta:

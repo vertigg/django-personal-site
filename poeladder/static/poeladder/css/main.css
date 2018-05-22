@@ -71,7 +71,7 @@ table.LadderTable td, table.LadderTable th {
     padding: 5px;
 }
 
-table.LadderTable td.row-link:hover {background: #808080;}
+/* table.LadderTable td.row-link:hover {background: #808080;} */
 
 tr.LadderHeader {
     background-color: #333333;
@@ -79,14 +79,18 @@ tr.LadderHeader {
     text-align: left;
 }
 
-table.LadderTable tr.LadderRows:nth-child(odd) { background: #181818 }
-table.LadderTable tr.LadderRows:nth-child(even) { background: #121212 }
+table.LadderTable tr.LadderRows:nth-child(odd) { background: #181818; height: 40px;}
+table.LadderTable tr.LadderRows:nth-child(even) { background: #121212; height: 40px;}
+table.LadderTable tr.current-user{
+    border-left: 3px solid green;
+}
 
 table.LadderTable thead {
 background-color: #0c0908;
 }
 
 .row-rank { width: 8%; }
+.row-gems {width: 120px; max-width: 150px; padding: 0px !important;}
 
 img#header-icon {
     max-height: 14px;
@@ -146,7 +150,7 @@ img#class-icon
 .ladder-select {
     width: 100px;
     border-radius: 2px;
-    text-align: right;
+    text-align: left;
     vertical-align: middle;
     background: #181818;
     font-size: .75em;
@@ -210,5 +214,10 @@ a.active-league {background-color: #0066cc}
 .countdown-descr {
 	display: block;
 	width: 100%;
+}
+
+.active-skill{
+    width: 30px;
+    height: 30px;
 }
 

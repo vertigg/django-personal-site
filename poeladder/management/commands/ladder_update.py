@@ -12,13 +12,12 @@ from django.conf import settings
 from discordbot.models import DiscordUser
 from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 
-from .utils import retry_on_lock
+from .utils import retry_on_lock, detect_skills
 
-    
 start_time = time.time()
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p',
     handlers = [
@@ -31,13 +30,28 @@ if settings.DEBUG:
 
 POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
 POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
+POE_INFO = 'https://www.pathofexile.com/character-window/get-items?character={0}&accountName={1}'
 DB_TIMEOUT = 10
 DB_RETRIES = 5
+session = requests.session()
+cookies = {'POESESSID' : settings.POESESSID}
+
+
+def get_main_skills(character, account):
+    r = session.get(POE_INFO.format(character, account), cookies=cookies)
+    if r.headers.get('X-Rate-Limit-Ip-State'):
+        logging.debug(r.headers['X-Rate-Limit-Ip-State'])
+    if r.status_code == 429:
+        logging.error('Rate limited!')
+        time.sleep(65)
+        r = session.get(POE_INFO.format(character, account), cookies=cookies)
+    data = json.loads(r.text)
+    return detect_skills(data)
 
 
 @retry_on_lock(DB_TIMEOUT, retries=DB_RETRIES)
 def update_ladders_table():
-    leagues_api_data = json.loads(requests.get(POE_LEAGUES).text)
+    leagues_api_data = json.loads(session.get(POE_LEAGUES).text)
     query_list = list(PoeLeague.objects.values_list('name', flat=True))
 
     if not 'Void' in query_list:
@@ -63,8 +77,16 @@ def update_characters_table():
     poe_leagues = {x[0]:x[1] for x in PoeLeague.objects.values_list('name', 'id')}
     
     for key, value in poe_profiles.items():
-        r = requests.get(POE_PROFILE.format(value))
+        r = session.get(POE_PROFILE.format(value))
+        if r.status_code == 429:
+            logging.error('Rate limited!')
+            time.sleep(65)
+            r = session.get(POE_PROFILE.format(value))
+        elif r.status_code == 403:
+            logging.error("Forbidden: 403. Can't access {} profile".format(value))
+            continue
         api_data = json.loads(r.text)
+        time.sleep(1.1)
 
         if isinstance(api_data, dict) and api_data['error']:
             raise requests.RequestException(api_data['error'])
@@ -87,12 +109,20 @@ def update_characters_table():
                         p.class_id = character['classId']
                         p.ascendancy_id = character['ascendancyClass']
                         p.level = character['level']
+                        p.experience = character['experience']
+
+                        # If gems changed - update with new set
+                        gems_qs = get_main_skills(character['name'], value)
+                        if not set(p.gems.all().values_list('id', flat=True)) == set(gems_qs):
+                            p.gems.clear()
+                            p.gems.add(*gems_qs)
+
                         p.save(update_fields=['league_id', 'class_name', 'level', 'ascendancy_id', 'class_id'])
 
                 else:
                     # create new
                     logging.info('New character: {}'.format(character['name']))
-                    PoeCharacter.objects.create(
+                    p = PoeCharacter.objects.create(
                         name = character['name'],
                         league_id = poe_leagues[character['league']],
                         profile_id = key,
@@ -100,7 +130,10 @@ def update_characters_table():
                         class_id = character['classId'],
                         ascendancy_id = character['ascendancyClass'],
                         level = character['level'],
+                        experience = character['experience'],
                     )
+                    gems_qs = get_main_skills(character['name'], value)
+                    p.gems.add(*gems_qs)
 
 
 @retry_on_lock(DB_TIMEOUT, retries=DB_RETRIES)

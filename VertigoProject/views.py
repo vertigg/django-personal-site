@@ -98,7 +98,6 @@ def profile(request):
                 wfs.exilus_bp = wf_data.get('exilus_bp')
                 wfs.exilus_ap = wf_data.get('exilus_ap')
                 wfs.kavat = wf_data.get('kavat')
-                wfs.corrosive = wf_data.get('corrosive')
                 
                 wfs.save()
                 user.save()
@@ -131,7 +130,6 @@ def get_wfsettings_data(request):
                         'exilus_bp' : wfs.exilus_bp,
                         'exilus_ap' : wfs.exilus_ap,
                         'kavat' : wfs.kavat,
-                        'corrosive' : wfs.corrosive,
                         }
     return initial_wfsettings
 

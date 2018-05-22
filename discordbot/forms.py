@@ -19,7 +19,6 @@ class WFSettingsForm(forms.ModelForm):
             'exilus_bp' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'exilus_ap' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'kavat' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
-            'corrosive' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
         }
 
         labels = {
@@ -31,5 +30,4 @@ class WFSettingsForm(forms.ModelForm):
             'exilus_bp': _('Exilus Adapter (Blueprint)'),
             'exilus_ap': _('Exilus Adapter'),
             'kavat': _('Kavat Genetic Code'),
-            'corrosive': _('Corrosive Projection'),
         }
