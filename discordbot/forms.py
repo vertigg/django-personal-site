@@ -16,7 +16,6 @@ class WFSettingsForm(forms.ModelForm):
             'orokin_catalyst_bp' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'tellurium' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'forma_bp' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
-            'exilus_bp' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'exilus_ap' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
             'kavat' : forms.CheckboxInput(attrs={'class':'custom-control-input'}),
         }
@@ -27,7 +26,6 @@ class WFSettingsForm(forms.ModelForm):
             'orokin_reactor_bp': _('Orokin Reactor (Blueprint)'),
             'orokin_catalyst_bp': _('Orokin Catalyst (Blueprint)'),
             'forma_bp': _('Forma or Forma Blueprint'),
-            'exilus_bp': _('Exilus Adapter (Blueprint)'),
             'exilus_ap': _('Exilus Adapter'),
             'kavat': _('Kavat Genetic Code'),
         }

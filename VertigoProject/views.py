@@ -95,7 +95,6 @@ def profile(request):
                 wfs.orokin_catalyst_bp = wf_data.get('orokin_catalyst_bp')
                 wfs.tellurium = wf_data.get('tellurium')
                 wfs.forma_bp = wf_data.get('forma_bp')
-                wfs.exilus_bp = wf_data.get('exilus_bp')
                 wfs.exilus_ap = wf_data.get('exilus_ap')
                 wfs.kavat = wf_data.get('kavat')
                 
@@ -127,7 +126,6 @@ def get_wfsettings_data(request):
                         'orokin_catalyst_bp' : wfs.orokin_catalyst_bp,
                         'tellurium' : wfs.tellurium,
                         'forma_bp' : wfs.forma_bp,
-                        'exilus_bp' : wfs.exilus_bp,
                         'exilus_ap' : wfs.exilus_ap,
                         'kavat' : wfs.kavat,
                         }

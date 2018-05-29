@@ -32,7 +32,6 @@ class WFSettings(models.Model):
     orokin_catalyst_bp = models.BooleanField(default=False)
     tellurium = models.BooleanField(default=False)
     forma_bp = models.BooleanField(default=False)
-    exilus_bp = models.BooleanField(default=False)
     exilus_ap = models.BooleanField(default=False)
     kavat = models.BooleanField(default=False)
 
