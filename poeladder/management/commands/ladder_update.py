@@ -117,7 +117,7 @@ def update_characters_table():
                             p.gems.clear()
                             p.gems.add(*gems_qs)
 
-                        p.save(update_fields=['league_id', 'class_name', 'level', 'ascendancy_id', 'class_id'])
+                        p.save(update_fields=['league_id', 'class_name', 'level', 'ascendancy_id', 'class_id', 'experience'])
 
                 else:
                     # create new
