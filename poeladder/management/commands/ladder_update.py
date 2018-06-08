@@ -93,15 +93,15 @@ def update_characters_table():
 
         if api_data:
             # get all api_data and convert to dict
-            characters_queryset = PoeCharacter.objects.values_list('name', 'league__name', 'level', 'ascendancy_id')
-            saved_characters = {x[0] : {'league':x[1], 'level':x[2], 'ascendancy_id':x[3]} for x in characters_queryset}
+            characters_queryset = PoeCharacter.objects.values_list('name', 'league__name', 'level', 'ascendancy_id', 'experience')
+            saved_characters = {x[0] : {'league':x[1], 'level':x[2], 'ascendancy_id':x[3], 'experience':x[4]} for x in characters_queryset}
 
             for character in api_data:
                 # check if character exists
                 if character['name'] in saved_characters:
                     # update current
                     ch = saved_characters[character['name']]
-                    if ch['league'] != character['league'] or ch['level'] != character['level'] or ch['ascendancy_id'] != character['ascendancyClass']:
+                    if ch['league'] != character['league'] or ch['experience'] != character['experience'] or ch['ascendancy_id'] != character['ascendancyClass']:
                         logging.info('Updating {}'.format(character['name']))
                         p = PoeCharacter.objects.get(name=character['name'])
                         p.league_id = poe_leagues[character['league']]
