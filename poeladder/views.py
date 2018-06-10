@@ -21,7 +21,7 @@ def league_ladder(request, league):
     league_object = get_object_or_404(PoeLeague, name=requested_league)
     title = '{} League'.format(requested_league)
 
-    query_set = PoeCharacter.objects.all().filter(league_id=league_object.id).order_by('-level')
+    query_set = PoeCharacter.objects.all().filter(league_id=league_object.id).order_by('-level', '-experience')
     league_characters = PoeCharacterFilter(request.GET, query_set)
     current_profile = request.user.discorduser.poe_profile if hasattr(request.user, 'discorduser') else None
 
