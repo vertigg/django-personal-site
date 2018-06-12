@@ -48,8 +48,8 @@ def detect_skills(request_data):
             # Check if item has sockets
             item_sockets = item.get('sockets', None)
 
-            # If item has sockets and it's not in main inventory
-            if item_sockets and item['inventoryId'] != 'MainInventory':
+            # If item has sockets and it's not in main inventory or in Slot Weapon 2 (Thanks Inked)
+            if item_sockets and item['inventoryId'] != 'MainInventory' and item['inventoryId'] != 'Weapon2':
                 groups_temp = []
 
                 # Get socket groups
