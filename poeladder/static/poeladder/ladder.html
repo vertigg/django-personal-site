@@ -128,7 +128,7 @@
                         </td>
                         {% endwith %}
                         
-                        <td class="text-center">{{ character.experience }}</td>
+                        <td class="text-center"><div class="text-right" style="width:75%">{{ character.experience|space_separator }}</div></td>
                         <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}</td>
                     </tr>
                 {% endfor %}
