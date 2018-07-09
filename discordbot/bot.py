@@ -141,10 +141,10 @@ async def ow(ctx):
         query_set = (DiscordUser.objects
             .exclude(blizzard_id__exact='')
             .values_list('id', 'blizzard_id'))
-        playerBase = {x[0] : x[1] for x in query_set}
+        ow_players = {x[0] : x[1] for x in query_set}
         if ctx.message.content == '!ow':
-            if ctx.message.author.id in playerBase:
-                message = await utils.check_ow_rank(ctx.message.author.id, playerBase)
+            if ctx.message.author.id in ow_players:
+                message = await utils.check_ow_rank(ctx.message.author.id, ow_players)
                 await bot.say('`{0}, Current rank {1}`'.format(ctx.message.author.name, message))
             return
         else:
@@ -156,9 +156,9 @@ async def ow(ctx):
             if len(mention) is not 18 or not mention.isdigit():
                 await bot.say('`How to use - !ow @User`')
                 return
-            if mention in playerBase:
-                message = await utils.check_ow_rank(mention, playerBase)
-                await bot.say('`{0}, Current rank {1}`'.format(playerBase[mention].split('-')[0], message))
+            if mention in ow_players:
+                message = await utils.check_ow_rank(mention, ow_players)
+                await bot.say('`{0}, Current rank {1}`'.format(ow_players[mention].split('-')[0], message))
             else:
                 await bot.say("Can't find player in database")
 
@@ -167,29 +167,25 @@ async def ow(ctx):
 async def ladder():
     global ow_lock
     if not ow_lock:
-        query_set = (DiscordUser.objects
-            .exclude(blizzard_id__exact='')
-            .values_list('id', 'blizzard_id'))
-        playerBase = {x[0] : x[1] for x in query_set}
-        ow_lock = True
-        tmp = await bot.say('`Loading player list 0/{}`'.format(len(playerBase)))
-        playerNum = 0
-        lad = {}
-        for id in playerBase:
-            lad[playerBase[id].split('-')[0]] = await utils.check_ow_rank(id, playerBase)
-            playerNum += 1
-            await bot.edit_message(tmp, '`Loading player list {0}/{1}`'.format(str(playerNum), len(playerBase)))
-        lad = {k: v for k, v in lad.items() if v is not None}
-        sortedLadder = sorted(lad.items(), key=lambda x: x[1], reverse=True)
-        average = 0
-        messageText = str()
-        for x in sortedLadder:
-            messageText += '    {0} - {1}\n'.format(x[1], x[0])
-            average += int(x[1])
-        average = round(average / len(sortedLadder))
-
-        await bot.edit_message(tmp, '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}\nСредняя температура по больнице - {1}```'.format(messageText, average))
-        ow_lock = False
+        try:
+            ow_lock = True
+            ow_players = (DiscordUser.objects.exclude(blizzard_id__exact='').values_list('blizzard_id', flat=True))
+            tmp_message = await bot.say('`Loading ladder`')
+            futures = []
+            ladder = {}
+            for k in ow_players:
+                futures.append(utils.check_ow_ladder(k, ow_players, ladder))
+            await bot.loop.create_task(asyncio.wait(futures))
+            sorted_ladder = sorted(ladder.items(), key=lambda x: x[1], reverse=True)
+            messageText = ''
+            for x in sorted_ladder:
+                messageText += '    {0} - {1}\n'.format(x[1], x[0])
+            await bot.edit_message(tmp_message, '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}```'.format(messageText))
+            asyncio.sleep(300)
+            ow_lock = False
+        except Exception as e:
+            botLogger.error(e)
+            ow_lock = False
 
 
 @bot.group(pass_context=True)

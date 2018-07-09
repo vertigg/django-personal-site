@@ -22,7 +22,12 @@ from discordbot.models import (DiscordPicture, DiscordSettings, DiscordUser,
 
 logger = logging.getLogger('botLogger')
 wisdom_history = deque([], maxlen=5)
-        
+HEADERS = {
+    'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'),
+}
+jar = aiohttp.CookieJar()
+session = aiohttp.ClientSession(cookie_jar=jar)
+
 def generate_token(discord_id):
     new_token = create_discord_token()
     DiscordUser.objects.filter(id=discord_id).update(token=new_token)
@@ -144,6 +149,9 @@ def mod_command(func):
     return decorated
 
 # monkaS
+def check_author_name(id, cache):
+    return cache[id] if id in cache else id
+    
 async def wisdom_info_formatter(cache):
     pyformat = '```py\n{}```'
     message = '{0:<4} : {1:^18} : {2:^35}\n'.format(
@@ -165,10 +173,9 @@ async def wisdom_info_formatter(cache):
                     latest_wisdom, check_author_name(latest_wisdom.author_id, cache), wisdom_count)
     return pyformat.format(message)
 
-def check_author_name(id, cache):
-    return cache[id] if id in cache else id
 
 def compare_timestamps(timestamp):
+    """Some great code down here"""
     difference = time.time() - timestamp
     if difference > 16070400:
         return 3
@@ -194,7 +201,28 @@ async def check_ow_rank(id, playerBase):
         result = "Can't find player in database"
     return result
 
-    wikipedia.set_lang('ru')
+
+async def check_ow_ladder(id:str, ow_players:dict, ladder:dict):
+    link = 'https://playoverwatch.com/en-gb/career/pc/' + id
+    try:
+        async with session.get(link, headers=HEADERS) as r:
+            text = await r.text()
+            logger.info(r.status)
+            if r.status == 500:
+                logger.error(f"Can't load player's page: {id}")
+                return
+            soup = BeautifulSoup(text, 'html.parser')
+            nickname = id.split('-')[0]
+            result = soup.find("div", {"class": "competitive-rank"}).text
+            ladder[nickname] = result
+    except AttributeError:
+        pass
+    except TypeError as e:
+        logger.error(e)
+    except Exception as e:
+        logger.error(type(e))
+
+wikipedia.set_lang('ru')
 
 def wiki(article):
     try:
