@@ -8,6 +8,7 @@ import random
 import subprocess
 import sys
 import time
+import gc
 from datetime import datetime, timedelta
 
 import discord
@@ -23,8 +24,8 @@ def __setup_django(root_path):
 
     django.setup()
 
-PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
-#PROJECT_PATH = r"C:\Users\EpicVertigo\Desktop\HomeSite"
+#PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
+PROJECT_PATH = r"C:\Users\EpicVertigo\Desktop\HomeSite"
 
 __setup_django(PROJECT_PATH)
 
@@ -165,8 +166,8 @@ async def ow(ctx):
 
 @ow.command(pass_context=True)
 async def ladder():
-    global ow_lock
-    if not ow_lock:
+    global ow_lock, ow_timeout
+    if not ow_lock and time.time() - ow_timeout >= 300:
         try:
             ow_lock = True
             ow_players = (DiscordUser.objects.exclude(blizzard_id__exact='').values_list('blizzard_id', flat=True))
@@ -181,11 +182,15 @@ async def ladder():
             for x in sorted_ladder:
                 messageText += '    {0} - {1}\n'.format(x[1], x[0])
             await bot.edit_message(tmp_message, '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}```'.format(messageText))
-            asyncio.sleep(300)
+            ow_timeout = round(time.time())
+            await asyncio.sleep(300)
             ow_lock = False
         except Exception as e:
             botLogger.error(e)
             ow_lock = False
+    else:
+        cooldown = 300 - round((time.time() - ow_timeout))
+        await bot.say("Next update will be available in {} seconds".format(cooldown))
 
 
 @bot.group(pass_context=True)
@@ -314,7 +319,7 @@ async def refresh(ctx):
 
 
 @bot.group(pass_context=True)
-async def brawl(ctx):  # Randomly generated brawl
+async def brawl(ctx):
     """Kill me pls"""
     if not ctx.invoked_subcommand:
         await bot.say(google_brawl.randomize_phrase(brawl_list))
@@ -458,6 +463,7 @@ if __name__ == '__main__':
     imgur_hb.update()
     extScriptLock = False
     ow_lock = False
+    ow_timeout = 0
 
     bot.loop.create_task(warframe_alert_watchdog())
     bot.run(BOT_TOKEN)

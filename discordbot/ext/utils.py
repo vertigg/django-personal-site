@@ -27,6 +27,8 @@ HEADERS = {
 }
 jar = aiohttp.CookieJar()
 session = aiohttp.ClientSession(cookie_jar=jar)
+wikipedia.set_lang('ru')
+
 
 def generate_token(discord_id):
     new_token = create_discord_token()
@@ -207,7 +209,6 @@ async def check_ow_ladder(id:str, ow_players:dict, ladder:dict):
     try:
         async with session.get(link, headers=HEADERS) as r:
             text = await r.text()
-            logger.info(r.status)
             if r.status == 500:
                 logger.error("Can't load player's page: {0}".format(id))
                 return
@@ -222,7 +223,6 @@ async def check_ow_ladder(id:str, ow_players:dict, ladder:dict):
     except Exception as e:
         logger.error(type(e))
 
-wikipedia.set_lang('ru')
 
 def wiki(article):
     try:
