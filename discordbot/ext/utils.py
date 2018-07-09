@@ -209,7 +209,7 @@ async def check_ow_ladder(id:str, ow_players:dict, ladder:dict):
             text = await r.text()
             logger.info(r.status)
             if r.status == 500:
-                logger.error(f"Can't load player's page: {id}")
+                logger.error("Can't load player's page: {0}".format(id))
                 return
             soup = BeautifulSoup(text, 'html.parser')
             nickname = id.split('-')[0]
