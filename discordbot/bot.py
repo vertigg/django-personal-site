@@ -24,8 +24,8 @@ def __setup_django(root_path):
 
     django.setup()
 
-#PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
-PROJECT_PATH = r"C:\Users\EpicVertigo\Desktop\HomeSite"
+PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
+#PROJECT_PATH = r"C:\Users\EpicVertigo\Desktop\HomeSite"
 
 __setup_django(PROJECT_PATH)
 
