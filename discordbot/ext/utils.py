@@ -26,7 +26,6 @@ HEADERS = {
     'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'),
 }
 jar = aiohttp.CookieJar()
-session = aiohttp.ClientSession(cookie_jar=jar)
 wikipedia.set_lang('ru')
 
 
@@ -206,22 +205,23 @@ async def check_ow_rank(id, playerBase):
 
 async def check_ow_ladder(id:str, ow_players:dict, ladder:dict):
     link = 'https://playoverwatch.com/en-gb/career/pc/' + id
-    try:
-        async with session.get(link, headers=HEADERS) as r:
-            text = await r.text()
-            if r.status == 500:
-                logger.error("Can't load player's page: {0}".format(id))
-                return
-            soup = BeautifulSoup(text, 'html.parser')
-            nickname = id.split('-')[0]
-            result = soup.find("div", {"class": "competitive-rank"}).text
-            ladder[nickname] = result
-    except AttributeError:
-        pass
-    except TypeError as e:
-        logger.error(e)
-    except Exception as e:
-        logger.error(type(e))
+    async with aiohttp.ClientSession(cookie_jar=jar) as session:
+        try:
+            async with session.get(link, headers=HEADERS) as r:
+                text = await r.text()
+                if r.status == 500:
+                    logger.error("Can't load player's page: {0}".format(id))
+                    return
+                soup = BeautifulSoup(text, 'html.parser')
+                nickname = id.split('-')[0]
+                result = soup.find("div", {"class": "competitive-rank"}).text
+                ladder[nickname] = result
+        except AttributeError:
+            pass
+        except TypeError as e:
+            logger.error(e)
+        except Exception as e:
+            logger.error(type(e))
 
 
 def wiki(article):
