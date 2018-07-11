@@ -8,14 +8,12 @@ import random
 import subprocess
 import sys
 import time
-import gc
 from datetime import datetime, timedelta
-
+import re 
 import discord
 
 def __setup_django(root_path):
     import django
-
     os.chdir(root_path)
 
     # Django settings
@@ -122,7 +120,7 @@ async def mix(ctx):
     """Mixes !hb and !wisdom commands"""
     if not ctx.invoked_subcommand:
         wisdom_obj = get_random_entry(Wisdom)
-        pic_url = utils.get_random_picture()
+        pic_url = imgur_hb.get_random_picture()
         if wisdom_obj is not None:
             await bot.say('{0}\n{1}'.format(wisdom_obj.text, pic_url))
                                         
@@ -137,33 +135,28 @@ async def low(ctx):
 
 @bot.group(pass_context=True)
 async def ow(ctx):
-    """Overwatch Rank"""
-    if ctx.invoked_subcommand is None:
-        query_set = (DiscordUser.objects
-            .exclude(blizzard_id__exact='')
-            .values_list('id', 'blizzard_id'))
-        ow_players = {x[0] : x[1] for x in query_set}
-        if ctx.message.content == '!ow':
-            if ctx.message.author.id in ow_players:
-                message = await utils.check_ow_rank(ctx.message.author.id, ow_players)
-                await bot.say('`{0}, Current rank {1}`'.format(ctx.message.author.name, message))
+    if not ctx.invoked_subcommand and ctx.message.content == '!ow':
+        discord_id = ctx.message.author.id
+    else:
+        mention_pattern = r"\!ow\s\<\@(?P<id>\d+)\>"
+        m = re.match(mention_pattern, ctx.message.content)
+        if not m:
+            await bot.say('`How to use - !ow @User`')
             return
-        else:
-            content = ctx.message.content
-            mention = content.split('!ow ')[1][2:20]
-            if mention == '!22383766718644224':
-                await bot.say('Я не играю в это говно <:ded:237151960359370753>')
-                return
-            if len(mention) is not 18 or not mention.isdigit():
-                await bot.say('`How to use - !ow @User`')
-                return
-            if mention in ow_players:
-                message = await utils.check_ow_rank(mention, ow_players)
-                await bot.say('`{0}, Current rank {1}`'.format(ow_players[mention].split('-')[0], message))
+        discord_id = m.group(1)           
+    if discord_id:
+        try:
+            user = DiscordUser.objects.get(id=discord_id)
+            if user.blizzard_id:
+                rank = await utils.check_ow_rank(user.blizzard_id)
+                await bot.say("`{0}: {1}`".format(user.display_name, rank))
             else:
-                await bot.say("Can't find player in database")
+                await bot.say("`You don't have blizzard tag linked to your profile`")
+        except DiscordUser.DoesNotExist:
+            await bot.say("`Can't find player in database`")
+            utils.update_display_names(bot.servers)
 
-
+ 
 @ow.command(pass_context=True)
 async def ladder():
     global ow_lock, ow_timeout
@@ -257,7 +250,7 @@ async def link(ctx):
 async def hb(ctx):
     """Нет слов"""
     if not ctx.invoked_subcommand:
-        await bot.say(utils.get_random_picture())
+        await bot.say(imgur_hb.get_random_picture())
 
 
 @hb.command()
@@ -375,29 +368,22 @@ async def kf(ctx):
 
 
 @kf.command()
-async def update():  # Update kf2 gdrive file
-    """Обновить файл статистики по КФ2"""
+async def update():
+    """Update KF2 Achievements spreadsheet"""
     global extScriptLock
-    if extScriptLock == True:
-        await bot.say("`Скрипт еще работает, не задрачивай меня`")
-    if extScriptLock == False:
-        # extScriptLock = await SteamStats.BotUpdate({"GAMEID":"252950","WSNAME":"Rocket League",'GSNAME':'Steam Achievements', 'fix_icons':False, 'firstTime':False, 'decorate':False, 'nodesc':False})
-        p = subprocess.Popen(["python3", "discordbot/SteamStats.py",
-                              "-g", "232090",
-                              "-ws", "KF2"],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-        #botLogger.info(p.communicate()) # for debug
-        await bot.say("`Скрипт запущен, помолимся.`")
-        botLogger.info('[KFGOOGLE]: Script started')
+    if not extScriptLock:
         extScriptLock = True
-        sleeptime = 5
-        while p.poll() == None:
-            await asyncio.sleep(sleeptime)
-        else:
+        botLogger.info('[KFGOOGLE]: Script started')
+        p = subprocess.Popen(["python3", "discordbot/SteamStats.py"], stderr=subprocess.PIPE)
+        while p.poll() is None:
+            await asyncio.sleep(1)
+        if p.poll() is 0:
             await bot.say("`Таблицы ачивок обновлены`")
-            extScriptLock = False
             botLogger.info('[KFGOOGLE]: Script finished')
+        else:
+            await bot.say("`There were some errors during update. Check logs for more info`")
+            botLogger.error("[KFGOOGLE]: There were some errors during update. Check logs for more info")
+        extScriptLock = False
 
 
 @bot.command(pass_context=True)
@@ -429,11 +415,9 @@ async def warframe_alert_watchdog():
                 matches = []
                 if alert.keywords:
                     keywords = alert.keywords.split(',')
-
                     for key in keywords:
                         if key in warframe.RESOURCES:
                             matches.append(warframe.RESOURCES[key])
-                
                 if matches:
                     if len(matches) is 2:
                         q1 = DiscordUser.objects.select_related().filter(**{'wf_settings__{}'.format(matches[0]):True})
@@ -442,7 +426,6 @@ async def warframe_alert_watchdog():
                     else:
                         query_filter = {'wf_settings__{}'.format(matches[0]) : True}
                         subscribers = DiscordUser.objects.select_related().filter(**query_filter)  
-                    
                     for sub in subscribers:
                         try:
                             user = server.get_member(sub.id)

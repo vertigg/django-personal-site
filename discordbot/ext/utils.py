@@ -15,21 +15,20 @@ import gspread
 import requests
 import wikipedia
 from bs4 import BeautifulSoup
-from django.core.exceptions import FieldError
 
+from django.core.exceptions import FieldError
 from discordbot.models import (DiscordPicture, DiscordSettings, DiscordUser,
                                Wisdom, create_discord_token)
 
 logger = logging.getLogger('botLogger')
 wisdom_history = deque([], maxlen=5)
-HEADERS = {
-    'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'),
-}
+HEADERS = {'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'),}
 jar = aiohttp.CookieJar()
 wikipedia.set_lang('ru')
 
 
-def generate_token(discord_id):
+def generate_token(discord_id:str):
+    """Generate token for registration"""
     new_token = create_discord_token()
     DiscordUser.objects.filter(id=discord_id).update(token=new_token)
     return new_token
@@ -100,20 +99,6 @@ def refresh_wisdom_history():
     logger.info('Wisdom deque has been updated')
     return "Wisdom history has been updated"
 
-# move this crap to imgur_hb
-def get_random_picture():
-    """Gets random picture from imgur table and sets new pid based on picture's age"""
-    random_pic = DiscordPicture.objects.filter(pid__lt=2).order_by('?').first()
-    if random_pic:
-        id = random_pic.id
-        current_pid = random_pic.pid
-        new_pid = current_pid + compare_timestamps(random_pic.date)
-        DiscordPicture.objects.filter(id=random_pic.id).update(pid=new_pid)
-        return random_pic.url
-    else:
-        DiscordPicture.objects.all().update(pid=0)
-        return get_random_picture()
-
 def botExceptionCatch(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -155,8 +140,7 @@ def check_author_name(id, cache):
     
 async def wisdom_info_formatter(cache):
     pyformat = '```py\n{}```'
-    message = '{0:<4} : {1:^18} : {2:^35}\n'.format(
-                'ID','Author','Wisdom Text')
+    message = '{0:<4} : {1:^18} : {2:^35}\n'.format('ID','Author','Wisdom Text')
     
     latest_wisdom = Wisdom.objects.latest('id')
     wisdom_count = Wisdom.objects.count()
@@ -175,31 +159,16 @@ async def wisdom_info_formatter(cache):
     return pyformat.format(message)
 
 
-def compare_timestamps(timestamp):
-    """Some great code down here"""
-    difference = time.time() - timestamp
-    if difference > 16070400:
-        return 3
-    elif difference > 7776000:
-        return 2
-    else:
-        return 1
-
-async def check_ow_rank(id, playerBase):
+async def check_ow_rank(id):
     """OW rank checker"""
-    if id in playerBase:
-        blizzID = playerBase[id]
-        link = 'https://playoverwatch.com/en-gb/career/pc/eu/' + blizzID
-        async with aiohttp.get(link) as r:
-            try:
-                text = await r.text()
-                soup = BeautifulSoup(text, 'html.parser')
-                result = soup.find("div", {"class": "competitive-rank"}).text
-            except:
-                result = None
-        return result
-    else:
-        result = "Can't find player in database"
+    link = 'https://playoverwatch.com/en-gb/career/pc/eu/' + id
+    async with aiohttp.get(link) as r:
+        try:
+            text = await r.text()
+            soup = BeautifulSoup(text, 'html.parser')
+            result = soup.find("div", {"class": "competitive-rank"}).text
+        except:
+            result = "Not ranked"
     return result
 
 

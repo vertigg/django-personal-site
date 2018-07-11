@@ -15,8 +15,7 @@ def authorize_google(json_file, token):
     try:
         gscope = ['https://spreadsheets.google.com/feeds',
                   'https://www.googleapis.com/auth/drive.metadata.readonly']
-        gcredentials = ServiceAccountCredentials.from_json_keyfile_name(
-            json_file, gscope)
+        gcredentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, gscope)
         service = discovery.build('drive', 'v3', credentials=gcredentials)
         response = service.changes().list(pageToken=token).execute()
         logger.debug(response)
@@ -32,9 +31,7 @@ def read_spreadsheet(gcredentials, spreadsheet):
     try:
         gcs = gspread.authorize(gcredentials)
         brawl_sh = gcs.open(spreadsheet).sheet1
-        # Get raw data from google sheet
         raw_data = [list(brawl_sh.col_values(i+1)) for i in range(brawl_sh.col_count)]
-        # Filter lists for empty cells
         filtered_data = list(list(filter(None, column)) for column in raw_data)
 
         if 0 in list(map(len, filtered_data)):
@@ -53,25 +50,18 @@ def check_for_updates():
     json_file = DiscordSettings.objects.get(key='json').value
     token = DiscordSettings.objects.get(key='token').value
     spreadsheet = DiscordSettings.objects.get(key='spreadsheet').value
-
     gcredentials, response = authorize_google(json_file, token)
     
     if response is not None and 'newStartPageToken' in response:
-
-        # Use cached table if response token is the same as saved one
         if token == response.get('newStartPageToken'):
             logger.info('[GSPREAD] Brawl lists are the same.')
             return get_brawl_table()
-
-        # Update token if token is different, but brawl spreadsheet is not in response
         elif token != response.get('newStartPageToken') and spreadsheet not in str(response):
             logger.info('[GSPREAD]: Brawl dictionary is not in response. New page token is {}'.format(
                 response.get('newStartPageToken')))
             logger.info('[GSPREAD]: Brawl lists are the same.')
             DiscordSettings.objects.filter(key='token').update(value=response.get('newStartPageToken'))
             return get_brawl_table() 
-
-        # Try to get new brawl_list and update db table
         else:
             brawl_list = read_spreadsheet(gcredentials, spreadsheet)
             if brawl_list is not None:
@@ -86,7 +76,6 @@ def check_for_updates():
         brawl_list = get_brawl_table()
         return brawl_list
 
-
 def randomize_phrase(brawl_list):
     message = '{r[0]} {r[1]} {r[3]} {r[4]} и {r[5]} {r[2]}'
     if brawl_list:
@@ -94,7 +83,6 @@ def randomize_phrase(brawl_list):
         return message.format(r=phrase_list)
     else:
         return ('`Something wrong with brawl lists. Please check logs for more info`')
-
 
 def get_brawl_table():
     try:
