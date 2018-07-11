@@ -192,7 +192,12 @@ def playerCheck():
         payload = {'key':STEAM_API_KEY,'appid':args['GAMEID'],'steamid':current['SteamID']}
         r = requests.get(PLAYER_ACHIEVMENTS_URL,params=payload)
         data = json.loads(r.text)
-        achievements = data['playerstats']['achievements']
+        try:
+            achievements = data['playerstats']['achievements']
+        except:
+            if data['playerstats']['error']:
+                logger.error(data['playerstats']['error'])
+            continue
 
         listPlayer = list(filter(None,ws.col_values(current['index'])))
         del listPlayer [:1]
