@@ -15,11 +15,9 @@ import discord
 def __setup_django(root_path):
     import django
     os.chdir(root_path)
-
     # Django settings
     sys.path.append(root_path)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VertigoProject.settings")
-
     django.setup()
 
 PROJECT_PATH = "/home/vertigo/homesite/django-epicvertigo"
@@ -87,26 +85,24 @@ async def shles():
 
 @bot.command(pass_context=True)
 async def avatar(ctx, mention=None):
-    """Показывает аватарку юзера"""
+    """Shows user's avatar"""
+    mention_pattern = r"\<\@\!?(?P<id>\d+)\>"
     if mention == None:
         await bot.say(ctx.message.author.avatar_url)
         return
-    if len(mention) is not 21 and len(mention) is not 22:
-        await bot.say('`Как юзать - !avatar @User`')
-        return
-    if mention[2] == '!':
-        mention = mention.replace('!', '')
-    user = None
-    for member in ctx.message.server.members:
-        if member.id == mention[2:20]:
-            user = member
-    if user == None:
-        await bot.say('`Нет такого юзера на сервере`')
-    else:
-        if user.avatar_url == '':
-            await bot.say('`У юзера нет аватарки`')
+    if mention:
+        m = re.match(mention_pattern, mention)
+        if not m:
+            await bot.say('`Как юзать - !avatar @User`')
+            return
         else:
-            await bot.say(user.avatar_url)
+            id = m.group(1)
+            try:
+                avatar = DiscordUser.objects.get(id=id).avatar_url
+                await bot.say(avatar)
+            except DiscordUser.DoesNotExist:
+                await bot.say('`Нет такого юзера на сервере`')
+                utils.update_display_names(bot.servers)
 
 
 @bot.command()
