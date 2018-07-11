@@ -445,4 +445,8 @@ if __name__ == '__main__':
     ow_timeout = 0
 
     bot.loop.create_task(warframe_alert_watchdog())
-    bot.run(BOT_TOKEN)
+    try:
+        bot.run(BOT_TOKEN)
+    except Exception as ex:
+        botLogger.error(ex)
+        quit()
