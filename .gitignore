@@ -282,5 +282,6 @@ credentials.json
 credentials.py
 *.log
 .vs/
+env/
 examples/
 data.db
