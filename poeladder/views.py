@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render
 
 from .filters import PoeCharacterFilter
 from .forms import SearchForm
-from .models import PoeCharacter, PoeInfo, PoeLeague
+from .models import PoeCharacter, PoeLeague
 
 
 def ladder(request):
@@ -27,7 +27,7 @@ def league_ladder(request, league):
 
     return render(request, 'poeladder/ladder.html', {
         'title': title,
-        'league_object': league_object, 
+        'league_object': league_object,
         'requested_league': requested_league,
         'league_characters': league_characters,
         'current_profile' : current_profile
@@ -41,6 +41,6 @@ def search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             name = form.cleaned_data['name']
-            response['search_query'] = request.GET['name'] if name else 'All characters' 
+            response['search_query'] = request.GET['name'] if name else 'All characters'
             response['search_results'] = PoeCharacter.objects.filter(name__icontains=name).order_by('name')
     return render(request, 'poeladder/ladder.html', response)

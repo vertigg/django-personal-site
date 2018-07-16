@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
-from discordbot.models import DiscordPicture, DiscordUser, WFAlert, Wisdom
+from discordbot.models import WFAlert
 
 re_invasion = r'\((.*?)\)'
 

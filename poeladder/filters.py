@@ -15,13 +15,13 @@ class PoeCharacterFilter(django_filters.FilterSet):
         (6, 'Shadow'),
         )
     class_id = django_filters.ChoiceFilter(
-        choices=class_choices, 
-        empty_label='All classes', 
+        choices=class_choices,
+        empty_label='All classes',
         widget=forms.Select(attrs={
             'onchange':'this.form.submit()',
             'class' : "ladder-select",
         }))
-    
+
     class Meta:
         model = PoeCharacter
         fields = ['class_id']
