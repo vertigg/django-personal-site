@@ -2,6 +2,7 @@
 
 import inspect
 import logging
+import aiohttp
 
 from discord.ext import commands
 
@@ -13,6 +14,35 @@ class Admin(object):
 
     def __init__(self, bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession(loop=self.bot.loop)
+
+    @commands.command(pass_context=True, hidden=True)
+    @admin_command
+    async def change_avatar(self, ctx, url):
+        """Sets Bot's avatar"""
+        try:
+            async with self.session.get(url) as r:
+                data = await r.read()
+            await self.bot.edit_profile(avatar=data)
+            await self.bot.say("Done.")
+            logger.debug("changed avatar")
+        except Exception as e:
+            await self.bot.say("Error, check your console or logs for "
+                            "more information.")
+            logger.exception(e)
+
+    @commands.command(pass_context=True, hidden=True)
+    @admin_command
+    async def change_nickname(self, ctx, nickname: str):
+        """Sets Bot's nickname"""
+        try:
+            await self.bot.edit_profile(username=nickname)
+            await self.bot.say("Done.")
+            logger.debug("changed nickname")
+        except Exception as e:
+            await self.bot.say("Error, check your console or logs for "
+                            "more information.")
+            logger.exception(e)
 
     @commands.command(pass_context=True, hidden=True)
     @admin_command
