@@ -27,14 +27,14 @@
 {% endif %}
 
 {% if search %}
-<div class="container h-100 justify-content-center align-items-center ">
+<div class="container col-lg-8">
     <h1 class="ladder-title">Search results</h1>
         {% if poe_search_form.errors %}
             <h2>{{ poe_search_form.errors }}</h2>
         {% else %}
             <h2>Found {{ search_results|length }} result{{ search_results|pluralize }} for «{{ search_query }}» </h2>
         {% endif %}
-        <div class="row d-flex flex-wrap justify-content-center">
+        <div class="container col-lg-12">
                 <table class="LadderTable">
                         <thead>
                           <tr class="LadderHeader">
@@ -43,8 +43,6 @@
                             <th>Class <form id="" method="get" style="float:right">{{ league_characters.form.class_id }}</form>
                             </th>
                             <th class="row-level text-center">Level</th>
-                            <th class="row-level text-center">Progress</th>
-                            <th class="row-level text-center">Experience</th>
                             <th class="row-level text-center">Skills</th>
                           </tr>
                         </thead>
@@ -67,12 +65,6 @@
                                         </td>
                                     <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{ character.class_name }}</td>
                                     <td class="text-center">{{ character.level }}</td>
-                                    <td style="width:85%"> 
-                                        <div class="progress-bar-level center-block">
-                                            <div class="progress-level" role="progressbar" style='width: {{character|level_progress}}%;' aria-valuenow="{{character|level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        </td>
-                                    <td class="text-center">{{ character.experience }}</td>
                                     <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}" >  {% endfor %}</td>
                                 </tr>
                             {% endfor %}

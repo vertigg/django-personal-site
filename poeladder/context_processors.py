@@ -1,7 +1,5 @@
 from datetime import datetime
-
 from django.utils import timezone
-
 from .forms import SearchForm
 from .models import PoeInfo, PoeLeague
 
@@ -23,5 +21,4 @@ def last_ladder_update(request):
 
 
 def poe_search_form(request):
-    form = SearchForm()
-    return {'poe_search_form' : form}
+    return {'poe_search_form' : SearchForm()}
