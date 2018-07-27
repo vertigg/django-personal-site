@@ -4,6 +4,7 @@ from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm,
                                        UsernameField, password_validation)
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -45,44 +46,39 @@ class DiscordTokenForm(forms.Form):
         widget=forms.TextInput(attrs={'class':'form-control'})
     )
 
-class DiscordProfileForm(forms.Form):
+class DiscordProfileForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(DiscordProfileForm, self).__init__(*args, **kwargs)
+        self.fields['steam_id'].validators = [RegexValidator(r'^\d{1,17}$')]
+        self.fields['steam_id'].max_length = 17
+        self.fields['blizzard_id'].validators = [RegexValidator(r"([\w]+)\-([\d]{4,5})$")]
 
-    steam_id = forms.CharField(
-        label=_("Steam ID"),
-        required=False,
-        max_length=17,
-        validators=[RegexValidator(r'^\d{1,17}$')],
-        widget=forms.TextInput(attrs={'class':'form-control'}),
-        help_text=mark_safe("17 characters, digits only. <a href='https://steamid.io/'>Find your SteamID64</a>")
-    )
-
-    blizzard_id = forms.CharField(
-        label=_("Blizzard ID"),
-        required=False,
-        validators=[RegexValidator(r"([\w]+)\-([\d]{4,5})$")],
-        widget=forms.TextInput(attrs={'class':'form-control'}),
-        help_text="Example: Username-0000"
-    )
-
-    poe_profile = forms.CharField(
-        label=_("Path of Exile Profile"),
-        required=False,
-        widget=forms.TextInput(attrs={'class':'form-control'}),
-        help_text="'Character' tab in your profile must be public. Ladder updates every 24 hours"
-    )
+    class Meta:
+        model = DiscordUser
+        fields = ['steam_id', 'blizzard_id', 'poe_profile']
+        widgets = {
+            'steam_id' : forms.TextInput(attrs={'class':'form-control'}),
+            'blizzard_id' : forms.TextInput(attrs={'class':'form-control'}),
+            'poe_profile' : forms.TextInput(attrs={'class':'form-control'}),
+        }
+        help_texts = {
+            'steam_id' : mark_safe("17 characters, digits only. <a href='https://steamid.io/'>Find your SteamID64</a>"),
+            'poe_profile' : "'Character' tab in your profile must be public. Ladder updates every 24 hours"
+        }
+        labels = {'poe_profile' : _("Path of Exile Profile")}
 
     def clean_poe_profile(self):
-        profile_passed = self.cleaned_data.get('poe_profile')
+        profile = self.cleaned_data.get('poe_profile')
         check_link = 'https://pathofexile.com/character-window/get-characters?accountName={}'
-        if profile_passed is None or profile_passed == '':
-            return profile_passed
-        if DiscordUser.objects.filter(poe_profile=profile_passed).exists():
-            if not self.user.discorduser.poe_profile == profile_passed:
-                raise ValidationError(('"{}" profile already exists'.format(profile_passed)))
-        if requests.get(check_link.format(profile_passed)).status_code != 200:
+        if profile is None or profile == '':
+            return profile
+        if DiscordUser.objects.filter(poe_profile=profile).exists():
+            if not self.user.discorduser.poe_profile == profile:
+                raise ValidationError(('"{}" profile already exists'.format(profile)))
+            else:
+                return profile
+        if requests.get(check_link.format(profile)).status_code != 200:
             raise ValidationError(("Account name is wrong or private"))
-        return profile_passed
+        return profile

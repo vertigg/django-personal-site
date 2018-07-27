@@ -1,6 +1,5 @@
 import platform
 
-from django import get_version
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,9 +7,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 
-from poeladder.models import PoeCharacter
-from discordbot.models import DiscordUser, WFSettings
 from discordbot.forms import WFSettingsForm
+from discordbot.models import DiscordUser, WFSettings
+from poeladder.models import PoeCharacter
 from VertigoProject.forms import (DiscordProfileForm, DiscordTokenForm,
                                   StyledUserCreationForm)
 
@@ -30,7 +29,7 @@ def signup(request):
             return redirect('home')
     else:
         form = StyledUserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+    return render(request, 'registration/signup.html', {'form' : form})
 
 @login_required(login_url='/login/')
 def unlink(request):
@@ -53,14 +52,13 @@ def profile(request):
         if user.discorduser.wf_settings is None:
             user.discorduser.wf_settings = WFSettings.objects.create()
             user.discorduser.save()
-        profile_form = DiscordProfileForm(initial=get_profile_data(request))
-        wf_settings_form = WFSettingsForm(initial=get_wfsettings_data(request))
+        profile_form = DiscordProfileForm(user=request.user, instance=get_profile(request))
+        wf_settings_form = WFSettingsForm(instance=get_wfsettings(request))
     else:
-        profile_form = DiscordProfileForm
-        wf_settings_form = WFSettingsForm
+        profile_form = None
+        wf_settings_form = None
 
     if request.method == "POST":
-        
         if 'token_link' in request.POST:
             form = DiscordTokenForm(request.POST)
             if form.is_valid():
@@ -72,40 +70,21 @@ def profile(request):
                     return redirect('profile')
                 except ObjectDoesNotExist:
                     invalid_token = True
-
         if 'profile_update' in request.POST:
-            form = DiscordProfileForm(request.POST, user=request.user)
-            form2 = WFSettingsForm(request.POST)
-            if form.is_valid() and form2.is_valid():
-                user.discorduser.steam_id = form.cleaned_data.get('steam_id')
-                user.discorduser.blizzard_id = form.cleaned_data.get('blizzard_id')
-
-                # Path of Exile profile
+            form = DiscordProfileForm(request.POST, user=request.user, instance=get_profile(request))
+            wf_form = WFSettingsForm(request.POST, instance=get_wfsettings(request))
+            if form.is_valid():
                 passed_poe_profile = form.cleaned_data.get('poe_profile')
                 if passed_poe_profile is None or passed_poe_profile == '' or passed_poe_profile != user.discorduser.poe_profile:
                     PoeCharacter.objects.filter(profile=user.discorduser.id).delete()
-                user.discorduser.poe_profile = passed_poe_profile
-
-                wfs = user.discorduser.wf_settings
-                wf_data = form2.cleaned_data
-
-                wfs.nitain_extract = wf_data.get('nitain_extract')
-                wfs.orokin_cell = wf_data.get('orokin_cell')
-                wfs.orokin_reactor_bp = wf_data.get('orokin_reactor_bp')
-                wfs.orokin_catalyst_bp = wf_data.get('orokin_catalyst_bp')
-                wfs.tellurium = wf_data.get('tellurium')
-                wfs.forma_bp = wf_data.get('forma_bp')
-                wfs.exilus_ap = wf_data.get('exilus_ap')
-                wfs.kavat = wf_data.get('kavat')
-                
-                wfs.save()
-                user.save()
-                if request.POST.get('update'):
-                    is_updated = True
-                profile_form = DiscordProfileForm(initial=get_profile_data(request))
-                wf_settings_form = WFSettingsForm(initial=get_wfsettings_data(request))
+                form.save()
+                is_updated = True
+                profile_form = DiscordProfileForm(request.POST, user=request.user, instance=get_profile(request))
             else:
                 profile_form = form
+            if wf_form.is_valid():
+                wf_form.save()
+                wf_settings_form = WFSettingsForm(request.POST, instance=get_wfsettings(request))
     
     return render(request, 'profile.html', {
         'is_linked' : is_linked,
@@ -117,24 +96,9 @@ def profile(request):
         })
 
 
-def get_wfsettings_data(request):
-    wfs = request.user.discorduser.wf_settings
-    initial_wfsettings = {
-                        'nitain_extract' : wfs.nitain_extract,
-                        'orokin_cell' : wfs.orokin_cell,
-                        'orokin_reactor_bp' : wfs.orokin_reactor_bp,
-                        'orokin_catalyst_bp' : wfs.orokin_catalyst_bp,
-                        'tellurium' : wfs.tellurium,
-                        'forma_bp' : wfs.forma_bp,
-                        'exilus_ap' : wfs.exilus_ap,
-                        'kavat' : wfs.kavat,
-                        }
-    return initial_wfsettings
+def get_wfsettings(request):
+    return request.user.discorduser.wf_settings
 
-def get_profile_data(request):
-    initial_profile_data = {
-            'steam_id' : request.user.discorduser.steam_id,
-            'blizzard_id' : request.user.discorduser.blizzard_id,
-            'poe_profile' : request.user.discorduser.poe_profile,
-            }
-    return initial_profile_data           
+def get_profile(request):
+    return request.user.discorduser
+    

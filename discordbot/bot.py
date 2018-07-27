@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import discord
+from discord.ext import commands
 
 def __setup_django(root_path):
     import django
@@ -11,7 +12,7 @@ def __setup_django(root_path):
     django.setup()
 
 if os.name == 'nt':
-    PROJECT_PATH = r"C:\Users\EpicVertigo\Desktop\HomeSite"
+    PROJECT_PATH = "C:\\Users\\EpicVertigo\\Desktop\\HomeSite"
 else:
     PROJECT_PATH = "/home/vertigo/homesite"
 __setup_django(PROJECT_PATH)
@@ -20,7 +21,6 @@ logging.config.fileConfig('discordbot/logger.ini')
 discord_logger = logging.getLogger('discordLogger')
 logger = logging.getLogger('botLogger')
 
-from discord.ext import commands
 from discordbot.models import DiscordSettings
 from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
 
