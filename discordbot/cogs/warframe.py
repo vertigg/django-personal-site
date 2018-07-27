@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+import discord
 from discord.errors import InvalidArgument
 from discordbot.models import DiscordUser, WFAlert
 
@@ -66,7 +67,7 @@ class Warframe(object):
                         for sub in subscribers:
                             try:
                                 user = server.get_member(sub.id)
-                                await self.bot.send_message(user, '```{}```'.format(alert.content))
+                                await self.bot.send_message(user, embed=self.create_embed(alert))
                             except InvalidArgument:
                                 pass
                 except Exception as ex:
@@ -75,6 +76,11 @@ class Warframe(object):
                 alert.save()
             await asyncio.sleep(60)
 
+    def create_embed(self, alert):
+        embed = discord.Embed(title="**Warframe Alert**", colour=discord.Colour(0xff0074), description="{}".format(alert.content))
+        embed.set_thumbnail(url="https://i.imgur.com/ZvDNumd.png")
+        embed.set_footer(text="WFAlert ID: {}".format(alert.id))
+        return embed
 
 def setup(bot):
     bot.add_cog(Warframe(bot))

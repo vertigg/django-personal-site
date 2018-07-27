@@ -95,6 +95,7 @@ class DiscordSettings(models.Model):
     def __str__(self):
         return self.value
 
+
 class DiscordUser(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
@@ -164,6 +165,7 @@ class Wisdom(models.Model):
 
     def __str__(self):
         return truncatechars(self.text, 50)
+        
             
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
