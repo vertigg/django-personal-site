@@ -1,3 +1,7 @@
+"""
+Crappy cog for checking overwatch rank
+"""
+
 import asyncio
 import logging
 import re
@@ -23,6 +27,7 @@ class Overwatch(object):
         self.lock = False
         self.timeout = 0
         self.cooldown = 300
+        self.futures = []
 
     @commands.group(pass_context=True)
     async def ow(self, ctx):
@@ -57,11 +62,11 @@ class Overwatch(object):
                               .exclude(blizzard_id__exact='')
                               .values_list('blizzard_id', flat=True))
                 tmp_message = await self.bot.say('`Loading ladder`')
-                futures = []
                 ladder = {}
-                for k in ow_players:
-                    futures.append(self.check_ow_ladder(k, ladder))
-                await self.bot.loop.create_task(asyncio.wait(futures))
+                async with aiohttp.ClientSession() as session:
+                    for k in ow_players:
+                        self.futures.append(self.check_ow_ladder(k, ladder, session))
+                    await self.bot.loop.create_task(asyncio.wait(self.futures))
                 sorted_ladder = sorted(
                     ladder.items(), key=lambda x: x[1], reverse=True)
                 msg = ''
@@ -69,6 +74,7 @@ class Overwatch(object):
                     msg += '    {0} - {1}\n'.format(player[1], player[0])
                 await self.bot.edit_message(tmp_message, '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}\n```'.format(msg))
                 self.timeout = round(time())
+                self.futures.clear()
                 await asyncio.sleep(10)
                 self.lock = False
             except Exception as ex:
@@ -89,25 +95,24 @@ class Overwatch(object):
                 result = "Not ranked"
         return result
 
-    async def check_ow_ladder(self, blizzard_id: str, ladder: dict):
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.get(LINK + blizzard_id, headers=HEADERS) as resp:
-                    text = await resp.text()
-                    if resp.status == 500:
-                        logger.error("Can't load player's page: %s", blizzard_id)
-                        return
-                    soup = BeautifulSoup(text, 'html.parser')
-                    nickname = blizzard_id.split('-')[0]
-                    result = soup.find(
-                        "div", {"class": "competitive-rank"}).text
-                    ladder[nickname] = result
-            except AttributeError:
-                pass
-            except TypeError as ex:
-                logger.error(ex)
-            except Exception as ex:
-                logger.error(type(ex))
+    async def check_ow_ladder(self, blizzard_id: str, ladder: dict, session):
+        try:
+            async with session.get(LINK + blizzard_id, headers=HEADERS) as resp:
+                text = await resp.text()
+                if resp.status == 500:
+                    logger.error("Can't load player's page: %s", blizzard_id)
+                    return
+                soup = BeautifulSoup(text, 'html.parser')
+                nickname = blizzard_id.split('-')[0]
+                result = soup.find(
+                    "div", {"class": "competitive-rank"}).text
+                ladder[nickname] = result
+        except AttributeError:
+            pass
+        except TypeError as ex:
+            logger.error(ex)
+        except Exception as ex:
+            logger.error(ex)
 
 
 def setup(bot):

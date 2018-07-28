@@ -1,3 +1,7 @@
+"""
+Cog for checking Warframe alerts
+"""
+
 import asyncio
 import logging
 
@@ -9,7 +13,7 @@ logger = logging.getLogger("botLogger.warframe")
 
 
 class Warframe(object):
-
+    
     def __init__(self, bot):
         self.bot = bot
         self.watchdog = self.bot.loop.create_task(self.warframe_alert_watchdog())
