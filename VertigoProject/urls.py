@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^ladder/', include('poeladder.urls')),
     url(r'^api/v1/', include('discordbot.urls')),
     #url(r'^books', include('books.urls')),
-    url(r'^login/$', auth_views.login, {'authentication_form':StyledAuthenticationForm}, name='login'),
+    url(r'^login/$', auth_views.login, {'authentication_form':StyledAuthenticationForm, 'redirect_authenticated_user' : True}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'home'}, name='logout'),
     url(r'^signup/$', signup, name='signup'),
     url(r'^profile/$', profile, name='profile'),
