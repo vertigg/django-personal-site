@@ -77,7 +77,9 @@ class Warframe(object):
             await asyncio.sleep(60)
 
     def create_embed(self, alert):
-        embed = discord.Embed(title="**Warframe Alert**", colour=discord.Colour(0xff0074), description="{}".format(alert.content))
+        embed = discord.Embed(title="**Warframe Alert**", 
+                              colour=discord.Colour(0xff0074),
+                              description="{}\n\n[Unsubscribe](https://epicvertigo.xyz/profile)".format(alert.content))
         embed.set_thumbnail(url="https://i.imgur.com/ZvDNumd.png")
         embed.set_footer(text="WFAlert ID: {}".format(alert.id))
         return embed
