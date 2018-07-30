@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
-from .utils.checks import mod_command
+from .utils.checks import admin_command, mod_command
 from .utils.db import get_random_entry, update_display_names
 
 
@@ -36,7 +36,7 @@ class General(object):
                     update_display_names(self.bot.servers)
 
     @commands.command(pass_context=True)
-    @mod_command
+    @admin_command
     async def game(self, ctx, *args):
         """Change bot's status"""
         game = ' '.join(args)
