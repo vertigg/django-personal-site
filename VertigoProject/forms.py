@@ -51,20 +51,19 @@ class DiscordProfileForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(DiscordProfileForm, self).__init__(*args, **kwargs)
-        self.fields['steam_id'].validators = [RegexValidator(r'^\d{1,17}$')]
-        self.fields['steam_id'].max_length = 17
+        #self.fields['steam_id'].validators = [RegexValidator(r'^\d{1,17}$')]
+        #self.fields['steam_id'].max_length = 17
         self.fields['blizzard_id'].validators = [RegexValidator(r"([\w]+)\-([\d]{4,5})$")]
 
     class Meta:
         model = DiscordUser
-        fields = ['steam_id', 'blizzard_id', 'poe_profile']
+        fields = ['blizzard_id', 'poe_profile']
         widgets = {
-            'steam_id' : forms.TextInput(attrs={'class':'form-control'}),
             'blizzard_id' : forms.TextInput(attrs={'class':'form-control'}),
             'poe_profile' : forms.TextInput(attrs={'class':'form-control'}),
         }
         help_texts = {
-            'steam_id' : mark_safe("17 characters, digits only. <a href='https://steamid.io/'>Find your SteamID64</a>"),
+            #'steam_id' : mark_safe("17 characters, digits only. <a href='https://steamid.io/'>Find your SteamID64</a>"),
             'poe_profile' : "'Character' tab in your profile must be public. Ladder updates every 24 hours"
         }
         labels = {'poe_profile' : _("Path of Exile Profile")}
