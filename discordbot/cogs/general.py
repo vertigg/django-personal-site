@@ -36,7 +36,7 @@ class General(object):
                     update_display_names(self.bot.servers)
 
     @commands.command(pass_context=True)
-    @admin_command
+    @mod_command
     async def game(self, ctx, *args):
         """Change bot's status"""
         game = ' '.join(args)
