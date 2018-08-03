@@ -8,6 +8,7 @@ import logging
 import discord
 from discord.errors import InvalidArgument
 from discordbot.models import DiscordUser, WFAlert
+from discord.utils import get as get_user
 
 logger = logging.getLogger("botLogger.warframe")
 
@@ -46,34 +47,33 @@ class Warframe(object):
 
     async def warframe_alert_watchdog(self):
         await self.bot.wait_until_ready()
-        server = self.bot.get_server(id='178976406288465920') # 121372102522699778 TEST SERVER
         while not self.bot.is_closed:
             new_alerts = WFAlert.objects.filter(announced=False)
             for alert in new_alerts:
                 try:
-                    matches = []
                     if alert.keywords:
                         keywords = alert.keywords.split(',')
-                        for key in keywords:
-                            if key in self.RESOURCES:
-                                matches.append(self.RESOURCES[key])
-                    if matches:
-                        if len(matches) == 2:
-                            query1 = DiscordUser.objects.select_related().filter(
-                                **{'wf_settings__{}'.format(matches[0]): True})
-                            query2 = DiscordUser.objects.select_related().filter(
-                                **{'wf_settings__{}'.format(matches[1]): True})
-                            subscribers = query1.union(query2)
-                        else:
-                            query_filter = {
-                                'wf_settings__{}'.format(matches[0]): True}
-                            subscribers = DiscordUser.objects.select_related().filter(**query_filter)
-                        for sub in subscribers:
-                            try:
-                                user = server.get_member(sub.id)
-                                await self.bot.send_message(user, embed=self.create_embed(alert))
-                            except InvalidArgument:
-                                pass
+                        matches = [self.RESOURCES[k] for k in keywords if k in self.RESOURCES]
+                        if matches:
+                            if len(matches) == 2:
+                                query1 = DiscordUser.objects.select_related().filter(
+                                    **{'wf_settings__{}'.format(matches[0]): True})
+                                query2 = DiscordUser.objects.select_related().filter(
+                                    **{'wf_settings__{}'.format(matches[1]): True})
+                                subscribers = query1.union(query2)
+                            else:
+                                query_filter = {
+                                    'wf_settings__{}'.format(matches[0]): True}
+                                subscribers = DiscordUser.objects.select_related().filter(**query_filter)
+                            for sub in subscribers:
+                                try:
+                                    user = get_user(self.bot.get_all_members(), id=sub.id)
+                                    if user:
+                                        await self.bot.send_message(user, embed=self.create_embed(alert))
+                                    else:
+                                        logger.error("Can't find %s in get_all_members()", sub)
+                                except InvalidArgument:
+                                    pass
                 except Exception as ex:
                     logging.error(ex)
                 alert.announced = True
