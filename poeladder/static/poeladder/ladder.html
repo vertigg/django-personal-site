@@ -15,7 +15,7 @@
 {% include "poeladder/navbar.html" %}
 {% endblock %}
         
-{% block title%} {{ title|default_if_none:"Path of Exile Clown Ladder"}} {% endblock %}
+{% block title%} {{ active_league.name|default_if_none:"Path of Exile Clown Ladder"}} {% endblock %}
 
 {% block content%}
 
@@ -74,9 +74,9 @@
 </div>
 {% endif %}
 
-{% if requested_league %}
+{% if active_league %}
 <div class="container col-lg-8">
-    <a class="ladder-link" href={{league_object.url}}><h1 class="ladder-title">{{ league_object.name }} Ladder </h1></a> 
+    <a class="ladder-link" href={{active_league.url}}><h1 class="ladder-title">{{ active_league.name }} Ladder </h1></a> 
     <table class="LadderTable">
             <thead>
               <tr class="LadderHeader">

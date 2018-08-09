@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from django.core.exceptions import FieldError
-
+from itertools import chain
 from discordbot.models import (DiscordSettings, DiscordUser,
                                create_discord_token)
 
@@ -16,19 +16,20 @@ def get_nickname_cache():
 
 def update_display_names(servers):
     """Update display names for every user in bot.servers"""
-    users = {}
     cache = get_nickname_cache()
-    for server in servers:
-        for member in server.members:
-            users[member.id] = member
+    users = {m.id: m for m in list(chain(*[s.members for s in servers]))}
 
     for discord_id, member in users.items():
         if not discord_id in cache:
-            DiscordUser.objects.create(id=discord_id, display_name=member.display_name, token=create_discord_token(), avatar_url=member.avatar_url)
+            DiscordUser.objects.create(id=discord_id, 
+                display_name=member.display_name, token=create_discord_token(), 
+                avatar_url=member.avatar_url)
         elif member.display_name != cache[discord_id]:
-            DiscordUser.objects.filter(id=discord_id).update(display_name=member.display_name)
+            DiscordUser.objects.filter(id=discord_id).update(
+                display_name=member.display_name)
         if member.avatar_url:
-            DiscordUser.objects.filter(id=discord_id).update(avatar_url=member.avatar_url)
+            DiscordUser.objects.filter(id=discord_id).update(
+                avatar_url=member.avatar_url)
         else:
             DiscordUser.objects.filter(id=discord_id).update(avatar_url=None)
 

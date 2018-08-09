@@ -15,20 +15,17 @@ def ladder(request):
         })
 
 
-def league_ladder(request, league):
+def league_ladder(request, slug):
     """View for league-specific ladder """
-    requested_league = league.replace('-', ' ').strip()
-    league_object = get_object_or_404(PoeLeague, name=requested_league)
-    title = '{} League'.format(requested_league)
+    active_league = get_object_or_404(PoeLeague, slug=slug)
+    title = '{} League'.format(active_league.name)
 
-    query_set = PoeCharacter.objects.all().filter(league_id=league_object.id).order_by('-level', '-experience')
+    query_set = PoeCharacter.objects.all().filter(league_id=active_league.id).order_by('-level', '-experience')
     league_characters = PoeCharacterFilter(request.GET, query_set)
     current_profile = request.user.discorduser.poe_profile if hasattr(request.user, 'discorduser') else None
 
     return render(request, 'poeladder/ladder.html', {
-        'title': title,
-        'league_object': league_object,
-        'requested_league': requested_league,
+        'active_league': active_league,
         'league_characters': league_characters,
         'current_profile' : current_profile
         })

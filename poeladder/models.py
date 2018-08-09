@@ -1,6 +1,8 @@
 from django.db import models
 from discordbot.models import DiscordUser
 from django.urls import reverse
+from django.utils.text import slugify
+
 
 
 class PoeInfo(models.Model):
@@ -18,6 +20,12 @@ class PoeLeague(models.Model):
     url = models.URLField(blank=True, null=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
+    slug = models.SlugField(null=True, default=None)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify(self.name)
+        super(PoeLeague, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = 'Leagues'
@@ -27,7 +35,8 @@ class PoeLeague(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('league_ladder_view', kwargs={'league':self.name}, current_app='poeladder')
+        return reverse('poeladder:ladder_url', kwargs={'slug':self.slug})
+
 
 class PoeActiveGem(models.Model):
     name = models.CharField(max_length=40)

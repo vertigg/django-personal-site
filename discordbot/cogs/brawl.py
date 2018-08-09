@@ -73,7 +73,7 @@ class GoogleBrawl(object):
             response = service.changes().list(pageToken=token).execute()
             logger.debug(response)
             logger.info('[GSPREAD] Current state: {0}, New state: {1}'.format(
-                token, response['newStartPageToken']))
+                token, response['nextPageToken']))
             return gcredentials, response
         except Exception as ex:
             logger.error('[{0}] {1}'.format(__name__, ex))

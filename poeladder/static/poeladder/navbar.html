@@ -8,26 +8,26 @@
 
     <div class="collapse navbar-collapse" id="navbarColor02">
         <ul class="navbar-nav mr-auto">
-
-            {% for name in temp_leagues %} {% if name == requested_league %}
-            <li class="nav-item active">
-                <a class="nav-link active-league" href="{% url 'ladder_url' league=name|to_dash %}">{{ name }}
-                    <span class="sr-only"></span>
-                </a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ladder_url' league=name|to_dash %}">{{ name }}
-                    <span class="sr-only"></span>
-                </a>
-            </li>
-            {% endif %} {% endfor %}
-
+            {% for temp_league in temp_leagues %} 
+                {% if name == active_league.name %}
+                <li class="nav-item active">
+                    <a class="nav-link active-league" href="{% url 'poeladder:ladder_url' slug=temp_league.slug %}">{{ temp_league.name }}
+                        <span class="sr-only"></span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'poeladder:ladder_url' slug=temp_league.slug %}">{{ temp_league.name }}
+                        <span class="sr-only"></span>
+                    </a>
+                </li>
+                {% endif %} 
+            {% endfor %}
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
                 <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
-                    {% for name in old_leagues %}
-                    <a class="dropdown-item" href="{% url 'ladder_url' league=name|to_dash %}">{{ name }}
+                    {% for old_league in old_leagues %}
+                    <a class="dropdown-item" href="{% url 'poeladder:ladder_url' slug=old_league.slug %}">{{ old_league.name }}
                         <span class="sr-only"></span>
                     </a>
                     {% endfor %}
@@ -45,7 +45,7 @@
                     </div>
                   </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0" action="{% url 'ladder_search' %}" method="get">
+        <form class="form-inline my-2 my-lg-0" action="{% url 'poeladder:ladder_search' %}" method="get">
             {{ poe_search_form.name }}
         </form>
         <a class="float-right" > Last updated: {{ last_update|date:"F d" }}</a>

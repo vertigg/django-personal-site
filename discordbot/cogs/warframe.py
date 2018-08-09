@@ -50,32 +50,29 @@ class Warframe(object):
         while not self.bot.is_closed:
             new_alerts = WFAlert.objects.filter(announced=False)
             for alert in new_alerts:
-                try:
-                    if alert.keywords:
-                        keywords = alert.keywords.split(',')
-                        matches = [self.RESOURCES[k] for k in keywords if k in self.RESOURCES]
-                        if matches:
-                            if len(matches) == 2:
-                                query1 = DiscordUser.objects.select_related().filter(
-                                    **{'wf_settings__{}'.format(matches[0]): True})
-                                query2 = DiscordUser.objects.select_related().filter(
-                                    **{'wf_settings__{}'.format(matches[1]): True})
-                                subscribers = query1.union(query2)
-                            else:
-                                query_filter = {
-                                    'wf_settings__{}'.format(matches[0]): True}
-                                subscribers = DiscordUser.objects.select_related().filter(**query_filter)
-                            for sub in subscribers:
-                                try:
-                                    user = get_user(self.bot.get_all_members(), id=sub.id)
-                                    if user:
-                                        await self.bot.send_message(user, embed=self.create_embed(alert))
-                                    else:
-                                        logger.error("Can't find %s in get_all_members()", sub)
-                                except InvalidArgument:
-                                    pass
-                except Exception as ex:
-                    logging.error(ex)
+                if alert.keywords:
+                    keywords = alert.keywords.split(',')
+                    matches = [self.RESOURCES[k] for k in keywords if k in self.RESOURCES]
+                    if matches:
+                        if len(matches) == 2:
+                            query1 = DiscordUser.objects.select_related().filter(
+                                **{'wf_settings__{}'.format(matches[0]): True})
+                            query2 = DiscordUser.objects.select_related().filter(
+                                **{'wf_settings__{}'.format(matches[1]): True})
+                            subscribers = query1.union(query2)
+                        else:
+                            query_filter = {
+                                'wf_settings__{}'.format(matches[0]): True}
+                            subscribers = DiscordUser.objects.select_related().filter(**query_filter)
+                        for sub in subscribers:
+                            try:
+                                user = get_user(self.bot.get_all_members(), id=sub.id)
+                                if user:
+                                    await self.bot.send_message(user, embed=self.create_embed(alert))
+                                else:
+                                    logger.error("Can't find %s in get_all_members()", sub)
+                            except InvalidArgument:
+                                pass
                 alert.announced = True
                 alert.save()
             await asyncio.sleep(60)
