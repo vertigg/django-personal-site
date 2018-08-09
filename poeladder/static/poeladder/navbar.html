@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" id="navbarColor02">
         <ul class="navbar-nav mr-auto">
             {% for temp_league in temp_leagues %} 
-                {% if name == active_league.name %}
+                {% if temp_league.name == active_league.name %}
                 <li class="nav-item active">
                     <a class="nav-link active-league" href="{% url 'poeladder:ladder_url' slug=temp_league.slug %}">{{ temp_league.name }}
                         <span class="sr-only"></span>

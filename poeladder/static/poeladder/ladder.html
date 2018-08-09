@@ -15,7 +15,7 @@
 {% include "poeladder/navbar.html" %}
 {% endblock %}
         
-{% block title%} {{ active_league.name|default_if_none:"Path of Exile Clown Ladder"}} {% endblock %}
+{% block title%} {% if active_league %} {{active_league.name}} {%else%}Path of Exile Clown Ladder{%endif%}{% endblock %}
 
 {% block content%}
 

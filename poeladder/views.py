@@ -10,7 +10,6 @@ from .models import PoeCharacter, PoeLeague
 
 def ladder(request):
     return render(request, 'poeladder/ladder.html', {
-        'title' : None,
         'ladder_main' : True
         })
 
