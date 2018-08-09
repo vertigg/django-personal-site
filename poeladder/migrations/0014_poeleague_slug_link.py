@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='poeleague',
-            name='slug_link',
+            name='slug',
             field=models.SlugField(default=None, null=True),
         ),
     ]
