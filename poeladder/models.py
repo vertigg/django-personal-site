@@ -35,7 +35,7 @@ class PoeLeague(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('poeladder:ladder_url', kwargs={'slug':self.slug})
+        return reverse('poeladder:ladder_url', kwargs={'slug': self.slug})
 
 
 class PoeActiveGem(models.Model):

@@ -12,12 +12,15 @@ from django.contrib import admin
 from VertigoProject.views import home_view, signup, profile, unlink
 from VertigoProject.forms import StyledAuthenticationForm
 from UnityAsteroidsClone.views import asteroids_view
+from rest_framework import routers
+from VertigoProject.viewsets import CharacterViewSet
 
+router = routers.DefaultRouter()
+router.register(r'characters', CharacterViewSet)
 admin.autodiscover()
 
 urlpatterns = [
 
-    # url('^', include('django.contrib.auth.urls')),
     url(r'^$', home_view, name='home'),
     url(r'^asteroids/$', asteroids_view, name='asteroids'),
     url(r'^ladder/', include('poeladder.urls')),
@@ -29,7 +32,11 @@ urlpatterns = [
     url(r'^signup/$', signup, name='signup'),
     url(r'^profile/$', profile, name='profile'),
     url(r'^unlink/$', unlink, name='unlink'),
+
+    # Rest
+    url(r'^api/v1/', include(router.urls)),
+    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     
-    #Admin
+    # Admin
     url('admin/', admin.site.urls),
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
