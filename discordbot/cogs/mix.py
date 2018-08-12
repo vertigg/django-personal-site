@@ -55,9 +55,9 @@ class Mix(object):
 
     @wisdom.command(pass_context=True)
     @mod_command
-    async def add(self, ctx, text: str):
+    async def add(self, ctx, *, text: str):
         """Добавить новую мудрость клоунов"""
-        wisdom_text = text.strip()
+        wisdom_text = text
         Wisdom.objects.create(
             text=wisdom_text,
             date=datetime.now(),
@@ -74,7 +74,7 @@ class Mix(object):
             if entry[0] is not 0:
                 await self.bot.say('Wisdom {} removed'.format(wisdom_id))
 
-    # Remove kebab too
+    # Remove kebab
     @wisdom.command(hidden=True, pass_context=True)
     @mod_command
     async def info(self, ctx):
