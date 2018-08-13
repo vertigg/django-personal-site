@@ -15,9 +15,9 @@
 {% include "poeladder/navbar.html" %}
 {% endblock %}
         
-{% block title%} {% if active_league %} {{active_league.name}} {%else%}Path of Exile Clown Ladder{%endif%}{% endblock %}
+{% block title %} {% if active_league %} {{active_league.name}} {% else %}Path of Exile Clown Ladder{% endif %}{% endblock %}
 
-{% block content%}
+{% block content %}
 
 {% if ladder_main %}
 <div class="d-flex h-100 justify-content-center flex-column" style="margin-top:150px">
@@ -30,9 +30,9 @@
 <div class="container col-lg-8">
     <h1 class="ladder-title">Search results</h1>
         {% if poe_search_form.errors %}
-            <h2>{{ poe_search_form.errors }}</h2>
+            <h2>{{poe_search_form.errors}}</h2>
         {% else %}
-            <h2>Found {{ search_results|length }} result{{ search_results|pluralize }} for «{{ search_query }}» </h2>
+            <h2>Found {{search_results|length}} result{{search_results|pluralize}} for «{{search_query}}» </h2>
         {% endif %}
         <div class="container col-lg-12">
                 <table class="LadderTable">
@@ -40,50 +40,59 @@
                           <tr class="LadderHeader">
                             <th>Character</th>
                             <th>Account</th>
-                            <th>Class <form id="" method="get" style="float:right">{{ league_characters.form.class_id }}</form>
+                            <th>Class <form id="" method="get" style="float:right">{{league_characters.form.class_id}}</form>
                             </th>
                             <th class="row-level text-center">Level</th>
                             <th class="row-level text-center">Skills</th>
                           </tr>
                         </thead>
                         <tbody>
-                            {% for character in search_results %}
+                            {% for character in characters %}
                                 <tr class= "LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}" >
                                     <td class="row-link">
                                         <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
                                             <div class="cell-link" style="height:100%; width:100%">
-                                                {{ character.name }}
+                                                {{character.name}}
                                             </div>
                                         </a> 
                                     </td>
                                     <td class="row-link">
                                             <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters">
                                                 <div class="ladder-link">
-                                                    {{ character.profile.poe_profile }}
+                                                    {{character.profile.poe_profile}}
                                                 </div>
                                             </a>
                                         </td>
-                                    <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{ character.class_name }}</td>
-                                    <td class="text-center">{{ character.level }}</td>
+                                    <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{character.class_name}}</td>
+                                    <td class="text-center">{{character.level}}</td>
                                     <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}" >  {% endfor %}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                       </table>
+                      {% include "poeladder/paginator.html" %}
         </div>
 </div>
 {% endif %}
 
 {% if active_league %}
 <div class="container col-lg-8">
-    <a class="ladder-link" href={{active_league.url}}><h1 class="ladder-title">{{ active_league.name }} Ladder </h1></a> 
+    {% if not characters %}
+    <div class="form-row text-center p-5">
+        <div class="col-12">
+            <h3 class="p-3 text-center">Can't find any {{class_filter.class_name}} in this ladder</h3>
+            <a class="btn btn-primary" href={% url 'poeladder:ladder_url' slug=active_league.slug %} role="button">Back to ladder</a>
+        </div>
+    </div>
+    {% else %}
+    <a class="ladder-link" href={{active_league.url}}><h1 class="ladder-title">{{active_league.name}} Ladder </h1></a> 
     <table class="LadderTable">
             <thead>
               <tr class="LadderHeader">
                 <th class="row-rank">Rank</th>
                 <th>Character</th>
                 <th>Account</th>
-                <th>Class <form id="" method="get" style="float:right">{{ league_characters.form.class_id }}</form>
+                <th>Class <form id="" method="get" style="float:right">{{class_filter.form.class_id}}</form>
                 </th>
                 <th class="row-level text-center">Level</th>
                 <th class="row-level text-center">Progress</th>
@@ -92,25 +101,25 @@
               </tr>
             </thead>
             <tbody>
-                {% for character in league_characters.qs %}
+                {% for character in characters %}
                     <tr class= "LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}" >
-                        <td>{{ forloop.counter }}</td>
+                        <td>{{forloop.counter0|add:characters.start_index}}</td>
                         <td class="row-link">
                             <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
                                 <div class="cell-link" style="height:100%; width:100%">
-                                    {{ character.name }}
+                                    {{character.name}}
                                 </div>
                             </a> 
                         </td>
                         <td class="row-link">
                                 <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters">
                                     <div class="ladder-link">
-                                        {{ character.profile.poe_profile }}
+                                        {{character.profile.poe_profile}}
                                     </div>
                                 </a>
                             </td>
-                        <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{ character.class_name }}</td>
-                        <td class="text-center">{{ character.level }}</td>
+                        <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{character.class_name}}</td>
+                        <td class="text-center">{{character.level}}</td>
 
                         {% with character|level_progress as level_progress %}
                         <td style="width:50px" title="{{level_progress}}%"> 
@@ -120,13 +129,15 @@
                         </td>
                         {% endwith %}
                         
-                        <td class="text-center"><div class="text-right" style="width:75%">{{ character.experience|space_separator }}</div></td>
+                        <td class="text-center"><div class="text-right" style="width:75%">{{character.experience|space_separator}}</div></td>
                         <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
           </table>
+    {% include "poeladder/paginator.html" %}
     </div>
     <div class="col-xs-12" style="height:50px;"></div>
+{% endif %}
 {% endif %}
 {% endblock %}
