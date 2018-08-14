@@ -8,7 +8,6 @@ from .filters import PoeCharacterFilter
 from .forms import SearchForm
 from .models import PoeCharacter, PoeLeague
 
-
 def ladder(request):
     return render(request, 'poeladder/ladder.html', {
         'ladder_main' : True
@@ -19,8 +18,12 @@ def league_ladder(request, slug):
     """View for league-specific ladder """
     active_league = get_object_or_404(PoeLeague, slug=slug)
     page = request.GET.get('page', 1)
+    query_set = (PoeCharacter.objects.all()
+                    .filter(league_id=active_league.id)
+                    .order_by('-level', '-experience')
+                    .prefetch_related('gems')
+                    .select_related('profile'))
 
-    query_set = PoeCharacter.objects.all().filter(league_id=active_league.id).order_by('-level', '-experience')
     class_filter = PoeCharacterFilter(request.GET, query_set)
     current_profile = request.user.discorduser.poe_profile if hasattr(request.user, 'discorduser') else None
 
