@@ -57,7 +57,11 @@ def search(request):
         if form.is_valid():
             name = form.cleaned_data['name']
             response['search_query'] = request.GET['name'] if name else 'All characters'
-            response['search_results'] = PoeCharacter.objects.filter(name__icontains=name).order_by('name')
+            response['search_results'] = (PoeCharacter.objects
+                                            .filter(name__icontains=name)
+                                            .order_by('name')
+                                            .prefetch_related('gems')
+                                            .select_related('profile'))
             paginator = Paginator(response['search_results'], 10)
             try:
                 characters = paginator.page(page)
