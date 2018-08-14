@@ -34,6 +34,7 @@
         {% else %}
             <h2>Found {{search_results|length}} result{{search_results|pluralize}} for «{{search_query}}» </h2>
         {% endif %}
+        {% if search_results %}
         <div class="container col-lg-12">
                 <table class="LadderTable">
                         <thead>
@@ -71,6 +72,7 @@
                         </tbody>
                       </table>
                       {% include "poeladder/paginator.html" %}
+            {% endif %}
         </div>
 </div>
 {% endif %}
