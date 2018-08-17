@@ -2,41 +2,33 @@
 Definition of urls for HomeSite.
 """
 
-from django.conf.urls import include, url
-
 from django.conf import settings
+from django.conf.urls import include, url
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
-
 from django.contrib import admin
-from VertigoProject.views import home_view, signup, profile, unlink
-from VertigoProject.forms import StyledAuthenticationForm
-from UnityAsteroidsClone.views import asteroids_view
 from rest_framework import routers
-from VertigoProject.viewsets import CharacterViewSet
+
+from main.viewsets import CharacterViewSet
 
 router = routers.DefaultRouter()
 router.register(r'characters', CharacterViewSet)
 admin.autodiscover()
 
 urlpatterns = [
-
-    url(r'^$', home_view, name='home'),
-    url(r'^asteroids/$', asteroids_view, name='asteroids'),
-    url(r'^ladder/', include('poeladder.urls')),
-    url(r'^api/v1/', include('discordbot.urls')),
     #url(r'^books', include('books.urls')),
-    url(r'^login/$', auth_views.login,
-        {'authentication_form': StyledAuthenticationForm, 'redirect_authenticated_user': True}, name='login'),
-    url(r'^logout/$', auth_views.logout, {'next_page' : 'home'}, name='logout'),
-    url(r'^signup/$', signup, name='signup'),
-    url(r'^profile/$', profile, name='profile'),
-    url(r'^unlink/$', unlink, name='unlink'),
-
+    url(r'^', include('main.urls')),
+    url(r'^games/', include('unitygames.urls')),
+    url(r'^ladder/', include('poeladder.urls')),
     # Rest
+    url(r'^api/v1/', include('discordbot.urls')),
     url(r'^api/v1/', include(router.urls)),
-    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # Admin
     url('admin/', admin.site.urls),
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    import debug_toolbar
+    from django.conf.urls.static import static
+    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

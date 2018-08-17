@@ -1,0 +1,24 @@
+{%extends "base.html"%}
+{% block css %}
+{% load staticfiles%}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'unitygames/TemplateData/style.css' %}" />
+<link rel="shortcut icon" href="{% static 'unitygames/TemplateData/favicon.ico' %}">
+<link rel="stylesheet" href="{% static 'unitygames/TemplateData/style.css' %}">
+<script src="{% static 'unitygames/TemplateData/UnityProgress.js' %}"></script>  
+<script src="{% static 'unitygames/Build/UnityLoader.js' %}"></script>
+<script>
+  var gameInstance = UnityLoader.instantiate("gameContainer", "{% static 'unitygames/Build/asteroids_web.json' %}" , {onProgress: UnityProgress});
+</script>
+{% endblock %}
+{% block title%}Unity WebGL Player | asteroids{% endblock %}
+{% block content%}
+<div class="webgl-content">
+  <div id="gameContainer" style="width: 960px; height: 600px"></div>
+  <div class="footer">
+    <div class="webgl-logo"></div>
+    <div class="fullscreen" onclick="gameInstance.SetFullscreen(1)"></div>
+    <div class="title">Asteroids Clone</div>
+  </div>
+</div>
+
+{% endblock %}

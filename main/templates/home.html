@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static%}
+{% block css %}
+{% include "bootstrap4.html" %}
+{% endblock %}
+{% block title%}Vertig's hideout{% endblock %}
+{% block content%}
+{% include "header.html" %}
+<div class="container col-lg-8">
+    <br>
+    <h1 class="display-4">Le projects</h1>
+    <br>
+    <div class="row">
+            <div class="col-sm d-flex align-items-stretch">
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="{% static 'main/image/bot.png' %}" alt="Card image cap">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Tornado Bot</h5>
+                    <p class="card-text">Another bot for Discord, based on Rapptz/discord.py API Wrapper.</p>
+                    <a href="https://github.com/EpicVertigo/django-personal-site/tree/master/discordbot" class="mt-auto align-self-start btn btn-primary">GitHub</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm d-flex align-items-stretch">
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="{% static 'main/image/ladder.png' %}" alt="Card image cap">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Path of Exile Ladder</h5>
+                    <p class="card-text">Django Application which compares Path of Exile characters</p>
+                    <div class="float-right">
+                        <a href="{% url 'poeladder:ladder_main' %}" class="btn btn-primary">Open</a>
+                        <a href="https://github.com/EpicVertigo/django-personal-site/tree/master/poeladder" class="btn btn-primary">GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm d-flex align-items-stretch">
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="{% static 'main/image/asteroids.png' %}" alt="Card image cap">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Asteroids Game</h5>
+                    <p class="card-text">Small game made with Unity.</p>
+                    <a href="{% url 'asteroids' %}" class="mt-auto align-self-start btn btn-primary">Play</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock footer %}

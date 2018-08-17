@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static%}
+{% load webp %}
+{% block css %}
+{% include "bootstrap4.html" %}
+<script src="{% static 'main/js/ext.js' %}"></script>
+{% endblock %}
+{% block title %} Profile - {{ user }} {% endblock title %}
+{% block content  %}
+{% include "header.html" %}
+
+{% if update_success %}
+<div class="alert alert-dismissible alert-success fade show" id="success-alert" style="position: fixed; z-index:9999; width:100%">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    Changes applied!
+  </div>
+{% endif %}
+
+<div class="container w-75">
+    <br>
+    {% if is_linked %}
+    <h1 class="display-6">Welcome back, {{user}}</h1><br>
+        <div class="row">
+          <div class="col-md-4">
+                <div><br>
+                        <img src= {% if user.discorduser.avatar_url %}"{{ user.discorduser.avatar_url|webp }}"{% else %}{% static 'main/image/default_avatar.png'%}{% endif %} alt="User avatar" class="discord-avatar img-thumbnail text-center ">
+                        <div class="card-body text-center">
+                            <h3>{{ user.discorduser }}</h3>
+                            <small class="text-muted">{{ user.discorduser.id }}</small>
+                            <div id="badges">
+                                    {% if user.discorduser.admin %}<span class="badge badge-primary">Admin</span>{% endif %}
+                                    {% if user.discorduser.mod_group %}<span class="badge badge-warning">Moderator</span>{% endif %}
+                                </div>
+                        </div>
+                        <div class="card-body text-center">
+                          <a href="{% url 'unlink' %}" class="card-link">Unlink your account</a>
+                        </div>
+                      </div>
+            </div>
+          <div class="col-md-6">    
+              <h3>Personal info</h3>
+                <form action="{% url 'profile' %}" method="post">
+                        {% csrf_token %}
+                        {% for field in profile_form  %}
+                            {{ field.label }}<br>
+                            {{ field }}
+                        {% if field.help_text %}
+                            {% autoescape off %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endautoescape %}
+                        {% endif %}
+                        {% for error in field.errors  %}
+                        <div class="form-group has-errors text-danger small">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                        {% endfor %}
+                        <br>
+                <h3>Warframe Resource Alerts</h3>
+                <table class="form-group w-100">
+                        {% for field in wf_settings_form %}
+                            {% cycle 'row' ''  as row silent %}
+                            {% if row %}<tr>{% endif %}
+                                <td>
+                                <div class="custom-control custom-checkbox"%>
+                                        {{ field }}
+                                        <label class="custom-control-label" for="{{field.id_for_label}}">{{field.label}}</label>
+                                    </div>
+                                </td>
+                            {% if not row %}</tr>{% endif %}
+                        {% endfor %}
+                    </table>
+                        <input class="btn btn-primary float-right" type="submit" name="profile_update" value="Update" />
+                        <input type="hidden" name="update" value="true" />
+                    </form>
+                </div>
+        {% else %}
+        <div class="col-sm-8">
+            <p>Your Discord Account is not linked yet</p>
+            <small>Enter your discord token</small><br>
+            <form action="{% url 'profile' %}" method="post">
+                <div class="input-group mb-6">
+                    {% csrf_token %}
+                    {{ token_form.token}}
+                    <div class="input-group-append">
+                        <input class="btn btn-primary" type="submit" name="token_link" value="Link" />
+                    </div>
+                </div>
+            </form>
+              {% if invalid_token %}
+              <div class="form-group has-errors text-danger small">
+                      <p>Wrong token</p>
+                  </div>
+              {% endif %}
+              <small class="form-text text-muted">Don't know where you can get a token? Just send a message to bot with command !register</small>
+              {% endif %}
+        </div>
+        </div>
+</div>
+{% endblock content %}
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

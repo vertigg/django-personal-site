@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block css %}
+{% load static%}
+{% include "bootstrap4.html" %}
+{% endblock %}
+{% block title%}Sign up{% endblock %}
+
+{% block content %}
+<div class="container signup-centered col-sm-3 col-xs-6" style="min-width:400px;">
+<h1 class="display-4 text-center">Sign up</h1><br>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+          <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                {% autoescape off %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endautoescape %}
+            {% endif %}
+            <br>
+            {% for error in field.errors %}
+            <h6 class="form-text text-danger">{{ error }}</h6>
+            {% endfor %}
+            {% endfor %}
+            <input class="btn btn-primary float-right" type="submit" value="Sign up" />
+          </div>
+        </form>
+</div>
+{% endblock %}

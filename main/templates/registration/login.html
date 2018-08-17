@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block css %}
+{% load static%}
+{% include "bootstrap4.html" %}
+{% endblock %}
+{% block title%}Login{% endblock %}
+{% block content %}
+
+{% if user.is_authenticated %}
+<div class="container login-centered col-sm">
+    <div class="display-6 text-center">
+        <img style="width: 200px" src="{% static 'main/image/monka.png'%}">
+        <h1 >You are already logged in</h1>
+    </div>
+    </div>
+{% else %}
+<div class="container login-centered col-sm-3 col-xs-6" style="min-width:300px;">
+    <h1 class="display-4 text-center">Login</h1>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <td>Username</td>
+            <td>{{ form.username }}</td>
+        </div>
+        <div class="form-group">
+            <td>Password</td>
+            <td>{{ form.password }}</td>
+        </div>
+        <div>
+            <input type="hidden" name="next" value="{{ next }}" />
+            <input class="btn btn-primary float-right" type="submit" value="Login" />
+        </div>
+    </form>
+    <div class="form-group has-errors text-muted small">
+            Don't have an account? Make one <a href="{% url 'signup' %}">here</a>
+        </div>    <div class="form-group has-errors text-muted small">
+        </div>
+    {% if form.errors %}
+    <div class="form-group has-errors text-danger small">
+        <p>Your username and password didn't match. Please try again.</p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
