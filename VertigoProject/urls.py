@@ -16,7 +16,6 @@ urlpatterns = [
     url(r'^ladder/', include('poeladder.urls')),
     url(r'^discordbot/', include('discordbot.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^wow/', include('wowstats.urls')),
     url('admin/', admin.site.urls),
 ]
 
