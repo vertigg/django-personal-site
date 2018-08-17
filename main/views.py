@@ -14,6 +14,12 @@ from main.forms import (DiscordProfileForm, DiscordTokenForm,
                         StyledUserCreationForm)
 
 
+def bnet_callback(request):
+    print(request.GET)
+    print(request.POST)
+    return JsonResponse({'status': 200})
+
+
 def home(request):
     return render(request, 'home.html')
 
@@ -54,7 +60,8 @@ def profile(request):
         if user.discorduser.wf_settings is None:
             user.discorduser.wf_settings = WFSettings.objects.create()
             user.discorduser.save()
-        profile_form = DiscordProfileForm(user=request.user, instance=get_profile(request))
+        profile_form = DiscordProfileForm(
+            user=request.user, instance=get_profile(request))
         wf_settings_form = WFSettingsForm(instance=get_wfsettings(request))
     else:
         profile_form = None
@@ -73,13 +80,16 @@ def profile(request):
                 except ObjectDoesNotExist:
                     invalid_token = True
         if 'profile_update' in request.POST:
-            form = DiscordProfileForm(request.POST, user=request.user, instance=get_profile(request))
-            wf_form = WFSettingsForm(request.POST, instance=get_wfsettings(request))
+            form = DiscordProfileForm(
+                request.POST, user=request.user, instance=get_profile(request))
+            wf_form = WFSettingsForm(
+                request.POST, instance=get_wfsettings(request))
             if form.is_valid():
                 passed_poe_profile = form.cleaned_data.get('poe_profile')
                 if passed_poe_profile is None or passed_poe_profile == '' \
                         or passed_poe_profile != user.discorduser.poe_profile:
-                    PoeCharacter.objects.filter(profile=user.discorduser.id).delete()
+                    PoeCharacter.objects.filter(
+                        profile=user.discorduser.id).delete()
                 form.save()
                 is_updated = True
                 profile_form = DiscordProfileForm(
@@ -90,7 +100,8 @@ def profile(request):
                 profile_form = form
             if wf_form.is_valid():
                 wf_form.save()
-                wf_settings_form = WFSettingsForm(request.POST, instance=get_wfsettings(request))
+                wf_settings_form = WFSettingsForm(
+                    request.POST, instance=get_wfsettings(request))
 
     return render(request, 'profile.html', {
         'is_linked': is_linked,

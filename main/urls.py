@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^signup/$', main_views.signup, name='signup'),
     url(r'^profile/$', main_views.profile, name='profile'),
     url(r'^unlink/$', main_views.unlink, name='unlink'),
+    url(r'^bnet/$', main_views.bnet_callback, name="blizzard_callback")
 ]
