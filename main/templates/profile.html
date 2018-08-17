@@ -33,7 +33,13 @@
                                 </div>
                         </div>
                         <div class="card-body text-center">
-                          <a href="{% url 'unlink' %}" class="card-link">Unlink your account</a>
+                          <a href="{% url 'unlink' %}" class="card-link">Unlink your discord account</a><br>
+                          {% if not bnet_authorized %}
+                          <a href="{{bnet_auth}}">Link your bnet account</a>
+                          {% else %}
+                          WoW account linked
+                          <a href="{% url 'wowchik' %}">Test</a>
+                          {% endif %}
                         </div>
                       </div>
             </div>

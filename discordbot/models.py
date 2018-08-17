@@ -10,7 +10,8 @@ from django.template.defaultfilters import truncatechars
 
 class WFAlert(models.Model):
     id = models.IntegerField(primary_key=True, null=False)
-    created_at = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    created_at = models.DateTimeField(
+        auto_now_add=True, blank=False, null=False)
     announced = models.BooleanField(default=False)
 
     content = models.TextField(blank=False, null=False)
@@ -99,8 +100,10 @@ class DiscordSettings(models.Model):
 
 class DiscordUser(models.Model):
 
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, blank=True, null=True)
-    wf_settings = models.OneToOneField(WFSettings, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.OneToOneField(
+        User, on_delete=models.SET_NULL, blank=True, null=True)
+    wf_settings = models.OneToOneField(
+        WFSettings, on_delete=models.CASCADE, blank=True, null=True)
     token = models.CharField(unique=True, blank=True, null=True, max_length=20)
 
     id = models.CharField(
@@ -141,17 +144,19 @@ class DiscordUser(models.Model):
         default='')
 
     admin = models.BooleanField(
-        default=False, 
-        blank=False, 
-        null=False, 
+        default=False,
+        blank=False,
+        null=False,
         help_text="User can execute @admin commands")
     mod_group = models.BooleanField(
-        "Moderator", 
-        default=False, 
-        blank=False, 
-        null=False, 
+        "Moderator",
+        default=False,
+        blank=False,
+        null=False,
         help_text="User can execute @mod commands")
     avatar_url = models.URLField(default=None, blank=True, null=True)
+    bnet_token = models.CharField(
+        unique=True, blank=True, null=True, max_length=20)
 
     class Meta:
         verbose_name_plural = 'Discord Users'
@@ -165,7 +170,8 @@ class Wisdom(models.Model):
     id = models.IntegerField(blank=True, null=False, primary_key=True)
     pid = models.IntegerField(db_column='pID', default=0)
     text = models.TextField(unique=True)
-    author = models.ForeignKey(DiscordUser, on_delete=models.CASCADE, verbose_name="discord user")
+    author = models.ForeignKey(
+        DiscordUser, on_delete=models.CASCADE, verbose_name="discord user")
     date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
 
     class Meta:

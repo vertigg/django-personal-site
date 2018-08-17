@@ -13,11 +13,57 @@ from poeladder.models import PoeCharacter
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
                         StyledUserCreationForm)
 
+import requests_oauth2.services
+from requests_oauth2 import OAuth2
+import requests
+import json
+from django.views.generic.base import TemplateView
+
+
+class Blizzard(OAuth2):
+    client_id = '5rs43zuznj52wfn9sb9nz785ctgqtmdw'
+    client_secret = '74k2uv9DCjnqgBJ2CSNhjvJtKexCKsY9'
+    token_url = 'oauth/token'
+    redirect_uri = 'https://www.epicvertigo.xyz/bnet'
+    site = 'https://eu.battle.net/'
+    scope_sep = [' ']
+
+
+client = Blizzard()
+
+
+class CharactersView(TemplateView):
+    template_name = 'hero_view.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CharactersView, self).get_context_data(**kwargs)
+        context['data'] = self.get_characters()
+        return context
+
+    def get_characters(self):
+        token = self.request.user.discorduser.bnet_token
+
+        url = "https://eu.api.battle.net/wow/user/characters/"
+        headers = {
+            'Content-Type': "application/json",
+            'Authorization': "Bearer {}".format(token),
+            'Cache-Control': "no-cache",
+        }
+        response = requests.request("GET", url, headers=headers)
+        return json.loads(response.text)
+
 
 def bnet_callback(request):
-    print(request.GET)
-    print(request.POST)
-    return JsonResponse({'status': 200})
+    code = request.GET.get('code', None)
+    data = client.get_token(code=code, grant_type="authorization_code")
+    print(data)
+    if data:
+        discord_user = request.user.discorduser
+        discord_user.bnet_token = data['access_token']
+        discord_user.save()
+        return redirect('profile')
+    else:
+        return redirect('home')
 
 
 def home(request):
@@ -50,6 +96,12 @@ def unlink(request):
 @login_required(login_url='/login/')
 def profile(request):
 
+    authorization_url = client.authorize_url(
+        scope='wow.profile',
+        response_type="code",
+    )
+    print(authorization_url)
+
     is_linked = hasattr(request.user, 'discorduser')
     is_updated = False
     invalid_token = False
@@ -57,6 +109,7 @@ def profile(request):
     user = request.user
 
     if is_linked:
+        bnet_authorized = request.user.discorduser.bnet_token
         if user.discorduser.wf_settings is None:
             user.discorduser.wf_settings = WFSettings.objects.create()
             user.discorduser.save()
@@ -109,7 +162,9 @@ def profile(request):
         'profile_form': profile_form,
         'invalid_token': invalid_token,
         'wf_settings_form': wf_settings_form,
-        'update_success': is_updated
+        'update_success': is_updated,
+        'bnet_auth': authorization_url,
+        'bnet_authorized': bnet_authorized,
     })
 
 
