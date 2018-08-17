@@ -10,18 +10,20 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = [
-    #url(r'^books', include('books.urls')),
+    # url(r'^books', include('books.urls')),
     url(r'^', include('main.urls')),
     url(r'^games/', include('unitygames.urls')),
     url(r'^ladder/', include('poeladder.urls')),
     url(r'^discordbot/', include('discordbot.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url('admin/', admin.site.urls),
-    ] 
+]
 
 if settings.DEBUG:
     import debug_toolbar
     from django.conf.urls.static import static
     urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)

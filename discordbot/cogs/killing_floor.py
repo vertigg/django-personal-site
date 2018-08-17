@@ -8,6 +8,7 @@ from discordbot.models import DiscordLink
 
 logger = logging.getLogger("botLogger.kf")
 
+
 class KillingFloor(object):
     def __init__(self, bot):
         self.bot = bot
@@ -41,6 +42,7 @@ class KillingFloor(object):
                 await self.bot.say("`There were some errors during update. Check logs for more info`")
                 logger.error("[KFGOOGLE]: There were some errors during update. Check logs for more info")
             self.lock = False
+
 
 def setup(bot):
     bot.add_cog(KillingFloor(bot))

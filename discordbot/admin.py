@@ -4,11 +4,13 @@ from django.db import models
 from discordbot.models import Wisdom, DiscordUser, Gachi, DiscordSettings, DiscordLink, WFAlert
 from django.template.defaultfilters import truncatechars
 
+
 class DiscordLinkAdmin(admin.ModelAdmin):
     list_display = ('key', 'url')
     formfield_overrides = {
-        models.CharField: {'widget': TextInput(attrs={'size':20})},
+        models.CharField: {'widget': TextInput(attrs={'size': 20})},
     }
+
 
 class DiscordSettingsAdmin(admin.ModelAdmin):
     list_display = ('key', 'value')
@@ -22,7 +24,7 @@ class WisdomAdmin(admin.ModelAdmin):
     readonly_fields = ('date',)
 
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':10, 'cols':150})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 10, 'cols': 150})},
     }
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -38,15 +40,18 @@ class DiscordUserAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'id', "admin", "mod_group")
     search_fields = ('display_name',)
     list_filter = ('admin', 'mod_group',)
-    fields = ('display_name', 'id', 'steam_id', 'blizzard_id', 'poe_profile', 'admin', 'mod_group', 'user')
+    fields = ('display_name', 'id', 'steam_id', 'blizzard_id',
+              'poe_profile', 'admin', 'mod_group', 'user')
 
     formfield_overrides = {
-        models.TextField: {'widget': TextInput(attrs={'size':20})},
-        models.CharField: {'widget': TextInput(attrs={'size':20})},
+        models.TextField: {'widget': TextInput(attrs={'size': 20})},
+        models.CharField: {'widget': TextInput(attrs={'size': 20})},
     }
+
 
 class GachiAdmin(admin.ModelAdmin):
     fields = ('url',)
+
 
 admin.site.register(Wisdom, WisdomAdmin)
 admin.site.register(DiscordUser, DiscordUserAdmin)

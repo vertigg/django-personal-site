@@ -20,6 +20,7 @@ LINK = "https://playoverwatch.com/en-gb/career/pc/eu/"
 HEADERS = {
     'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'), }
 
+
 class Overwatch(object):
 
     def __init__(self, bot):
@@ -72,7 +73,8 @@ class Overwatch(object):
                 msg = ''
                 for player in sorted_ladder:
                     msg += '    {0} - {1}\n'.format(player[1], player[0])
-                await self.bot.edit_message(tmp_message, '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}\n```'.format(msg))
+                await self.bot.edit_message(tmp_message,
+                                            '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}\n```'.format(msg))
                 self.timeout = round(time())
                 self.futures.clear()
                 await asyncio.sleep(10)

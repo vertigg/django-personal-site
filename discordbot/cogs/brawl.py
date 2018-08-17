@@ -10,6 +10,7 @@ from discordbot.models import Brawl, DiscordLink, DiscordSettings
 
 logger = logging.getLogger('botLogger.brawl')
 
+
 class GoogleBrawl(object):
     def __init__(self, bot):
         self.bot = bot
@@ -83,7 +84,8 @@ class GoogleBrawl(object):
         try:
             gcs = gspread.authorize(gcredentials)
             brawl_sh = gcs.open(spreadsheet).sheet1
-            raw_data = [list(brawl_sh.col_values(i+1)) for i in range(brawl_sh.col_count)]
+            raw_data = [list(brawl_sh.col_values(i + 1))
+                        for i in range(brawl_sh.col_count)]
             filtered_data = list(list(filter(None, column)) for column in raw_data)
 
             if 0 in list(map(len, filtered_data)):
@@ -128,6 +130,7 @@ class GoogleBrawl(object):
             return message.format(r=phrase_list)
         else:
             return '`Something wrong with brawl lists. Please check logs for more info`'
+
 
 def setup(bot):
     bot.add_cog(GoogleBrawl(bot))

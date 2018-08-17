@@ -11,11 +11,12 @@ from discordbot.forms import WFSettingsForm
 from discordbot.models import DiscordUser, WFSettings
 from poeladder.models import PoeCharacter
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
-                                  StyledUserCreationForm)
+                        StyledUserCreationForm)
 
 
-def home_view(request):
+def home(request):
     return render(request, 'home.html')
+
 
 def signup(request):
     if request.method == 'POST':
@@ -29,7 +30,8 @@ def signup(request):
             return redirect('home')
     else:
         form = StyledUserCreationForm()
-    return render(request, 'registration/signup.html', {'form' : form})
+    return render(request, 'registration/signup.html', {'form': form})
+
 
 @login_required(login_url='/login/')
 def unlink(request):
@@ -75,30 +77,34 @@ def profile(request):
             wf_form = WFSettingsForm(request.POST, instance=get_wfsettings(request))
             if form.is_valid():
                 passed_poe_profile = form.cleaned_data.get('poe_profile')
-                if passed_poe_profile is None or passed_poe_profile == '' or passed_poe_profile != user.discorduser.poe_profile:
+                if passed_poe_profile is None or passed_poe_profile == '' \
+                        or passed_poe_profile != user.discorduser.poe_profile:
                     PoeCharacter.objects.filter(profile=user.discorduser.id).delete()
                 form.save()
                 is_updated = True
-                profile_form = DiscordProfileForm(request.POST, user=request.user, instance=get_profile(request))
+                profile_form = DiscordProfileForm(
+                    request.POST,
+                    user=request.user,
+                    instance=get_profile(request))
             else:
                 profile_form = form
             if wf_form.is_valid():
                 wf_form.save()
                 wf_settings_form = WFSettingsForm(request.POST, instance=get_wfsettings(request))
-    
+
     return render(request, 'profile.html', {
-        'is_linked' : is_linked,
-        'token_form' : token_form,
-        'profile_form' : profile_form,
-        'invalid_token' : invalid_token,
-        'wf_settings_form' : wf_settings_form,
-        'update_success' : is_updated
-        })
+        'is_linked': is_linked,
+        'token_form': token_form,
+        'profile_form': profile_form,
+        'invalid_token': invalid_token,
+        'wf_settings_form': wf_settings_form,
+        'update_success': is_updated
+    })
 
 
 def get_wfsettings(request):
     return request.user.discorduser.wf_settings
 
+
 def get_profile(request):
     return request.user.discorduser
-    

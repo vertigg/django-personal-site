@@ -4,9 +4,9 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 
-
 class PoeInfo(models.Model):
-    key = models.TextField(primary_key=True, blank=False, null=False, unique=True)
+    key = models.TextField(primary_key=True, blank=False,
+                           null=False, unique=True)
     value = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(blank=True, null=True)
 

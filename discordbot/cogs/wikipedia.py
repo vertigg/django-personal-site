@@ -5,15 +5,16 @@ from discord.ext import commands
 
 logger = logging.getLogger("botLogger")
 
+
 class Wikipedia(object):
     def __init__(self, bot):
         self.bot = bot
         wikipedia.set_lang('ru')
 
     @commands.group(pass_context=True)
-    async def wiki(self, ctx, *, search:str):
+    async def wiki(self, ctx, *, search: str):
         """Википедия в Дискорде, не отходя от кассы"""
-        #article = str(ctx.message.content).replace('!wiki ', '')
+        # article = str(ctx.message.content).replace('!wiki ', '')
         if not ctx.invoked_subcommand:
             try:
                 await self.bot.say('`{}`'.format(self.get_article(search)[0]))
@@ -33,6 +34,7 @@ class Wikipedia(object):
             wikiresult = str(ex)
             wikilink = str(ex)
         return wikiresult, wikilink
+
 
 def setup(bot):
     bot.add_cog(Wikipedia(bot))

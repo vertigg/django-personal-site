@@ -74,26 +74,6 @@ class Mix(object):
             if entry[0] is not 0:
                 await self.bot.say('Wisdom {} removed'.format(wisdom_id))
 
-    # Remove kebab
-    @wisdom.command(hidden=True, pass_context=True)
-    @mod_command
-    async def info(self, ctx):
-        """Show 5 last wisdoms with id and author's name and some info"""
-        last_update_time = DiscordSettings.objects.get(key='cache_update').value
-        if datetime.now() - datetime.strptime(last_update_time, '%Y-%m-%d %H:%M:%S.%f') > timedelta(days=1):
-            update_display_names(self.bot.servers)
-            self.refresh_wisdom_history()
-        cached_nicknames = get_nickname_cache()
-        await self.bot.say(wisdom_format(cached_nicknames, self.wisdom_history))
-
-    # Remove kebab
-    @wisdom.command(hidden=True, pass_context=True)
-    @admin_command
-    async def refresh(self, ctx):
-        update_display_names(self.bot.servers)
-        message = self.refresh_wisdom_history()
-        await self.bot.say(message, delete_after=10)
-
     def get_random_picture(self):
         """Gets random picture from imgur table and sets new pid based on picture's age"""
         random_pic = DiscordPicture.objects.filter(pid__lt=2).order_by('?').first()
@@ -111,9 +91,11 @@ class Mix(object):
         data = client.get_album_images(IMGUR['album'])
         if not data:
             return None
-        pictures = {x.link : x.datetime for x in data}
-        logger.info('[{0}] Database has been updated with {1} pictures'.format(__name__ ,len(pictures)))
-        logger.info('[{0}] Client limits are {1}/12500'.format(__name__, client.credits['ClientRemaining']))
+        pictures = {x.link: x.datetime for x in data}
+        logger.info('[{0}] Database has been updated with {1} pictures'
+                    .format(__name__, len(pictures)))
+        logger.info('[{0}] Client limits are {1}/12500'
+                    .format(__name__, client.credits['ClientRemaining']))
         return pictures
 
     def imgur_update(self):
@@ -126,7 +108,7 @@ class Mix(object):
 
         saved_piclist = DiscordPicture.objects.values_list('url', flat=True)
         for key, value in pictures.items():
-            if not key in saved_piclist:
+            if key not in saved_piclist:
                 DiscordPicture.objects.create(url=key, date=value)
         return 'Database has been updated with {} pictures'.format(len(pictures))
 

@@ -10,6 +10,7 @@ from discordbot.cogs.utils.checks import admin_command
 
 logger = logging.getLogger('botLogger.admin')
 
+
 class Admin(object):
 
     def __init__(self, bot):
@@ -27,8 +28,7 @@ class Admin(object):
             await self.bot.say("Done.")
             logger.debug("changed avatar")
         except Exception as e:
-            await self.bot.say("Error, check your console or logs for "
-                            "more information.")
+            await self.bot.say("Error, check your console or logs for more information.")
             logger.exception(e)
 
     @commands.command(pass_context=True, hidden=True)
@@ -40,8 +40,7 @@ class Admin(object):
             await self.bot.say("Done.")
             logger.debug("changed nickname")
         except Exception as e:
-            await self.bot.say("Error, check your console or logs for "
-                            "more information.")
+            await self.bot.say("Error, check your console or logs for more information.")
             logger.exception(e)
 
     @commands.command(pass_context=True, hidden=True)
@@ -49,7 +48,7 @@ class Admin(object):
     async def load(self, ctx, extension_name: str):
         """Loads an extension."""
         try:
-            if not "cogs." in extension_name:
+            if "cogs." not in extension_name:
                 extension_name = "cogs." + extension_name
             self.bot.load_extension(extension_name)
         except (AttributeError, ImportError) as ex:
@@ -61,7 +60,7 @@ class Admin(object):
     @admin_command
     async def unload(self, ctx, extension_name: str):
         """Unloads an extension."""
-        if not "cogs." in extension_name:
+        if "cogs." not in extension_name:
             extension_name = "cogs." + extension_name
         self.bot.unload_extension(extension_name)
         await self.bot.say("{} unloaded.".format(extension_name))
@@ -81,6 +80,7 @@ class Admin(object):
             result = None
             return
         await self.bot.say(python.format(result))
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))

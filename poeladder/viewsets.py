@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+
 class CharacterViewSet(viewsets.ModelViewSet):
     """
     Return a list of all existing characters in ladder

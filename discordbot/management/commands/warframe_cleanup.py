@@ -3,6 +3,7 @@ from discordbot.models import WFAlert
 from django.utils.timezone import now
 from datetime import timedelta
 
+
 class Command(BaseCommand):
     help = 'Removes old alerts from db'
 

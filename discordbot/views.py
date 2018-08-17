@@ -1,16 +1,15 @@
 import json
 import re
-from datetime import timedelta
 
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
-from django.utils.timezone import now
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from discordbot.models import WFAlert
 
 re_invasion = r'\((.*?)\)'
+
 
 @csrf_exempt
 def warframe_webhook(request):
@@ -19,7 +18,7 @@ def warframe_webhook(request):
             json_data = json.loads(request.body.decode('utf-8'))
             if 'api_key' in json_data and json_data['api_key'] == settings.WARFRAME_KEY:
                 content = json_data['content']
-                new_alert = WFAlert(content = content)
+                new_alert = WFAlert(content=content)
                 if 'Invasion' in content:
                     filtered_data = re.findall(re_invasion, content)
                     filtered_data.pop(0)
