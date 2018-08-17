@@ -25,10 +25,11 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # Admin
     url('admin/', admin.site.urls),
-    ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    ] 
 
 if settings.DEBUG:
     import debug_toolbar
     from django.conf.urls.static import static
     urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

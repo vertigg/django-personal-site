@@ -285,3 +285,4 @@ credentials.py
 env/
 examples/
 data.db
+static/
