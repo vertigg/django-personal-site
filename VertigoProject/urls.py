@@ -6,12 +6,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from rest_framework import routers
 
-from main.viewsets import CharacterViewSet
-
-router = routers.DefaultRouter()
-router.register(r'characters', CharacterViewSet)
 admin.autodiscover()
 
 urlpatterns = [
@@ -19,11 +14,8 @@ urlpatterns = [
     url(r'^', include('main.urls')),
     url(r'^games/', include('unitygames.urls')),
     url(r'^ladder/', include('poeladder.urls')),
-    # Rest
-    url(r'^api/v1/', include('discordbot.urls')),
-    url(r'^api/v1/', include(router.urls)),
+    url(r'^discordbot/', include('discordbot.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    # Admin
     url('admin/', admin.site.urls),
     ] 
 
