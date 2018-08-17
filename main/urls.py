@@ -10,8 +10,6 @@ urlpatterns = [
         'redirect_authenticated_user': True}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'home'}, name='logout'),
     url(r'^signup/$', main_views.signup, name='signup'),
-    url(r'^profile/wowchik/$', main_views.CharactersView.as_view(), name='wowchik'),
     url(r'^profile/$', main_views.profile, name='profile'),
     url(r'^unlink/$', main_views.unlink, name='unlink'),
-    url(r'^bnet/$', main_views.bnet_callback, name="blizzard_callback"),
 ]
