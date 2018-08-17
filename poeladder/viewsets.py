@@ -1,6 +1,8 @@
 from poeladder.models import PoeCharacter
 from poeladder.serializers import CharacterSerializer
 from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 class CharacterViewSet(viewsets.ModelViewSet):
     """
@@ -8,3 +10,7 @@ class CharacterViewSet(viewsets.ModelViewSet):
     """
     queryset = PoeCharacter.objects.all()
     serializer_class = CharacterSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_fields = ('class_id', 'league')
+    search_fields = ('name',)
+    ordering_fields = ('level',)

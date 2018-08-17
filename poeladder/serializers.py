@@ -4,4 +4,4 @@ from poeladder.models import PoeCharacter
 class CharacterSerializer(serializers.ModelSerializer):
     class Meta:
         model = PoeCharacter
-        fields = ('name', 'class_name', 'level', 'league', )
+        fields = ('name', 'class_name', 'class_id', 'level', 'league',)

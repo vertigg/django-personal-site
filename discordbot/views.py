@@ -34,7 +34,7 @@ def warframe_webhook(request):
                         else:
                             new_alert.keywords = raw_data[3].strip()
                 new_alert.save()
-                return JsonResponse({'status': 200})
+                return JsonResponse({'status': 201})
         return redirect('home')
     except Exception as e:
         return HttpResponse(e)
