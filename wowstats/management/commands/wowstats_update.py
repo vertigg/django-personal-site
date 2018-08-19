@@ -19,7 +19,6 @@ from VertigoProject.settings import WOW_KEY
 
 
 REGIONS = ['eu', 'us', 'kr', 'sea', 'tw']
-logger = logging.Logger(__name__)
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s %(message)s',
@@ -67,7 +66,7 @@ class Command(BaseCommand):
                     character.realm, character.name, WOW_KEY)
                 data = json.loads(requests.get(url).text)
                 if data.get('status', None):
-                    logger.error("Can't load player %s", character.name)
+                    logging.error("Can't load player %s", character.name)
                     continue
                 else:
                     pvp_brackets = data['pvp']['brackets']
@@ -118,7 +117,7 @@ class Command(BaseCommand):
         for c in data['characters']:
             # (name, realm) is always unique
             if not (c['name'], c['realm']) in saved:
-                logger.info("Creating %s", c['name'])
+                logging.info("Creating %s", c['name'])
                 objs.append(WOWCharacter(
                     account=account,
                     name=c['name'],
@@ -173,6 +172,7 @@ class Command(BaseCommand):
         parser.add_argument('--region', action='store', dest='region')
 
     def handle(self, *args, **options):
+        logging.info(os.getcwd())
         with requests.Session() as session:
             options['skip_checks'] = True
             if options.get('id', None) and options.get('token', None):
