@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block css %}
+{% include 'bootstrap4.html' %}
+<link rel="stylesheet" href={% static 'wowstats/css/wow_main.css' %}>
+{% endblock css %}
+{% block header %}
+{% include 'header.html' %}
+{% endblock header %}
+{% block content %}
+
+{% if success %}
+<div class="container-fluid signup-centered col-md-4 p-3" style="min-height:200px;background: rgba(51, 51, 51, 0.85) ">
+<div class="container text-center ">
+    <h1 class="display-4" >Success!</h1>
+    <p class="lead">You characters will be avaible soon enough</p>
+    <div class="d-flex justify-content-center"><div class="loader"><span></span></div></div>
+    <script>
+    setTimeout(function(){
+        window.location.href = "{% url 'wowstats:main' %}";
+    }, 5000);
+</script>
+</div>
+</div>
+{% else %}
+{% if not authorized %}
+<div class="container-fluid signup-centered col-md-4 p-3" style="min-height:200px;background: rgba(51, 51, 51, 0.85) ">
+<div class="container text-center ">
+    <h1 class="display-4">WoW Stats</h1><br>
+    <p class="text-muted">You need to authorize our app to see your stats</p>
+    <form id="" method="post" class="p-2">
+    {% csrf_token %}
+    {{form.name}}
+    <input class="btn btn-primary" type="submit" name="profile_update" value="Log in" />
+    </form>
+</div>
+</div>
+{% else %}
+<h1 class="p-3">{{profile}}</h1>
+        <div class="container col-lg">
+                <div class="row">
+                  <div class="col-sm">
+                        <h2 class="p-2">Profile</h2>
+                        <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                  Tag
+                                  <span class="badge badge-primary badge-pill">{{profile.wowaccount.btag}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                  BnetID
+                                  <span class="badge badge-primary badge-pill">{{profile.wowaccount.bnet_id}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                  Region
+                                  <span class="badge badge-primary badge-pill">{{profile.wowaccount.region}}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                  Registration Date
+                                  <span class="badge badge-primary badge-pill">{{profile.wowaccount.register_date}}</span>
+                                </li>
+                            </ul>
+                  </div>
+                  <div class="col-10">
+                        <h2 class="p-2">Characters</h2>
+                        <div id="monkas" class="container-lg w-90 p-2 table-active scrollbar-primary">
+                            {% for character in characters %}
+                            <div class="list-group">
+                            <div class="list-group-item flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{character.name}}</h5>
+                                <small class="text-muted">ID:{{character.id}}</small>
+                                </div>
+                                <p class="mb-1">{{character.realm}}</p>
+                                <small class="text-muted">Level {{character.level}}</small>
+                            </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                  </div>
+                </div>
+              </div>
+{% endif %}
+{% endif %}
+{% endblock content %}

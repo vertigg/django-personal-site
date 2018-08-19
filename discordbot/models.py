@@ -155,8 +155,6 @@ class DiscordUser(models.Model):
         null=False,
         help_text="User can execute @mod commands")
     avatar_url = models.URLField(default=None, blank=True, null=True)
-    bnet_token = models.CharField(
-        unique=True, blank=True, null=True, max_length=20)
 
     class Meta:
         verbose_name_plural = 'Discord Users'

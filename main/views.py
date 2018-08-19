@@ -51,7 +51,6 @@ def profile(request):
     user = request.user
 
     if is_linked:
-        bnet_authorized = request.user.discorduser.bnet_token
         if user.discorduser.wf_settings is None:
             user.discorduser.wf_settings = WFSettings.objects.create()
             user.discorduser.save()

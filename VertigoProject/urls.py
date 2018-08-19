@@ -15,8 +15,9 @@ urlpatterns = [
     url(r'^games/', include('unitygames.urls')),
     url(r'^ladder/', include('poeladder.urls')),
     url(r'^discordbot/', include('discordbot.urls')),
+    url(r'^wow/', include('wowstats.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url('admin/', admin.site.urls),
+    url(r'admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:
