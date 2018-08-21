@@ -1,26 +1,21 @@
 import json
 import logging
 import os
-import sys
 import traceback
-from datetime import datetime, timedelta
 from time import sleep
 
 import requests
 from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection
+from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 
-from VertigoProject import settings
 from VertigoProject.settings import WOW_KEY
 from wowstats.models import (PVPBracket, WOWAccount, WOWCharacter, WOWSettings,
                              WOWStatSnapshot)
-from wowstats.oauth2 import BlizzardAPI
 
 REGIONS = ['eu', 'us', 'kr', 'sea', 'tw']
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p',
     handlers=[
@@ -64,16 +59,16 @@ class Command(BaseCommand):
             if character.track:
                 url = self.get_api_url(account.region) + link.format(
                     character.realm, character.name, WOW_KEY)
-                sleep(1)
+                sleep(0.5)
                 data = json.loads(requests.get(url).text)
-                if data.get('status', None) or data['status'] is 'nok':
+                if data.get('status', None) or not data:
                     logging.error("Can't load player %s", character.id)
                     character.is_pvp = False
                     character.save()
-                    continue
                 else:
                     try:
                         character.is_pvp = True
+                        character.faction = data.get('faction', None)
                         character.save()
                         pvp_brackets = data['pvp']['brackets']
                         # Load settings
@@ -97,7 +92,6 @@ class Command(BaseCommand):
                         traceback.print_exc()
 
     def update_character(self, data):
-        print(data)
         character = WOWCharacter.objects.get(
             name=data['name'], realm=data['realm'])
         character.battlegroup = data['battlegroup']
@@ -108,14 +102,14 @@ class Command(BaseCommand):
         character.achievement_points = data['achievementPoints']
         character.thumbnail = data['thumbnail']
         character.last_modified = data['lastModified']
-        character.faction = data['faction']
         character.guild = data.get('guild', None)
+        if data.get('spec', None):
+            character.spec = data['spec'].get('name', None)
         character.save(update_fields=[
-            'battlegroup', 'class_id', 'race', 'last_modified', 'faction',
-            'gender', 'achievement_points', 'thumbnail', 'guild', 'level'
-        ])
+            'battlegroup', 'class_id', 'race', 'last_modified', 'spec',
+            'gender', 'achievement_points', 'thumbnail', 'guild', 'level'])
 
-    def update_characters(self, account, session, options=None):
+    def update_characters(self, account, session):
         """Creates or updates characters"""
         # Get dict {(name, realm): last_modified} of current characters
         qs = account.wowcharacter_set.values('name', 'realm', 'last_modified')
@@ -127,8 +121,8 @@ class Command(BaseCommand):
         for c in data['characters']:
             # (name, realm) is always unique
             if not (c['name'], c['realm']) in saved:
-                logging.info("Creating {}".format(c['name']))
-                objs.append(WOWCharacter(
+                logging.info("Creating new character")
+                new = (WOWCharacter(
                     account=account,
                     name=c['name'],
                     realm=c['realm'],
@@ -140,8 +134,10 @@ class Command(BaseCommand):
                     achievement_points=c['achievementPoints'],
                     thumbnail=c['thumbnail'],
                     last_modified=c['lastModified'],
-                    guild=c.get('guild', None))
-                )
+                    guild=c.get('guild', None)))
+                if c.get('spec', None):
+                    new.spec = c['spec'].get('name', None)
+                objs.append(new)
             elif c['lastModified'] != saved[(c['name'], c['realm'])]:
                 logging.info('Character info changed!')
                 self.update_character(c)
@@ -156,7 +152,7 @@ class Command(BaseCommand):
         try:
             url = api_link + self.get_user_info(options['token'])
             data = json.loads(session.get(url).text)
-            print(data)
+            logging.debug(data)
             if not data.get('code', None):
                 # Create new account
                 new_account = WOWAccount.objects.create(
@@ -165,7 +161,7 @@ class Command(BaseCommand):
                     bnet_id=data['id'],
                     token=options['token'],
                     region=region)
-                self.update_characters(new_account, session, options=options)
+                self.update_characters(new_account, session)
 
         except Exception as ex:
             print(ex)
@@ -182,9 +178,9 @@ class Command(BaseCommand):
         parser.add_argument('--region', action='store', dest='region')
 
     def handle(self, *args, **options):
-        logging.info(os.getcwd())
         with requests.Session() as session:
             options['skip_checks'] = True
+
             if options.get('id', None) and options.get('token', None):
                 user = User.objects.get(id=options['id'])
                 if not hasattr(user, 'wowaccount'):

@@ -63,6 +63,7 @@ class WOWCharacter(models.Model):
     guild = models.CharField(blank=True, null=True, max_length=50)
     class_id = models.IntegerField(blank=True, null=True, choices=CLASSES)
     faction = models.IntegerField(blank=True, null=True)
+    spec = models.CharField(blank=True, null=True, max_length=20)
     is_pvp = models.BooleanField(default=False)
 
     class Meta:
