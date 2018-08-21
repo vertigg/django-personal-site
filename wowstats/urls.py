@@ -6,5 +6,7 @@ app_name = "wowstats"
 urlpatterns = [
     url(r'^$', views.MainView.as_view(), name='main'),
     url(r'^callback/$', views._callback, name="callback"),
-    # url(r'^$', views.CharactersView.as_view(), name='main'),
+    url(r'^track/$', views.track, name='track'),
+    url(r'^(?P<realm>.+)/(?P<name>.+)$',
+        views.CharacterView.as_view(), name='detail'),
 ]

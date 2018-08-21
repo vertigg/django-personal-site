@@ -67,8 +67,12 @@ class Command(BaseCommand):
                 data = json.loads(requests.get(url).text)
                 if data.get('status', None):
                     logging.error("Can't load player %s", character.name)
+                    character.is_pvp = False
+                    character.save()
                     continue
                 else:
+                    character.is_pvp = True
+                    character.save()
                     pvp_brackets = data['pvp']['brackets']
                     # Load settings
                     qs = (WOWSettings.objects.filter(user=user)
@@ -92,16 +96,17 @@ class Command(BaseCommand):
         character = WOWCharacter.objects.get(
             name=data['name'], realm=data['realm'])
         character.battlegroup = data['battlegroup']
-        character.character_class = data['class']
+        character.class_id = data['class']
         character.race = data['race']
         character.level = data['level']
         character.gender = data['gender']
         character.achievement_points = data['achievementPoints']
         character.thumbnail = data['thumbnail']
         character.last_modified = data['lastModified']
+        character.faction = data['faction']
         character.guild = data.get('guild', None)
         character.save(update_fields=[
-            'battlegroup', 'character_class', 'race', 'last_modified',
+            'battlegroup', 'class_id', 'race', 'last_modified', 'faction',
             'gender', 'achievement_points', 'thumbnail', 'guild', 'level'
         ])
 
@@ -124,7 +129,7 @@ class Command(BaseCommand):
                     realm=c['realm'],
                     level=c['level'],
                     battlegroup=c['battlegroup'],
-                    character_class=c['class'],
+                    class_id=c['class'],
                     race=c['race'],
                     gender=c['gender'],
                     achievement_points=c['achievementPoints'],
@@ -164,7 +169,7 @@ class Command(BaseCommand):
     def update_token(self, user, options):
         user.wowaccount.token = options['token']
         user.wowaccount.register_date = now()
-        user.wowaccount.save(update_fields=['token'])
+        user.wowaccount.save(update_fields=['token', 'register_date'])
 
     def add_arguments(self, parser):
         parser.add_argument('--id', action='store', dest='id', type=int)
