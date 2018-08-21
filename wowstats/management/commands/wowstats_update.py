@@ -66,7 +66,7 @@ class Command(BaseCommand):
                     character.realm, character.name, WOW_KEY)
                 sleep(1)
                 data = json.loads(requests.get(url).text)
-                if data.get('status', None):
+                if data.get('status', None) or data['status'] is 'nok':
                     logging.error("Can't load player %s", character.id)
                     character.is_pvp = False
                     character.save()
@@ -127,7 +127,7 @@ class Command(BaseCommand):
         for c in data['characters']:
             # (name, realm) is always unique
             if not (c['name'], c['realm']) in saved:
-                logging.info("Creating %s", c['name'])
+                logging.info("Creating {}".format(c['name']))
                 objs.append(WOWCharacter(
                     account=account,
                     name=c['name'],
@@ -143,7 +143,7 @@ class Command(BaseCommand):
                     guild=c.get('guild', None))
                 )
             elif c['lastModified'] != saved[(c['name'], c['realm'])]:
-                print('character info changed!11')
+                logging.info('Character info changed!')
                 self.update_character(c)
         if objs:
             WOWCharacter.objects.bulk_create(objs)
