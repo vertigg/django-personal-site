@@ -1,19 +1,19 @@
 <!-- Paginator -->
-{% if characters.paginator.num_pages != 1 %}
+{% if item.paginator.num_pages != 1 %}
 <div class="p-3 d-flex justify-content-center">
         <ul class="pagination">
-        {% if characters.has_previous %}
+        {% if item.has_previous %}
           <li class="page-item">
-              <a class="page-link" href="?page={{characters.previous_page_number}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %} ">&laquo;</a>
+              <a class="page-link" href="?page={{item.previous_page_number}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %} ">&laquo;</a>
             </li>
               {% else %}
               <li class="page-item disabled">
                     <a class="page-link" href="#">&laquo;</a>
                   </li>
               {% endif %}
-        {% for page in characters.paginator.page_range %}
+        {% for page in item.paginator.page_range %}
         <!-- First page -->
-        {% if 1 < characters.number|add:'-5' and forloop.first %}
+        {% if 1 < item.number|add:'-5' and forloop.first %}
             <li class="page-item">
                 <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}">1</a>
             </li>
@@ -22,8 +22,8 @@
             </li>
         {% endif %}
         <!-- Main loop -->
-        {% if page > characters.number|add:'-5' and page < characters.number|add:'5' %}
-          {% if characters.number == forloop.counter %}
+        {% if page > item.number|add:'-5' and page < item.number|add:'5' %}
+          {% if item.number == forloop.counter %}
             <li class="page-item active">
                 {% else %}
                 <li class="page-item">
@@ -32,18 +32,18 @@
                 </li>
           {% endif %}
         <!-- Last page -->
-          {% if characters.paginator.num_pages > characters.number|add:'5' and forloop.last %}
+          {% if item.paginator.num_pages > item.number|add:'5' and forloop.last %}
             <li class="page-item disabled">
                 <a class="page-link" href="#">...</a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{characters.paginator.num_pages}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}">{{characters.paginator.num_pages}}</a>
+                <a class="page-link" href="?page={{item.paginator.num_pages}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}">{{item.paginator.num_pages}}</a>
             </li>
             {% endif %}
         {% endfor %}
-          {% if characters.has_next %}
+          {% if item.has_next %}
           <li class="page-item">
-              <a class="page-link" href="?page={{characters.next_page_number}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %} ">&raquo;</a>
+              <a class="page-link" href="?page={{item.next_page_number}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %} ">&raquo;</a>
             </li>
             {% else %}
             <li class="page-item disabled">

@@ -11,14 +11,8 @@
 
 </head>
 <body>
-    <header>
-        {% block header %}{% endblock %}
-    </header>
-    
+    <header>{% block header %}{% endblock %}</header>
     {% block content %}{% endblock %}
-
-    <footer class="footer">
-        {% block footer %}{% endblock %}
-    </footer>
+    <footer class="footer">{% block footer %}{% endblock %}</footer>
 </body>
 </html>
