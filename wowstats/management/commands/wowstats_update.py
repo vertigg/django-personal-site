@@ -4,6 +4,7 @@ import os
 import sys
 import traceback
 from datetime import datetime, timedelta
+from time import sleep
 
 import requests
 from django.contrib.auth.models import User
@@ -12,11 +13,10 @@ from django.db import connection
 from django.utils.timezone import now
 
 from VertigoProject import settings
+from VertigoProject.settings import WOW_KEY
 from wowstats.models import (PVPBracket, WOWAccount, WOWCharacter, WOWSettings,
                              WOWStatSnapshot)
 from wowstats.oauth2 import BlizzardAPI
-from VertigoProject.settings import WOW_KEY
-
 
 REGIONS = ['eu', 'us', 'kr', 'sea', 'tw']
 logging.basicConfig(
@@ -64,32 +64,37 @@ class Command(BaseCommand):
             if character.track:
                 url = self.get_api_url(account.region) + link.format(
                     character.realm, character.name, WOW_KEY)
+                sleep(1)
                 data = json.loads(requests.get(url).text)
                 if data.get('status', None):
-                    logging.error("Can't load player %s", character.name)
+                    logging.error("Can't load player %s", character.id)
                     character.is_pvp = False
                     character.save()
                     continue
                 else:
-                    character.is_pvp = True
-                    character.save()
-                    pvp_brackets = data['pvp']['brackets']
-                    # Load settings
-                    qs = (WOWSettings.objects.filter(user=user)
-                          .values('track_2v2', 'track_3v3', 'track_rbg'))
-                    settings = {k: v for k, v in qs[0].items()}
-                    W = WOWStatSnapshot(character=character,
-                                        honorable_kills=data['totalHonorableKills'])
-                    if settings['track_2v2']:
-                        W.arena_2v2 = self.create_bracket(
-                            pvp_brackets['ARENA_BRACKET_2v2'])
-                    if settings['track_3v3']:
-                        W.arena_3v3 = self.create_bracket(
-                            pvp_brackets['ARENA_BRACKET_3v3'])
-                    if settings['track_rbg']:
-                        W.arena_rbg = self.create_bracket(
-                            pvp_brackets['ARENA_BRACKET_RBG'])
-                    W.save()
+                    try:
+                        character.is_pvp = True
+                        character.save()
+                        pvp_brackets = data['pvp']['brackets']
+                        # Load settings
+                        qs = (WOWSettings.objects.filter(user=user)
+                              .values('track_2v2', 'track_3v3', 'track_rbg'))
+                        settings = {k: v for k, v in qs[0].items()}
+                        W = WOWStatSnapshot(character=character,
+                                            honorable_kills=data['totalHonorableKills'])
+                        if settings['track_2v2']:
+                            W.arena_2v2 = self.create_bracket(
+                                pvp_brackets['ARENA_BRACKET_2v2'])
+                        if settings['track_3v3']:
+                            W.arena_3v3 = self.create_bracket(
+                                pvp_brackets['ARENA_BRACKET_3v3'])
+                        if settings['track_rbg']:
+                            W.arena_rbg = self.create_bracket(
+                                pvp_brackets['ARENA_BRACKET_RBG'])
+                        W.save()
+                    except:
+                        logging.error(data)
+                        traceback.print_exc()
 
     def update_character(self, data):
         print(data)
