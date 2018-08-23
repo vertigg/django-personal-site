@@ -48,9 +48,6 @@ class Command(BaseCommand):
     def get_characters_info(self, token):
         return 'wow/user/characters?access_token={}'.format(token)
 
-    def get_characer_info(self, key=None):
-        return "wow/character/{0}/{1}?fields=pvp&locale=en_GB&apikey={2}"
-
     def update_snapshots(self, account):
         link = "wow/character/{0}/{1}?fields=pvp&locale=en_GB&apikey={2}"
         characters = WOWCharacter.objects.filter(account=account)

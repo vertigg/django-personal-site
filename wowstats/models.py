@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from django.utils.timezone import now
 
 from wowstats.choices import CLASSES, GENDERS, RACES, REGIONS
 
@@ -120,7 +121,7 @@ class WOWStatSnapshot(models.Model):
         blank=True,
         null=True,
         related_name='arena_rbg')
-    snapshot_date = models.DateTimeField(auto_now_add=True, blank=True)
+    snapshot_date = models.DateTimeField(default=now, blank=True)
 
     class Meta:
         db_table = 'wow_stats'

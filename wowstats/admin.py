@@ -4,7 +4,7 @@ from django.forms import TextInput
 from wowstats.models import WOWAccount, WOWCharacter, WOWStatSnapshot, PVPBracket
 
 
-class WOWAccountrAdmin(admin.ModelAdmin):
+class WOWAccountAdmin(admin.ModelAdmin):
     list_display = ('user', 'btag', 'bnet_id', 'token', 'register_date')
     search_fields = ('btag',)
 
@@ -14,7 +14,7 @@ class WOWAccountrAdmin(admin.ModelAdmin):
     }
 
 
-admin.site.register(WOWAccount, WOWAccountrAdmin)
+admin.site.register(WOWAccount, WOWAccountAdmin)
 admin.site.register(WOWCharacter)
 admin.site.register(WOWStatSnapshot)
 admin.site.register(PVPBracket)  # Remove in prod

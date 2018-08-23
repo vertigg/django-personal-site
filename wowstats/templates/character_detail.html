@@ -2,25 +2,35 @@
 {% load static %}
 {% block css %}
 {% include 'bootstrap4.html' %}
-<link rel="stylesheet" href={% static 'wowstats/css/wow_main.css' %}> 
+<link rel="stylesheet" href={% static 'wowstats/css/wow_main.css' %}>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="{% static 'wowstats/js/charts.js' %}"></script>
+<script type="text/javascript">
+        google.charts.load('current', {'packages': ['line']});
+        google.charts.setOnLoadCallback(function() {testRequest({{object.id}})});
+        </script>
 {% endblock css %}
+{% block title %} {{object.name}} - PVP Stats{% endblock title %}
 {% block content %}
-<div class="container p-3">
-<div class="container">
-    <div class="row">
-    {{object}}<br>
-    {{object.level}} Level
+<div class="container col-lg-8">
+  <div class="row justify-content-md-center">
+    <div class="col-md-auto text-center">
+    <h1>{{object}}</h1>
+    <h4 class='text-muted'>{{object.realm}}</h4>
+    <h4 class='text-muted'>{{object.guild}}</h4>
+     Level {{object.level}}
     {{object.get_class_id_display}}
     {{object.get_race_display}}<br><br>
     Latest snapshot:<br>
-    {% with object.wowstatsnapshot_set.latest as latest %}
     {{latest}}<br>
-    Honorable kills: {{latest.honorable_kills}}<br>
-    {{latest.arena_2v2}}<br>
-    {{latest.arena_3v3}}<br>
-    {{latest.arena_rbg}}<br>
-    {{latest.snapshot_date}}
-    {% endwith %}
+    Honorable kills {{latest.honorable_kills}}
+    </div>
+    <div class="col col-lg-8">
+          <div class="contaner">
+    <div id="arena-2v2" class="p-3"><div class="loader"></div>Loading</div>
+    <div id="arena-3v3" class="p-3"><div class="loader"></div>Loading</div>
+    <div id="arena-rbg" class="p-3"><div class="loader"></div>Loading</div>
+    </div>
   </div>
 </div>
 {% endblock content %}

@@ -1,18 +1,22 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic.edit import FormView
-from django.views.generic.detail import DetailView
-from django.contrib.auth.models import User
-from wowstats.models import WOWAccount, WOWStatSnapshot, WOWCharacter
-from wowstats.oauth2 import BlizzardAPI
+import json
+from datetime import timedelta
 from subprocess import Popen
-from django.urls import reverse
-from wowstats.forms import RegionChoiceForm
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpResponseForbidden, JsonResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.timezone import now
 from datetime import timedelta
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse, HttpResponseForbidden
-import json
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
+
+from wowstats.forms import RegionChoiceForm
+from wowstats.models import WOWCharacter, WOWStatSnapshot, PVPBracket
+from wowstats.oauth2 import BlizzardAPI
+
 client = BlizzardAPI()
 
 
@@ -31,6 +35,18 @@ def track(request):
 class CharacterView(DetailView):
     model = WOWCharacter
     template_name = 'character_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["latest"] = (WOWStatSnapshot.objects
+                             .filter(character_id=self.object.id)
+                             .select_related('arena_2v2', 'arena_3v3', 'arena_rbg')
+                             .latest())
+        context["previous"] = (WOWStatSnapshot.objects
+                               .filter(character_id=self.object.id, snapshot_date__lt=context['latest'].snapshot_date)
+                               .select_related('arena_2v2', 'arena_3v3', 'arena_rbg')
+                               .first())
+        return context
 
     def get_object(self):
         realm = self.kwargs.get('realm', None)
@@ -116,3 +132,23 @@ def _callback(request):
     except Exception as ex:
         print(ex)
         return redirect(reverse('wowstats:main') + '?success=false')
+
+
+def get_month_stats(request):
+    """Returns 30 day statistics for character_id"""
+    char_id = int(request.GET.get('character', 0))
+    delta = now() - timedelta(days=30)
+    if not WOWCharacter.objects.filter(id=char_id).exists():
+        raise Http404("Character not found")
+    chart_stats = (WOWStatSnapshot.objects
+                   .filter(character_id=char_id)
+                   .filter(snapshot_date__lte=now(), snapshot_date__gte=delta)
+                   .select_related('arena_2v2', 'arena_3v3', 'arena_rbg')
+                   .values('snapshot_date', 'arena_2v2__rating', 'arena_3v3__rating', 'arena_rbg__rating')
+                   .order_by('-snapshot_date'))
+    data = json.dumps([{'date': x['snapshot_date'].strftime("%Y-%m-%d"),
+                        '2v2': x['arena_2v2__rating'],
+                        '3v3': x['arena_3v3__rating'],
+                        'rbg': x['arena_rbg__rating']}
+                       for x in chart_stats])
+    return JsonResponse(data, safe=False)
