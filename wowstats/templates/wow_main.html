@@ -41,9 +41,6 @@
 </div>
 {% else %}
 <div class="container p-3">
-  <div class="container col-lg">
-    <div class="row">
-      <div class="col-lg">
           <div class="p-3 text-left" id="profile">
               <h1>{{profile.wowaccount.btag}}</h1>
               <p class="text-muted">{{profile.wowaccount.bnet_id}}
@@ -58,28 +55,28 @@
               {% endif %} 
               {# <p id="last-update ">{{profile.wowaccount.register_date}}</p> #}
             </div>
-            
-        <div id="monkas" class="container-lg w-90 p-2 table-active scrollbar-primary">
-          {% for character in characters_pg %}
-          <div class="list-group">
-            <div class="list-group-item flex-column align-items-start">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1"><a href={{character.get_absolute_url}} > {{character.name}}</a></h5>
-              <small><input id="track-{{character.id}}" type="checkbox" {% if character.track %}checked="checked"{% endif %}onclick="track('{{character.id}}', '{{csrf_token}}')">Track</input>
-              </small> 
-              </div>
-              <p class="mb-1">{{character.realm}}
-              <small class="text-muted">Level {{character.level}}</small>
-              <small class="text-muted">{{character.get_race_display}} {{character.get_class_id_display}}</small>
-              </p>
+        <div class="container-md">
+        {% for character in characters_pg %}
+          <div class="row p-1">
+            <div class="col-md-auto">
+              <img src="http://render-eu.worldofwarcraft.com/character/{{character.thumbnail}}" class="img-thumbnail d-inline-flex" alt=""> 
+            </div>
+            <div class="col-md-10">
+                <h5><a href="{{character.get_absolute_url}}">{{character}}</a></h5>
+                    <div class="custom-control custom-checkbox float-right">
+                      <input class="custom-control-input" id="track-{{character.id}}" type="checkbox" {% if character.track %}checked="checked"{% endif %}onclick="track('{{character.id}}', '{{csrf_token}}')">
+                      <label class="custom-control-label float-left" for="track-{{character.id}}">Track this character</label>
+                    </div>
+                <span class="text-muted">{{character.realm}} <br></span>
+                <span>Level {{character.level}} {{character.get_race_display}} {% if character.spec %}{{character.spec}}{% endif %} {{character.get_class_id_display}}</span>
+
+                <p class="custom-control-input float-right"></p >
             </div>
           </div>
           {% endfor %}
+        </div>
           {% include 'paginator.html' with item=characters_pg %}
         </div>
-      </div>
-    </div>
-  </div>
 </div>
 {% endif %} {% endif %} 
 {% endblock content %}

@@ -38,14 +38,17 @@ class CharacterView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["latest"] = (WOWStatSnapshot.objects
-                             .filter(character_id=self.object.id)
-                             .select_related('arena_2v2', 'arena_3v3', 'arena_rbg')
-                             .latest())
-        context["previous"] = (WOWStatSnapshot.objects
-                               .filter(character_id=self.object.id, snapshot_date__lt=context['latest'].snapshot_date)
-                               .select_related('arena_2v2', 'arena_3v3', 'arena_rbg')
-                               .first())
+        qs = (WOWStatSnapshot.objects
+              .filter(character_id=self.object.id)
+              .select_related('arena_2v2', 'arena_3v3', 'arena_rbg')
+              .order_by('-snapshot_date')[:2])
+        bool(qs)
+        if len(qs) == 2:
+            context['latest'] = qs[0]
+            context['previous'] = qs[1]
+        else:
+            context['latest'] = qs[0]
+            context['previous'] = None
         return context
 
     def get_object(self):
@@ -91,7 +94,7 @@ class MainView(LoginRequiredMixin, FormView):
                                      .wowcharacter_set.all()
                                      .filter(is_pvp=True)
                                      .order_by('-last_modified'))
-            paginator = Paginator(context['characters'], 7)
+            paginator = Paginator(context['characters'], 5)
             try:
                 characters_pg = paginator.page(page)
             except PageNotAnInteger:

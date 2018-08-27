@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load wow_tags %}
 {% load static %}
 {% block css %}
 {% include 'bootstrap4.html' %}
@@ -12,25 +13,52 @@
 {% endblock css %}
 {% block title %} {{object.name}} - PVP Stats{% endblock title %}
 {% block content %}
-<div class="container col-lg-8">
+<div class="container col-lg">
   <div class="row justify-content-md-center">
-    <div class="col-md-auto text-center">
-    <h1>{{object}}</h1>
-    <h4 class='text-muted'>{{object.realm}}</h4>
-    <h4 class='text-muted'>{{object.guild}}</h4>
-     Level {{object.level}}
-    {{object.get_class_id_display}}
-    {{object.get_race_display}}<br><br>
-    Latest snapshot:<br>
-    {{latest}}<br>
-    Honorable kills {{latest.honorable_kills}}
+    <div class="col-md-auto text-center p-3">
+      <img src="http://render-eu.worldofwarcraft.com/character/{{object.thumbnail}}"></img>
+      <h1>{{object}}</h1>
+      <h4 class='text-muted'>{{object.realm}}</h4>
+      {% if object.guild %}<h4 class='text-muted'>{{object.guild}}</h4>{% endif %} 
+      <p>Level {{object.level}} {{object.get_class_id_display}} {{object.get_race_display}}</p>
+      Honorable kills {{latest.honorable_kills}}<br><br>
     </div>
     <div class="col col-lg-8">
-          <div class="contaner">
-    <div id="arena-2v2" class="p-3"><div class="loader"></div>Loading</div>
-    <div id="arena-3v3" class="p-3"><div class="loader"></div>Loading</div>
-    <div id="arena-rbg" class="p-3"><div class="loader"></div>Loading</div>
-    </div>
+
+        <div class="col-md-auto" id="arena-2v2-main">
+          <div class="row">
+            <div class="col col-md-3 p-3">
+              <h4>ARENA 2v2</h4>
+              <span>RATING: {% show_difference latest.arena_2v2.rating previous.arena_2v2.rating %}</span>
+              <p class="pidor">WEEKLY PLAYED: {{latest.arena_2v2.weekly_played}}</p>
+            </div>
+            <div class="col">
+              <div id="arena-2v2" class="p-3"><div class="loader"></div>Loading</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-auto" id="arena-3v3-main">
+          <div class="row">
+            <div class="col col-md-3 p-3">
+              <h4>ARENA 3v3</h4>
+              <span>RATING: </span>
+            </div>
+            <div class="col">
+              <div id="arena-3v3" class="p-3"><div class="loader"></div>Loading</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-auto" id="arena-rbg-main">
+          <div class="row">
+            <div class="col col-md-3 p-3">
+              <h4>ARENA RBG</h4>
+              <span>RATING: {{latest.arena_rbg.rating}}</span>
+            </div>
+            <div class="col">
+              <div id="arena-rbg" class="p-3"><div class="loader"></div>Loading</div>
+            </div>
+          </div>
+        </div>
   </div>
 </div>
 {% endblock content %}

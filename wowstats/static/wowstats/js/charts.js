@@ -2,9 +2,6 @@ google.charts.load('current', {
     'packages': ['line']
 });
 
-function waitForCharts() {
-
-}
 
 function testRequest(characterID) {
     var request = new XMLHttpRequest();
