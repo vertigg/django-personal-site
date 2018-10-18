@@ -5,10 +5,11 @@ from django.conf.urls import url
 
 urlpatterns = [
     url(r'^$', main_views.home, name='home'),
-    url(r'^login/$', auth_views.login, {
+    url(r'^login/$', auth_views.LoginView, {
         'authentication_form': StyledAuthenticationForm,
         'redirect_authenticated_user': True}, name='login'),
-    url(r'^logout/$', auth_views.logout, {'next_page': 'home'}, name='logout'),
+    url(r'^logout/$', auth_views.LogoutView,
+        {'next_page': 'home'}, name='logout'),
     url(r'^signup/$', main_views.signup, name='signup'),
     url(r'^profile/$', main_views.profile, name='profile'),
     url(r'^unlink/$', main_views.unlink, name='unlink'),
