@@ -10,10 +10,6 @@ class PoeLeagueTestCase(TestCase):
         self.test_obj = PoeLeague.objects.create(name=self.test_name)
         return super().setUp()
 
-    # def test_check_void_league(self):
-    #     print(PoeLeague.objects.filter(name="Void").exists())
-    #     self.assertTrue(PoeLeague.objects.filter(name="Void").exists())
-
     def test_poe_league_slug_creation(self):
         """Slug must be created from 'name' field after creation"""
         self.assertEqual(self.test_obj.slug, slugify(self.test_name))

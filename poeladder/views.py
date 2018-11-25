@@ -1,5 +1,3 @@
-import random
-
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -64,7 +62,8 @@ def search(request):
                                           .filter(name__icontains=name)
                                           .order_by('name')
                                           .prefetch_related('gems')
-                                          .select_related('profile'))
+                                          .select_related('profile')) if name \
+                else PoeCharacter.objects.all()
             paginator = Paginator(response['search_results'], 10)
             try:
                 characters = paginator.page(page)

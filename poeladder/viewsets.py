@@ -6,9 +6,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 class CharacterViewSet(viewsets.ModelViewSet):
-    """
-    Return a list of all existing characters in ladder
-    """
+    """ Return a list of all existing characters in ladder"""
     queryset = PoeCharacter.objects.all()
     serializer_class = CharacterSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)

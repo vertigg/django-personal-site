@@ -71,7 +71,7 @@
                             {% endfor %}
                         </tbody>
                       </table>
-                      {% include "poeladder/paginator.html" %}
+                      {% include "paginator.html" with item=characters%}
             {% endif %}
         </div>
 </div>
@@ -126,7 +126,7 @@
                         {% with character|level_progress as level_progress %}
                         <td style="width:50px" title="{{level_progress}}%"> 
                             <div class="progress-bar-level center-block">
-                                <div class="progress-level" role="progressbar" style='width: {{level_progress}}%;' aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-level" role="progressbar" style="width: {{level_progress}}%;" aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </td>
                         {% endwith %}
