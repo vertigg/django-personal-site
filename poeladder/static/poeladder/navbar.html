@@ -8,7 +8,7 @@
 
     <div class="collapse navbar-collapse" id="navbarColor02">
         <ul class="navbar-nav mr-auto">
-            {% for temp_league in temp_leagues %} 
+            {% for temp_league in poe_context.temp_leagues %} 
                 {% if temp_league.name == active_league.name %}
                 <li class="nav-item active">
                     <a class="nav-link active-league" href="{% url 'poeladder:ladder_url' slug=temp_league.slug %}">{{ temp_league.name }}
@@ -26,7 +26,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
                 <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
-                    {% for old_league in old_leagues %}
+                    {% for old_league in poe_context.old_leagues %}
                     <a class="dropdown-item" href="{% url 'poeladder:ladder_url' slug=old_league.slug %}">{{ old_league.name }}
                         <span class="sr-only"></span>
                     </a>
@@ -46,8 +46,8 @@
                   </li>
         </ul>
         <form class="form-inline my-2 my-lg-0" action="{% url 'poeladder:ladder_search' %}" method="get">
-            {{ poe_search_form.name }}
+            {{ poe_context.search_form.name }}
         </form>
-        <a class="float-right" > Last updated: {{ last_update|date:"F d" }}</a>
+        <a class="float-right" > Last updated: {{ poe_context.last_update|date:"F d" }}</a>
     </div>
 </nav>
