@@ -1,6 +1,9 @@
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Count
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
 
 from poeladder.filters import PoeCharacterFilter
 from poeladder.forms import SearchForm
@@ -8,9 +11,18 @@ from poeladder.models import PoeCharacter, PoeLeague
 
 
 def ladder(request):
-    return render(request, 'poeladder/ladder.html', {
-        'ladder_main': True
-    })
+    """Returns main page or current most populated league ladder"""
+    top_league = (PoeLeague.objects
+                  .filter(poecharacter__isnull=False)
+                  .distinct()
+                  .filter(end_date__gt=timezone.localtime())
+                  .annotate(players=Count('poecharacter'))
+                  .order_by('-players')
+                  .first())
+    if top_league:
+        return redirect(
+            reverse('poeladder:ladder_url', kwargs={'slug': top_league.slug}))
+    return render(request, 'poeladder/ladder.html', {'ladder_main': True})
 
 
 def league_ladder(request, slug):
@@ -56,8 +68,7 @@ def search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             name = form.cleaned_data['name']
-            response['search_query'] = request.GET['name'] if name \
-                else 'All characters'
+            response['search_query'] = request.GET['name'] if name else 'All characters'
             response['search_results'] = (PoeCharacter.objects
                                           .filter(name__icontains=name)
                                           .order_by('name')
