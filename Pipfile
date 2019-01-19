@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 aiofiles = "==0.3.2"
 aiohttp = "==1.0.5"
 astroid = "==2.0"
@@ -36,7 +33,6 @@ markdown = "==2.6.11"
 mccabe = "==0.6.1"
 multidict = "==4.3.1"
 "oauth2client" = "==4.1.2"
-"psycopg2" = "==2.6.2"
 "pyasn1" = "==0.4.3"
 "pyasn1-modules" = "==0.2.2"
 pyflakes = "==1.6.0"
@@ -54,12 +50,8 @@ wikipedia = "==1.4.0"
 wrapt = "==1.10.11"
 django-debug-toolbar = "*"
 
-
 [dev-packages]
-
 "pep8" = "*"
 
-
 [requires]
-
 python_version = "3.5"
