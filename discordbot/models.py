@@ -65,7 +65,6 @@ class Gachi(models.Model):
 
 class DiscordPicture(models.Model):
     id = models.IntegerField(primary_key=True, null=False)
-    # Field name made lowercase.
     pid = models.IntegerField(db_column='pID', default=0)
     url = models.URLField(unique=True)
     date = models.IntegerField(blank=True, null=True)
@@ -177,6 +176,17 @@ class Wisdom(models.Model):
 
     def __str__(self):
         return truncatechars(self.text, 50)
+
+
+class MixEvent(models.Model):
+    # TODO: Webpage with mix statistics
+    user = models.ForeignKey(
+        DiscordUser, on_delete=models.CASCADE, related_name='mix_events')
+    created_at = models.DateTimeField(auto_now_add=True)
+    wisdom = models.ForeignKey(Wisdom, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "<MixEvent: {}>".format(self.created_at)
 
 
 @receiver(post_save, sender=User)

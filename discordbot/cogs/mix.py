@@ -6,12 +6,10 @@ from discord.ext import commands
 from imgurpython import ImgurClient
 
 from discordbot.credentials import IMGUR
-from discordbot.models import DiscordPicture, DiscordSettings, Wisdom
+from discordbot.models import DiscordPicture, DiscordSettings, Wisdom, MixEvent, DiscordUser
 
-from .utils.checks import (admin_command,
-                           compare_timestamps, mod_command)
-from .utils.db import (get_nickname_cache, get_random_entry,
-                       update_display_names)
+from .utils.checks import admin_command, compare_timestamps, mod_command
+from .utils.db import get_nickname_cache, get_random_entry, update_display_names
 from .utils.formatters import wisdom_format
 
 logger = logging.getLogger('botLogger')
@@ -30,8 +28,16 @@ class Mix(object):
         if not ctx.invoked_subcommand:
             wisdom_obj = get_random_entry(Wisdom)
             pic_url = self.get_random_picture()
+            self.report_mix_event(ctx.message.author.id, wisdom_obj)
             if wisdom_obj is not None:
                 await self.bot.say('{0}\n{1}'.format(wisdom_obj.text, pic_url))
+
+    def report_mix_event(self, user_id, wisdom):
+        try:
+            user = DiscordUser.objects.get(id=user_id)
+            MixEvent.objects.create(user=user, wisdom=wisdom)
+        except DiscordUser.DoesNotExists:
+            logger.error('Can not find user with id:{}'.format(user_id))
 
     @commands.group(pass_context=True)
     async def hb(self, ctx):
@@ -76,7 +82,8 @@ class Mix(object):
 
     def get_random_picture(self):
         """Gets random picture from imgur table and sets new pid based on picture's age"""
-        random_pic = DiscordPicture.objects.filter(pid__lt=2).order_by('?').first()
+        random_pic = DiscordPicture.objects.filter(pid__lt=2) \
+            .order_by('?').first()
         if random_pic:
             current_pid = random_pic.pid
             new_pid = current_pid + compare_timestamps(random_pic.date)

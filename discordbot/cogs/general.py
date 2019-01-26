@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
-from .utils.checks import admin_command, mod_command
+from .utils.checks import admin_command, mod_command, is_youtube_link
 from .utils.db import get_random_entry, update_display_names
 
 
@@ -41,7 +41,7 @@ class General(object):
         """Change bot's status"""
         game = ' '.join(args)
         if not game:
-            await self.bot.say('`How to use: "!game Name"`')
+            await self.bot.say('How to use: `!game "Name"`')
         else:
             DiscordSettings.objects.filter(key='game').update(value=game)
             await self.bot.change_presence(game=discord.Game(name=game))
@@ -89,7 +89,7 @@ class General(object):
     @commands.command()
     async def roll(self):
         """Rolls from 1 to 100"""
-        await self.bot.say(random.randint(1, 100))
+        await self.bot.say(random.randint(1, 101))
 
     @commands.command(hidden=True)
     async def firstrule(self):
@@ -114,9 +114,11 @@ class General(object):
     @gachi.command(pass_context=True)
     @mod_command
     async def add(self, ctx, url: str):
-        # Add regex for links
-        Gachi.objects.create(url=url)
-        await self.bot.say('{} added'.format(url))
+        if is_youtube_link(url):
+            Gachi.objects.create(url=url)
+            await self.bot.say('{} added'.format(url))
+        else:
+            await self.bot.say('Wrong youtube link format')
 
 
 def setup(bot):

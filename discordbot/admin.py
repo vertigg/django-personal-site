@@ -5,6 +5,7 @@ from discordbot.models import Wisdom, DiscordUser, Gachi, DiscordSettings, Disco
 from django.template.defaultfilters import truncatechars
 
 
+@admin.register(DiscordLink)
 class DiscordLinkAdmin(admin.ModelAdmin):
     list_display = ('key', 'url')
     formfield_overrides = {
@@ -12,10 +13,12 @@ class DiscordLinkAdmin(admin.ModelAdmin):
     }
 
 
+@admin.register(DiscordSettings)
 class DiscordSettingsAdmin(admin.ModelAdmin):
     list_display = ('key', 'value')
 
 
+@admin.register(Wisdom)
 class WisdomAdmin(admin.ModelAdmin):
     list_display = ('id', 'author', 'short_text')
     list_filter = ('date',)
@@ -24,7 +27,7 @@ class WisdomAdmin(admin.ModelAdmin):
     readonly_fields = ('date',)
 
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 10, 'cols': 150})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 10, 'cols': 100})},
     }
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -36,6 +39,7 @@ class WisdomAdmin(admin.ModelAdmin):
         return truncatechars(obj.text, 100)
 
 
+@admin.register(DiscordUser)
 class DiscordUserAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'id', "admin", "mod_group")
     search_fields = ('display_name',)
@@ -49,13 +53,9 @@ class DiscordUserAdmin(admin.ModelAdmin):
     }
 
 
+@admin.register(Gachi)
 class GachiAdmin(admin.ModelAdmin):
     fields = ('url',)
 
 
-admin.site.register(Wisdom, WisdomAdmin)
-admin.site.register(DiscordUser, DiscordUserAdmin)
-admin.site.register(Gachi, GachiAdmin)
-admin.site.register(DiscordSettings, DiscordSettingsAdmin)
-admin.site.register(DiscordLink, DiscordLinkAdmin)
 admin.site.register(WFAlert)
