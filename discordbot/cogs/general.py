@@ -86,6 +86,10 @@ class General(object):
     async def friday(self):
         await self.bot.say(DiscordLink.objects.get(key='friday'))
 
+    @commands.command(hidden=True)
+    async def flick(self):
+        await self.bot.say(DiscordLink.objects.get(key='ricardo'))
+
     @commands.command()
     async def roll(self):
         """Rolls from 1 to 100"""
