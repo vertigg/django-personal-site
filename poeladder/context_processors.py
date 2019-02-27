@@ -7,8 +7,10 @@ from poeladder.models import PoeInfo, PoeLeague
 
 def poe_info(request):
     def get_poe_context():
-        leagues_with_players = PoeLeague.objects.filter(poecharacter__isnull=False).distinct()
-        temp_leagues = leagues_with_players.filter(end_date__gt=timezone.localtime())
+        leagues_with_players = PoeLeague.objects.filter(
+            poecharacter__isnull=False).distinct()
+        temp_leagues = leagues_with_players.filter(
+            end_date__gt=timezone.localtime())
         old_leagues = leagues_with_players.exclude(id__in=temp_leagues)
         try:
             db_time = PoeInfo.objects.get(key='last_update').timestamp
