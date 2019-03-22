@@ -12,7 +12,7 @@ admin.autodiscover()
 urlpatterns = [
     # url(r'^books', include('books.urls')),
     url(r'^', include('main.urls')),
-    url(r'^games/', include('unitygames.urls')),
+    url(r'^games/', include('webgames.urls')),
     url(r'^ladder/', include('poeladder.urls')),
     url(r'^discordbot/', include('discordbot.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
