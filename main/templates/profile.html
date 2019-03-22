@@ -33,13 +33,13 @@
                                 </div>
                         </div>
                         <div class="card-body text-center">
-                          <a href="{% url 'unlink' %}" class="card-link">Unlink your discord account</a><br>
+                          <a href="{% url 'main:unlink' %}" class="card-link">Unlink your discord account</a><br>
                         </div>
                       </div>
             </div>
           <div class="col-md-6">    
               <h3>Personal info</h3>
-                <form action="{% url 'profile' %}" method="post">
+                <form action="{% url 'main:profile' %}" method="post">
                         {% csrf_token %}
                         {% for field in profile_form  %}
                             {{ field.label }}<br>
@@ -78,7 +78,7 @@
         <div class="col-sm-8">
             <p>Your Discord Account is not linked yet</p>
             <small>Enter your discord token</small><br>
-            <form action="{% url 'profile' %}" method="post">
+            <form action="{% url 'main:profile' %}" method="post">
                 <div class="input-group mb-6">
                     {% csrf_token %}
                     {{ token_form.token}}

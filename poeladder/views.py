@@ -33,7 +33,7 @@ def league_ladder(request, slug):
                  .filter(league_id=active_league.id)
                  .order_by('-level', '-experience')
                  .prefetch_related('gems')
-                 .select_related('profile'))
+                 .select_related('main:profile'))
 
     class_filter = PoeCharacterFilter(request.GET, query_set)
     current_profile = request.user.discorduser.poe_profile if hasattr(
@@ -73,7 +73,7 @@ def search(request):
                                           .filter(name__icontains=name)
                                           .order_by('name')
                                           .prefetch_related('gems')
-                                          .select_related('profile')) if name \
+                                          .select_related('main:profile')) if name \
                 else PoeCharacter.objects.all()
             paginator = Paginator(response['search_results'], 10)
             try:

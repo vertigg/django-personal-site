@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from discordbot.models import DiscordUser
 
 
-class StyledAuthenticationForm(AuthenticationForm):
+class MainAuthenticationForm(AuthenticationForm):
     username = UsernameField(
         max_length=254,
         widget=TextInput(attrs={'class': 'form-control'}),
@@ -24,7 +24,7 @@ class StyledAuthenticationForm(AuthenticationForm):
     )
 
 
-class StyledUserCreationForm(UserCreationForm):
+class MainUserCreationForm(UserCreationForm):
     username = forms.CharField(
         widget=TextInput(attrs={'class': 'form-control'}))
     password1 = forms.CharField(

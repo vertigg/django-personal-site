@@ -16,7 +16,7 @@
 {% else %}
 <div class="container login-centered col-sm-3 col-xs-6" style="min-width:300px;">
     <h1 class="display-4 text-center">Login</h1>
-    <form method="post" action="{% url 'login' %}">
+    <form method="post" action="{% url 'main:login' %}">
         {% csrf_token %}
         
         <div class="form-group">
@@ -33,7 +33,7 @@
         </div>
     </form>
     <div class="form-group has-errors text-muted small">
-            Don't have an account? Make one <a href="{% url 'signup' %}">here</a>
+            Don't have an account? Make one <a href="{% url 'main:signup' %}">here</a>
         </div>    <div class="form-group has-errors text-muted small">
         </div>
     {% if form.errors %}

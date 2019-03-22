@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load ladder_extras %}
 {% load static %}
+{% load render_bundle from webpack_loader %}
 
 {% block css %}
 {% include "bootstrap4.html" %}
@@ -20,6 +21,8 @@
 {% block content %}
 
 {% if ladder_main %}
+<div id="react-app"></div>
+{% render_bundle 'main' %}
 <div class="d-flex h-100 justify-content-center flex-column" style="margin-top:150px">
     <div class='mx-auto' style="min-width:470px;"><img src="{% static 'poeladder/img/IncursionTitle.png' %}"> </div>
     <h6><div id='timer' class='mx-auto text-center'></div></h6>

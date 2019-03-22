@@ -1,48 +1,61 @@
-import platform
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.views import (FormView, LoginView, LogoutView,
+                                       TemplateView)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.views.generic.base import RedirectView
 
 from discordbot.forms import WFSettingsForm
 from discordbot.models import DiscordUser, WFSettings
-from poeladder.models import PoeCharacter
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
-                        StyledUserCreationForm)
+                        MainAuthenticationForm, MainUserCreationForm)
+from poeladder.models import PoeCharacter
 
 
-def home(request):
-    return render(request, 'home.html')
+class HomeView(TemplateView):
+    template_name = 'home.html'
 
 
-def signup(request):
-    if request.method == 'POST':
-        form = StyledUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('home')
-    else:
-        form = StyledUserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+class MainLoginView(LoginView):
+    authentication_form = MainAuthenticationForm
+    redirect_authenticated_user = True
+
+
+class MainLogoutView(LogoutView):
+    next_page = 'main:home'
+
+
+class SignupView(FormView):
+    form_class = MainUserCreationForm
+    template_name = 'registration/signup.html'
+    success_url = reverse_lazy('main:home')
+
+    def form_valid(self, form):
+        form.save()
+        username = form.cleaned_data.get('username')
+        raw_password = form.cleaned_data.get('password1')
+        user = authenticate(username=username, password=raw_password)
+        login(self.request, user)
+        return super().form_valid(form)
+
+
+class UnlinkDiscordProfile(LoginRequiredMixin, RedirectView):
+    pattern_name = 'main:profile'
+
+    def get_redirect_url(self, *args, **kwargs):
+        if hasattr(self.request.user, 'discorduser'):
+            self.request.user.discorduser.user_id = None
+            self.request.user.save()
+        return reverse(self.pattern_name)
 
 
 @login_required(login_url='/login/')
-def unlink(request):
-    if hasattr(request.user, 'discorduser'):
-        request.user.discorduser.user_id = None
-        request.user.save()
-    return redirect('profile')
-
-
-@login_required(login_url='/login/')
-def profile(request):
+def profile_view(request):
 
     is_linked = hasattr(request.user, 'discorduser')
     is_updated = False
@@ -70,7 +83,7 @@ def profile(request):
                     discord_user = DiscordUser.objects.get(token=clean_token)
                     discord_user.user = request.user
                     user.save()
-                    return redirect('profile')
+                    return redirect('main:profile')
                 except ObjectDoesNotExist:
                     invalid_token = True
         if 'profile_update' in request.POST:

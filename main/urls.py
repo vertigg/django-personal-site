@@ -1,16 +1,14 @@
-from django.contrib.auth import views as auth_views
-from main.forms import StyledAuthenticationForm
-from main import views as main_views
-from django.conf.urls import url
+from django.urls import path
+from main.views import (HomeView, MainLoginView, MainLogoutView, SignupView,
+                        UnlinkDiscordProfile, profile_view)
+
+app_name = 'main'
 
 urlpatterns = [
-    url(r'^$', main_views.home, name='home'),
-    url(r'^login/$', auth_views.LoginView.as_view(
-        authentication_form=StyledAuthenticationForm,
-        redirect_authenticated_user=True), name='login'),
-    url(r'^logout/$', auth_views.LogoutView.as_view(
-        next_page='home'), name='logout'),
-    url(r'^signup/$', main_views.signup, name='signup'),
-    url(r'^profile/$', main_views.profile, name='profile'),
-    url(r'^unlink/$', main_views.unlink, name='unlink'),
+    path('', HomeView.as_view(), name='home'),
+    path('login/', MainLoginView.as_view(), name='login'),
+    path('logout/', MainLogoutView.as_view(), name='logout'),
+    path('signup/', SignupView.as_view(), name='signup'),
+    path('profile/', profile_view, name='profile'),
+    path('unlink/', UnlinkDiscordProfile.as_view(), name='unlink'),
 ]
