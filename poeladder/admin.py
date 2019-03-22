@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
-from poeladder.models import PoeCharacter, PoeLeague, PoeActiveGem
+from poeladder.models import PoeCharacter
 
 
 class PoeCharacterAdmin(admin.ModelAdmin):
@@ -15,10 +15,4 @@ class PoeCharacterAdmin(admin.ModelAdmin):
     }
 
 
-class PoeLeagueAdmin(admin.ModelAdmin):
-    pass
-
-
 admin.site.register(PoeCharacter, PoeCharacterAdmin)
-admin.site.register(PoeActiveGem)
-admin.site.register(PoeLeague)

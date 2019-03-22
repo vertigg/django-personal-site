@@ -50,6 +50,7 @@ wikipedia = "==1.4.0"
 wrapt = "==1.10.11"
 django-debug-toolbar = "*"
 django-webpack-loader = "*"
+django-dbbackup = "*"
 
 [dev-packages]
 "pep8" = "*"
