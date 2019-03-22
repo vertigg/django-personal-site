@@ -285,3 +285,7 @@ credentials.py
 env/
 examples/
 data.db
+
+# wip
+app/
+apexmap/
