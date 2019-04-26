@@ -11,30 +11,30 @@ from discordbot.models import Brawl, DiscordLink, DiscordSettings
 logger = logging.getLogger('botLogger.brawl')
 
 
-class GoogleBrawl(object):
+class GoogleBrawl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.brawl_list = self.check_for_updates()
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def brawl(self, ctx):
         """Kill me pls"""
         if not ctx.invoked_subcommand:
-            await self.bot.say(self.randomize_phrase(self.brawl_list))
+            await ctx.send(self.randomize_phrase(self.brawl_list))
 
     @brawl.command()
-    async def update(self):
+    async def update(self, ctx):
         """Update db from google spreadsheet"""
         self.brawl_list = self.check_for_updates()
         if self.brawl_list:
-            await self.bot.say('`Brawl table has been successfully updated`')
+            await ctx.send('`Brawl table has been successfully updated`')
         else:
-            await self.bot.say("`Something wrong with brawl lists. Please check logs for more info`")
+            await ctx.send("`Something wrong with brawl lists. Please check logs for more info`")
 
     @brawl.command()
-    async def info(self):
+    async def info(self, ctx):
         """Brawl Spreadsheet url"""
-        await self.bot.say(DiscordLink.objects.get(key='brawl_sheet'))
+        await ctx.send(DiscordLink.objects.get(key='brawl_sheet'))
 
     def check_for_updates(self):
         json_file = DiscordSettings.objects.get(key='json').value
@@ -49,19 +49,22 @@ class GoogleBrawl(object):
                 logger.info('[GSPREAD]: Brawl dictionary is not in response. New page token is {}'.format(
                     response.get('newStartPageToken')))
                 logger.info('[GSPREAD]: Brawl lists are the same.')
-                DiscordSettings.objects.filter(key='token').update(value=response.get('newStartPageToken'))
+                DiscordSettings.objects.filter(key='token').update(
+                    value=response.get('newStartPageToken'))
                 return self.get_brawl_table()
             else:
                 brawl_list = self.read_spreadsheet(gcredentials, spreadsheet)
                 if brawl_list is not None:
-                    DiscordSettings.objects.filter(key='token').update(value=response.get('newStartPageToken'))
+                    DiscordSettings.objects.filter(key='token').update(
+                        value=response.get('newStartPageToken'))
                     logger.info('[GSPREAD] Brawl lists updated.')
                 else:
                     logger.error("[GSPREAD] Using cached brawl table")
                     brawl_list = self.get_brawl_table()
                 return brawl_list
         else:
-            logger.error("Can't connect to google drive. Please check logs for more info")
+            logger.error(
+                "Can't connect to google drive. Please check logs for more info")
             brawl_list = self.get_brawl_table()
             return brawl_list
 
@@ -69,7 +72,8 @@ class GoogleBrawl(object):
         try:
             gscope = ['https://spreadsheets.google.com/feeds',
                       'https://www.googleapis.com/auth/drive.metadata.readonly']
-            gcredentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, gscope)
+            gcredentials = ServiceAccountCredentials.from_json_keyfile_name(
+                json_file, gscope)
             service = discovery.build('drive', 'v3', credentials=gcredentials)
             response = service.changes().list(pageToken=token).execute()
             logger.debug(response)
@@ -86,7 +90,8 @@ class GoogleBrawl(object):
             brawl_sh = gcs.open(spreadsheet).sheet1
             raw_data = [list(brawl_sh.col_values(i + 1))
                         for i in range(brawl_sh.col_count)]
-            filtered_data = list(list(filter(None, column)) for column in raw_data)
+            filtered_data = list(list(filter(None, column))
+                                 for column in raw_data)
 
             if 0 in list(map(len, filtered_data)):
                 logger.error("[GSPREAD] Brawl lists can't be empty!")
@@ -103,7 +108,8 @@ class GoogleBrawl(object):
             raw_data = Brawl.objects.all().values_list()
             column_lists = list(map(list, zip(*raw_data)))
             column_lists.pop(0)
-            filtered_lists = list(list(filter(None, column)) for column in column_lists)
+            filtered_lists = list(list(filter(None, column))
+                                  for column in column_lists)
             return filtered_lists
         except Exception as ex:
             logger.error('[{0}] {1}'.format(__name__, ex))

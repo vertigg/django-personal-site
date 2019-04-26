@@ -21,7 +21,7 @@ HEADERS = {
     'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'), }
 
 
-class Overwatch(object):
+class Overwatch(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -30,7 +30,7 @@ class Overwatch(object):
         self.cooldown = 300
         self.futures = []
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def ow(self, ctx):
         if not ctx.invoked_subcommand:
             if ctx.message.content == '!ow':
@@ -39,7 +39,7 @@ class Overwatch(object):
                 mention_pattern = r"\!ow\s\<\@(?P<id>\d+)\>"
                 match = re.match(mention_pattern, ctx.message.content)
                 if not match:
-                    await self.bot.say('`How to use - !ow @User`')
+                    await ctx.send('`How to use - !ow @User`')
                     return
                 discord_id = match.group(1)
             if discord_id:
@@ -47,34 +47,34 @@ class Overwatch(object):
                     user = DiscordUser.objects.get(id=discord_id)
                     if user.blizzard_id:
                         rank = await self.check_ow_rank(user.blizzard_id)
-                        await self.bot.say("`{0}: {1}`".format(user.display_name, rank))
+                        await ctx.send("`{0}: {1}`".format(user.display_name, rank))
                     else:
-                        await self.bot.say("`You don't have blizzard tag linked to your profile`")
+                        await ctx.send("`You don't have blizzard tag linked to your profile`")
                 except DiscordUser.DoesNotExist:
-                    await self.bot.say("`Can't find player in database`")
+                    await ctx.send("`Can't find player in database`")
                     update_display_names(self.bot.servers)
 
-    @ow.command(pass_context=True)
-    async def ladder(self):
+    @ow.command()
+    async def ladder(self, ctx):
         if not self.lock and time() - self.timeout >= 10:
             try:
                 self.lock = True
                 ow_players = (DiscordUser.objects
                               .exclude(blizzard_id__exact='')
                               .values_list('blizzard_id', flat=True))
-                tmp_message = await self.bot.say('`Loading ladder`')
+                tmp_message = await ctx.send('`Loading ladder`')
                 ladder = {}
                 async with aiohttp.ClientSession() as session:
                     for k in ow_players:
-                        self.futures.append(self.check_ow_ladder(k, ladder, session))
+                        self.futures.append(
+                            self.check_ow_ladder(k, ladder, session))
                     await self.bot.loop.create_task(asyncio.wait(self.futures))
                 sorted_ladder = sorted(
                     ladder.items(), key=lambda x: x[1], reverse=True)
                 msg = ''
                 for player in sorted_ladder:
                     msg += '    {0} - {1}\n'.format(player[1], player[0])
-                await self.bot.edit_message(tmp_message,
-                                            '<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{0}\n```'.format(msg))
+                await tmp_message.edit(content=f'<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{msg}\n```')
                 self.timeout = round(time())
                 self.futures.clear()
                 await asyncio.sleep(10)
@@ -84,17 +84,19 @@ class Overwatch(object):
                 self.lock = False
         else:
             cooldown = 10 - round((time() - self.timeout))
-            await self.bot.say("Next update will be available in {} seconds".format(cooldown))
+            await ctx.send("Next update will be available in {} seconds".format(cooldown))
 
     async def check_ow_rank(self, blizzard_id):
         """OW rank checker"""
-        async with aiohttp.get(LINK + blizzard_id) as resp:
-            try:
-                text = await resp.text()
-                soup = BeautifulSoup(text, 'html.parser')
-                result = soup.find("div", {"class": "competitive-rank"}).text
-            except:
-                result = "Not ranked"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(LINK + blizzard_id) as resp:
+                try:
+                    text = await resp.text()
+                    soup = BeautifulSoup(text, 'html.parser')
+                    result = soup.find(
+                        "div", {"class": "competitive-rank"}).text
+                except:
+                    result = "Not ranked"
         return result
 
     async def check_ow_ladder(self, blizzard_id: str, ladder: dict, session):

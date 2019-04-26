@@ -6,18 +6,18 @@ from discord.ext import commands
 logger = logging.getLogger("botLogger")
 
 
-class Wikipedia(object):
+class Wikipedia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         wikipedia.set_lang('ru')
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def wiki(self, ctx, *, search: str):
         """Википедия в Дискорде, не отходя от кассы"""
         # article = str(ctx.message.content).replace('!wiki ', '')
         if not ctx.invoked_subcommand:
             try:
-                await self.bot.say('`{}`'.format(self.get_article(search)[0]))
+                await ctx.send('`{}`'.format(self.get_article(search)[0]))
             except Exception as e:
                 logger.error(e)
 

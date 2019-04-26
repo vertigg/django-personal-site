@@ -9,24 +9,24 @@ from .utils.db import update_display_names
 logger = logging.getLogger('botLogger.django')
 
 
-class DjangoDiscord(object):
+class DjangoDiscord(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def register(self, ctx):
         """Get your website token!"""
         token = self.generate_token(ctx.message.author.id)
-        await self.bot.send_message(ctx.message.author, token)
+        await ctx.author.send(token)
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.command(hidden=True)
     @admin_command
     async def users_update(self, ctx):
         """Force update display names for every user in bot.servers"""
         try:
-            update_display_names(self.bot.servers)
+            update_display_names(self.bot.guilds)
         except Exception as ex:
-            self.bot.say(ex)
+            await ctx.send(ex)
 
     @staticmethod
     def generate_token(discord_id: str):

@@ -15,14 +15,14 @@ from .utils.formatters import wisdom_format
 logger = logging.getLogger('botLogger')
 
 
-class Mix(object):
+class Mix(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.wisdom_history = deque([], maxlen=5)
         self.imgur_update()
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
@@ -30,7 +30,7 @@ class Mix(object):
             pic_url = self.get_random_picture()
             self.report_mix_event(ctx.message.author.id, wisdom_obj)
             if wisdom_obj is not None:
-                await self.bot.say('{0}\n{1}'.format(wisdom_obj.text, pic_url))
+                await ctx.send('{0}\n{1}'.format(wisdom_obj.text, pic_url))
 
     def report_mix_event(self, user_id, wisdom):
         try:
@@ -39,27 +39,27 @@ class Mix(object):
         except DiscordUser.DoesNotExists:
             logger.error('Can not find user with id:{}'.format(user_id))
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def hb(self, ctx):
         """Нет слов"""
         if not ctx.invoked_subcommand:
-            await self.bot.say(self.get_random_picture())
+            await ctx.send(self.get_random_picture())
 
     @hb.command()
-    async def update(self):
+    async def update(self, ctx):
         """Update pictures table from imgur album"""
-        await self.bot.say(self.imgur_update())
+        await ctx.send(self.imgur_update())
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def wisdom(self, ctx):
         """Спиздануть мудрость клоунов"""
         if not ctx.invoked_subcommand:
             wisdom_obj = get_random_entry(Wisdom)
             if wisdom_obj is not None:
                 self.wisdom_history.append(wisdom_obj)
-                await self.bot.say(wisdom_obj.text)
+                await ctx.send(wisdom_obj.text)
 
-    @wisdom.command(pass_context=True)
+    @wisdom.command()
     @mod_command
     async def add(self, ctx, *, text: str):
         """Добавить новую мудрость клоунов"""
@@ -69,16 +69,16 @@ class Mix(object):
             date=datetime.now(),
             author_id=ctx.message.author.id
         )
-        await self.bot.say('{} added'.format(wisdom_text))
+        await ctx.send('{} added'.format(wisdom_text))
 
-    @wisdom.command(pass_context=True, hidden=True)
+    @wisdom.command(hidden=True)
     @admin_command
     async def remove(self, ctx, wisdom_id: int):
         """Removes wisdom by given id in ctx"""
         if isinstance(wisdom_id, int):
             entry = Wisdom.objects.filter(id=wisdom_id).delete()
             if entry[0] is not 0:
-                await self.bot.say('Wisdom {} removed'.format(wisdom_id))
+                await ctx.send('Wisdom {} removed'.format(wisdom_id))
 
     def get_random_picture(self):
         """Gets random picture from imgur table and sets new pid based on picture's age"""

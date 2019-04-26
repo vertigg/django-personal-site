@@ -12,11 +12,10 @@ def __setup_django(root_path):
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VertigoProject.settings")
     django.setup()
 
-
 if os.name == 'nt':
     PROJECT_PATH = "C:\\Users\\EpicWin\\Desktop\\HomeSite"
 else:
-    PROJECT_PATH = "/home/vertigo/homesite"
+    PROJECT_PATH = '/app'
 __setup_django(PROJECT_PATH)
 
 logging.config.fileConfig('discordbot/logger.ini')
@@ -32,7 +31,8 @@ bot = commands.Bot(command_prefix='!',
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(game=discord.Game(name=DiscordSettings.objects.get(key='game').value))
+    game = discord.Game(DiscordSettings.objects.get(key='game').value)
+    await bot.change_presence(activity=game)
     logger.info('Logged in as {0}:{1}'.format(bot.user.name, bot.user.id))
 
 

@@ -105,13 +105,12 @@ class DiscordUser(models.Model):
         WFSettings, on_delete=models.CASCADE, blank=True, null=True)
     token = models.CharField(unique=True, blank=True, null=True, max_length=20)
 
-    id = models.CharField(
+    id = models.IntegerField(
         "Discord ID",
         unique=True,
         blank=True,
         null=False,
         primary_key=True,
-        max_length=18,
         help_text='Required. 18 characters, digits only.',
         validators=[RegexValidator(r'^\d{1,18}$')])
 

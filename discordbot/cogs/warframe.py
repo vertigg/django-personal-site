@@ -7,18 +7,21 @@ import logging
 
 import discord
 from discord.errors import InvalidArgument
-from discordbot.models import DiscordUser, WFAlert
+from discord.ext import commands
 from discord.utils import get as get_user
 from django.db.models import Q
+
+from discordbot.models import DiscordUser, WFAlert
 
 logger = logging.getLogger("botLogger.warframe")
 
 
-class Warframe(object):
+class Warframe(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.watchdog = self.bot.loop.create_task(self.warframe_alert_watchdog())
+        self.watchdog = self.bot.loop.create_task(
+            self.warframe_alert_watchdog())
         self.RESOURCES = {
             'Nitain Extract (Resource)': 'nitain_extract',
             'Orokin Cell (Resource)': 'orokin_cell',
@@ -42,32 +45,36 @@ class Warframe(object):
             '10x Kavat Genetic Code (Resource)': 'kavat',
         }
 
-    def __unload(self):
+    def cog_unload(self):
         if self.watchdog:
             self.watchdog.cancel()
 
     async def warframe_alert_watchdog(self):
         await self.bot.wait_until_ready()
-        while not self.bot.is_closed:
+        while not self.bot.is_closed():
             new_alerts = WFAlert.objects.filter(announced=False)
             for alert in new_alerts:
                 if alert.keywords:
                     keywords = alert.keywords.split(',')
-                    matches = [self.RESOURCES[k] for k in keywords if k in self.RESOURCES]
+                    matches = [self.RESOURCES[k]
+                               for k in keywords if k in self.RESOURCES]
                     if matches:
                         if len(matches) == 2:
                             subscribers = DiscordUser.objects.select_related().filter(
-                                Q(**{'wf_settings__{}'.format(matches[0]): True}) | Q(**{'wf_settings__{}'.format(matches[1]): True}))
+                                Q(**{'wf_settings__{}'.format(matches[0]): True}) |
+                                Q(**{'wf_settings__{}'.format(matches[1]): True}))
                         else:
                             subscribers = DiscordUser.objects.select_related().filter(
                                 **{'wf_settings__{}'.format(matches[0]): True})
                         for sub in subscribers:
                             try:
-                                user = get_user(self.bot.get_all_members(), id=sub.id)
+                                user = get_user(
+                                    self.bot.get_all_members(), id=sub.id)
                                 if user:
-                                    await self.bot.send_message(user, embed=self.create_embed(alert))
+                                    await user.send(embed=self.create_embed(alert))
                                 else:
-                                    logger.error("Can't find %s in get_all_members()", sub)
+                                    logger.error(
+                                        "Can't find %s in get_all_members()", sub)
                             except InvalidArgument:
                                 pass
                 alert.announced = True

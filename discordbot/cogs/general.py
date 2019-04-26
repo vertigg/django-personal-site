@@ -9,120 +9,120 @@ from .utils.checks import admin_command, mod_command, is_youtube_link
 from .utils.db import get_random_entry, update_display_names
 
 
-class General(object):
+class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def avatar(self, ctx, mention=None):
         """Shows user's avatar"""
         mention_pattern = r"\<\@\!?(?P<id>\d+)\>"
         if not mention:
-            await self.bot.say(ctx.message.author.avatar_url)
+            await ctx.send(ctx.message.author.avatar_url)
             return
         if mention:
             match = re.match(mention_pattern, mention)
             if not match:
-                await self.bot.say('```How to use - !avatar @User```')
+                await ctx.send('```How to use - !avatar @User```')
                 return
             else:
                 discord_id = match.group(1)
                 try:
                     avatar = DiscordUser.objects.get(id=discord_id).avatar_url
-                    await self.bot.say(avatar)
+                    await ctx.send(avatar)
                 except DiscordUser.DoesNotExist:
-                    await self.bot.say("```Can't find discord user```")
+                    await ctx.send("```Can't find discord user```")
                     update_display_names(self.bot.servers)
 
-    @commands.command(pass_context=True)
+    @commands.command()
     @mod_command
     async def game(self, ctx, *args):
         """Change bot's status"""
         game = ' '.join(args)
         if not game:
-            await self.bot.say('How to use: `!game "Name"`')
+            await ctx.send('How to use: `!game "Name"`')
         else:
             DiscordSettings.objects.filter(key='game').update(value=game)
-            await self.bot.change_presence(game=discord.Game(name=game))
-            await self.bot.say('Status changed', delete_after=15)
+            await self.bot.change_presence(activity=discord.Game(name=game))
+            await ctx.send('Status changed', delete_after=15)
 
     @commands.command(hidden=True)
-    async def shles(self):
+    async def shles(self, ctx):
         """SHLES"""
-        await self.bot.say(DiscordLink.objects.get(key='shles'))
+        await ctx.send(DiscordLink.objects.get(key='shles'))
 
     @commands.command()
-    async def ip(self):
+    async def ip(self, ctx):
         """Напомните ип плс"""
-        await self.bot.say(str(DiscordSettings.objects.get(key='ip')) + ' <:OSsloth:230773934197440522>')
+        await ctx.send(str(DiscordSettings.objects.get(key='ip')) + ' <:OSsloth:230773934197440522>')
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.command(hidden=True)
     async def low(self, ctx):
-        if ctx.message.author.id == '127135903125733376':
-            await self.bot.say(DiscordLink.objects.get(key='low'))
+        if ctx.message.author.id == 127135903125733376:
+            await ctx.send(DiscordLink.objects.get(key='low'))
         else:
-            await self.bot.say('<:bearrion:230370930600312832>')
+            await ctx.send('<:bearrion:230370930600312832>')
 
     @commands.command()
-    async def cytube(self):
+    async def cytube(self, ctx):
         """Для тех кто не умеет добавлять сайты в закладки"""
         cytube_url = DiscordLink.objects.get(key='cytube')
         movies_url = DiscordLink.objects.get(key='movies')
-        await self.bot.say('`Смотреть` <:bearrion:230370930600312832> {0}\n'
-                           '`Брать кинцо` <:cruzhulk:230370931065749514> {1}'.format(cytube_url, movies_url))
+        await ctx.send('`Смотреть` <:bearrion:230370930600312832> {0}\n'
+                       '`Брать кинцо` <:cruzhulk:230370931065749514> {1}'.format(cytube_url, movies_url))
 
     @commands.command()
-    async def free(self):
+    async def free(self, ctx):
         """Holy scriptures"""
-        await self.bot.say('`Живи молодым и умри молодым` {}'.format(DiscordLink.objects.get(key='free')))
+        await ctx.send('`Живи молодым и умри молодым` {}'.format(DiscordLink.objects.get(key='free')))
 
     @commands.command()
-    async def choose(self, *choices: str):
+    async def choose(self, ctx, *choices: str):
         """Chooses between two items"""
-        await self.bot.say(random.choice(choices))
+        await ctx.send(random.choice(choices))
 
     @commands.command(hidden=True)
-    async def friday(self):
-        await self.bot.say(DiscordLink.objects.get(key='friday'))
+    async def friday(self, ctx):
+        await ctx.send(DiscordLink.objects.get(key='friday'))
 
     @commands.command(hidden=True)
-    async def flick(self):
-        await self.bot.say(DiscordLink.objects.get(key='ricardo'))
+    async def flick(self, ctx):
+        await ctx.send(DiscordLink.objects.get(key='ricardo'))
 
     @commands.command()
-    async def roll(self):
+    async def roll(self, ctx):
         """Rolls from 1 to 100"""
-        await self.bot.say(random.randint(1, 101))
+        await ctx.send(random.randint(1, 101))
 
     @commands.command(hidden=True)
-    async def firstrule(self):
-        await self.bot.say('Never hook first <:smart:282452131552690176>')
+    async def firstrule(self, ctx):
+        await ctx.send('Never hook first <:smart:282452131552690176>')
 
     @commands.command(hidden=True)
-    async def secondrule(self):
-        await self.bot.say("You can't counter Pharah <:Kappa:230228691945390080>")
+    async def secondrule(self, ctx):
+        await ctx.send("You can't counter Pharah <:Kappa:230228691945390080>")
 
     @commands.command(hidden=True)
-    async def thirdrule(self):
-        await self.bot.say("Ко мне говно <:4Head:230227653783846912>")
+    async def thirdrule(self, ctx):
+        await ctx.send("Ко мне говно <:4Head:230227653783846912>")
 
-    @commands.group(pass_context=True)
+    @commands.group()
     async def gachi(self, ctx):
         """Take it boy"""
         if not ctx.invoked_subcommand:
             gachi_obj = get_random_entry(Gachi)
             if gachi_obj is not None:
-                await self.bot.say(gachi_obj.url)
+                await ctx.send(gachi_obj.url)
 
-    @gachi.command(pass_context=True)
+    @gachi.command()
     @mod_command
     async def add(self, ctx, url: str):
         if is_youtube_link(url):
             Gachi.objects.create(url=url)
-            await self.bot.say('{} added'.format(url))
+            await ctx.send('{} added'.format(url))
         else:
-            await self.bot.say('Wrong youtube link format')
+            await ctx.send('Wrong youtube link format')
 
 
 def setup(bot):
