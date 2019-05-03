@@ -2,8 +2,11 @@
 
 import inspect
 import logging
-import aiohttp
+import os
+import random
+import sys
 
+import aiohttp
 from discord.ext import commands
 
 from discordbot.cogs.utils.checks import admin_command
