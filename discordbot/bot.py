@@ -15,7 +15,7 @@ def __setup_django(root_path):
 if os.name == 'nt':
     PROJECT_PATH = "C:\\Users\\EpicWin\\Desktop\\HomeSite"
 else:
-    PROJECT_PATH = '/app'
+    PROJECT_PATH = '/home/vertigo/homesite'
 __setup_django(PROJECT_PATH)
 
 logging.config.fileConfig('discordbot/logger.ini')
