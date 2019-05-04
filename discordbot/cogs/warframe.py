@@ -61,11 +61,11 @@ class Warframe(commands.Cog):
                     if matches:
                         if len(matches) == 2:
                             subscribers = DiscordUser.objects.select_related().filter(
-                                Q(**{'wf_settings__{}'.format(matches[0]): True}) |
-                                Q(**{'wf_settings__{}'.format(matches[1]): True}))
+                                Q(**{f'wf_settings__{matches[0]}': True}) |
+                                Q(**{f'wf_settings__{matches[1]}': True}))
                         else:
                             subscribers = DiscordUser.objects.select_related().filter(
-                                **{'wf_settings__{}'.format(matches[0]): True})
+                                **{f'wf_settings__{matches[0]}': True})
                         for sub in subscribers:
                             try:
                                 user = get_user(
@@ -74,7 +74,8 @@ class Warframe(commands.Cog):
                                     await user.send(embed=self.create_embed(alert))
                                 else:
                                     logger.error(
-                                        "Can't find %s in get_all_members()", sub)
+                                        "Can't find %s in get_all_members(). User unsubbed", sub)
+                                    self._unsub_user(sub)
                             except InvalidArgument:
                                 pass
                 alert.announced = True
@@ -82,12 +83,21 @@ class Warframe(commands.Cog):
             await asyncio.sleep(60)
 
     def create_embed(self, alert):
-        embed = discord.Embed(title="**Warframe Alert**",
-                              colour=discord.Colour(0xff0074),
-                              description="{}\n\n[Unsubscribe](https://epicvertigo.xyz/profile)".format(alert.content))
+        embed = discord.Embed(
+            title="**Warframe Alert**",
+            colour=discord.Colour(0xff0074),
+            description=f"{alert.content}\n\n[Unsubscribe](https://epicvertigo.xyz/profile)")
         embed.set_thumbnail(url="https://i.imgur.com/ZvDNumd.png")
-        embed.set_footer(text="WFAlert ID: {}".format(alert.id))
+        embed.set_footer(text=f"WFAlert ID: {alert.id}")
         return embed
+
+    def _unsub_user(self, user):
+        """Set's user settings to Default"""
+        settings = user.wf_settings
+        fields = [x.name for x in settings._meta.fields if x.name != 'id']
+        for field in fields:
+            setattr(settings, field, False)
+        settings.save()
 
 
 def setup(bot):
