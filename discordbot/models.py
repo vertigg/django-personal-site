@@ -157,6 +157,10 @@ class DiscordUser(models.Model):
     class Meta:
         verbose_name_plural = 'Discord Users'
         db_table = 'discord_users'
+        permissions = [
+            ("can_update_ladder", "Can start ladder update"),
+            ("can_add_wisdoms", "Can add wisdoms"),
+        ]
 
     def __str__(self):
         return self.display_name
