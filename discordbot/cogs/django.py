@@ -42,7 +42,9 @@ class DjangoDiscord(commands.Cog):
                 logger.info('[LADDER]: Ladder Update has been started')
                 await ctx.send("`Updating ladder...`", delete_after=30)
                 self.process = subprocess.Popen(
-                    ["python", "manage.py", "ladder_update"], stderr=subprocess.PIPE)
+                    ["/home/vertigo/venv/bin/python3",
+                        "manage.py", "ladder_update"],
+                    stderr=subprocess.PIPE)
                 while self.process.poll() is None:
                     await ctx.trigger_typing()
                     await asyncio.sleep(10)
