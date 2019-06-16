@@ -14,6 +14,11 @@ class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @staticmethod
+    def get_link(key):
+        """Helper method that returns DiscordLink object by given key"""
+        return DiscordLink.objects.get(key=key)
+
     @commands.command()
     async def avatar(self, ctx, mention=None):
         """Shows user's avatar"""
@@ -50,7 +55,7 @@ class General(commands.Cog):
     @commands.command(hidden=True)
     async def shles(self, ctx):
         """SHLES"""
-        await ctx.send(DiscordLink.objects.get(key='shles'))
+        await ctx.send(self.get_link('shles'))
 
     @commands.command()
     async def ip(self, ctx):
@@ -60,22 +65,22 @@ class General(commands.Cog):
     @commands.command(hidden=True)
     async def low(self, ctx):
         if ctx.message.author.id == 127135903125733376:
-            await ctx.send(DiscordLink.objects.get(key='low'))
+            await ctx.send(self.get_link('low'))
         else:
             await ctx.send('<:bearrion:230370930600312832>')
 
     @commands.command()
     async def cytube(self, ctx):
         """Для тех кто не умеет добавлять сайты в закладки"""
-        cytube_url = DiscordLink.objects.get(key='cytube')
-        movies_url = DiscordLink.objects.get(key='movies')
-        await ctx.send('`Смотреть` <:bearrion:230370930600312832> {0}\n'
-                       '`Брать кинцо` <:cruzhulk:230370931065749514> {1}'.format(cytube_url, movies_url))
+        cytube_url = self.get_link('cytube')
+        movies_url = self.get_link('movies')
+        await ctx.send(f'`Смотреть` <:bearrion:230370930600312832> {cytube_url}\n'
+                       f'`Брать кинцо` <:cruzhulk:230370931065749514> {movies_url}')
 
     @commands.command()
     async def free(self, ctx):
         """Holy scriptures"""
-        await ctx.send('`Живи молодым и умри молодым` {}'.format(DiscordLink.objects.get(key='free')))
+        await ctx.send(f'`Живи молодым и умри молодым` {self.get_link("free")}')
 
     @commands.command()
     async def choose(self, ctx, *choices: str):
@@ -84,11 +89,11 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def friday(self, ctx):
-        await ctx.send(DiscordLink.objects.get(key='friday'))
+        await ctx.send(self.get_link('friday'))
 
     @commands.command(hidden=True)
     async def flick(self, ctx):
-        await ctx.send(DiscordLink.objects.get(key='ricardo'))
+        await ctx.send(self.get_link('ricardo'))
 
     @commands.command()
     async def roll(self, ctx):
@@ -106,6 +111,10 @@ class General(commands.Cog):
     @commands.command(hidden=True)
     async def thirdrule(self, ctx):
         await ctx.send("Ко мне говно <:4Head:230227653783846912>")
+
+    @commands.command(hidden=True)
+    async def vb(self, ctx):
+        await ctx.send(self.get_link('vb'))
 
     @commands.group()
     async def gachi(self, ctx):
