@@ -50,14 +50,20 @@ def get_main_skills(character, account):
 
 @retry_on_lock(DB_TIMEOUT, retries=DB_RETRIES)
 def update_ladders_table():
-    leagues_api_data = json.loads(session.get(POE_LEAGUES).text)
-    query_list = list(PoeLeague.objects.values_list('name', flat=True))
+    league_api_data = json.loads(session.get(POE_LEAGUES).text)
+    league_names = {x['id'] for x in league_api_data}
+    query_list = set(PoeLeague.objects.values_list('name', flat=True))
 
-    if 'Void' not in query_list:
-        logging.info('New league: Void')
-        PoeLeague.objects.create(name='Void')
+    # Remove old leagues
+    difference = query_list.difference(league_names)
+    if 'Void' in difference:
+        difference.remove('Void')
 
-    for league in leagues_api_data:
+    if difference:
+        logging.info(f'Deleting {difference}')
+        PoeLeague.objects.filter(name__in=difference).delete()
+
+    for league in league_api_data:
         if league['id'] not in query_list:
             # create new league
             logging.info('New league: {}'.format(league['id']))
@@ -67,6 +73,10 @@ def update_ladders_table():
                 start_date=league['startAt'],
                 end_date=league['endAt']
             )
+
+    if 'Void' not in query_list:
+        logging.info('New league: Void')
+        PoeLeague.objects.create(name='Void')
 
 
 @retry_on_lock(DB_TIMEOUT, retries=DB_RETRIES)
