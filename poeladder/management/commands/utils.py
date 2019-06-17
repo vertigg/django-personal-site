@@ -9,36 +9,6 @@ from poeladder.models import PoeActiveGem
 logging.getLogger(__name__)
 
 
-def retry_on_lock(timeout=None, retries=1):
-    if not timeout:
-        timeout = 5
-
-    def outer_decorator(func):
-        @wraps(func)
-        def inner_decorator(*args, **kwargs):
-            nonlocal retries
-            while retries >= 1:
-                try:
-                    func(*args, **kwargs)
-                    break
-                except OperationalError as e:
-                    logging.error(
-                        '{0}. Waiting for {1} seconds. Retries left: {2}'
-                        .format(repr(e), timeout, retries))
-                    time.sleep(timeout)
-                    retries -= 1
-                except Exception as e:
-                    logging.error(repr(e))
-                    quit()
-
-            if retries <= 0:
-                logging.error("Can't connect to db")
-                quit()
-
-        return inner_decorator
-    return outer_decorator
-
-
 def detect_skills(request_data):
     """Detect 5 or 6 links with active skills in character data"""
 
@@ -80,7 +50,8 @@ def detect_skills(request_data):
                             for linked_socket in linked_sockets:
                                 for socketed_item in item['socketedItems']:
                                     if socketed_item['socket'] == linked_socket and not socketed_item['support']:
-                                        active_gems.append({socketed_item['typeLine']: socketed_item['icon']})
+                                        active_gems.append(
+                                            {socketed_item['typeLine']: socketed_item['icon']})
         time.sleep(1)
 
         # Check if there are less than 3 active skills in link
