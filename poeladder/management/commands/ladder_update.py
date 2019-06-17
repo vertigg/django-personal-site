@@ -78,14 +78,15 @@ def update_characters_table():
     poe_leagues = {x[0]: x[1]
                    for x in PoeLeague.objects.values_list('name', 'id')}
 
-    for key, value in poe_profiles.items():
-        r = session.get(POE_PROFILE.format(value))
+    for discord_id, poe_nickname in poe_profiles.items():
+        r = session.get(POE_PROFILE.format(poe_nickname))
         if r.status_code == 429:
             logging.error('Rate limited!')
             time.sleep(65)
-            r = session.get(POE_PROFILE.format(value))
+            r = session.get(POE_PROFILE.format(poe_nickname))
         elif r.status_code == 403:
-            logging.error("Forbidden: 403. Can't access {} profile".format(value))
+            logging.error(
+                f"Forbidden: 403. Can't access {poe_nickname} profile")
             continue
         api_data = json.loads(r.text)
         time.sleep(1.1)
@@ -94,18 +95,51 @@ def update_characters_table():
             raise requests.RequestException(api_data['error'])
 
         if api_data:
-            # get all api_data and convert to dict
-            chars_qs = PoeCharacter.objects.values_list(
-                'name', 'league__name', 'level', 'ascendancy_id', 'experience')
-            saved_characters = {x[0]: {'league': x[1],
-                                       'level': x[2],
-                                       'ascendancy_id': x[3],
-                                       'experience': x[4]} for x in chars_qs}
+            data = {}
+            for entry in api_data:
+                data[entry['name']] = entry
+            api_characters = set([x.get('name') for x in api_data])
+            local_characters = set([x.name for x in
+                                    PoeCharacter.objects.filter(profile__poe_profile=poe_nickname)])
 
-            for character in api_data:
-                # check if character exists
-                if character['name'] in saved_characters:
-                    # update current
+            new_characters = api_characters.difference(local_characters)
+            deleted_characters = local_characters.difference(api_characters)
+            update_characters = api_characters.intersection(local_characters)
+
+            # Delete characters
+            if deleted_characters:
+                logging.info(f'Deleting characters {deleted_characters}')
+                PoeCharacter.objects.filter(
+                    name__in=deleted_characters).delete()
+
+            # Create new characters
+            if new_characters:
+                for name in new_characters:
+                    character = data.get(name)
+                    logging.info(f'New character: {name}')
+                    p = PoeCharacter.objects.create(
+                        name=name,
+                        league_id=poe_leagues[character['league']],
+                        profile_id=discord_id,
+                        class_name=character['class'],
+                        class_id=character['classId'],
+                        ascendancy_id=character['ascendancyClass'],
+                        level=character['level'],
+                        experience=character['experience'],
+                    )
+                    gems_qs = get_main_skills(character['name'], poe_nickname)
+                    p.gems.add(*gems_qs)
+
+            # Update existing
+            if update_characters:
+                chars_qs = PoeCharacter.objects.filter(profile__poe_profile=poe_nickname).values_list(
+                    'name', 'league__name', 'level', 'ascendancy_id', 'experience')
+                saved_characters = {x[0]: {'league': x[1],
+                                           'level': x[2],
+                                           'ascendancy_id': x[3],
+                                           'experience': x[4]} for x in chars_qs}
+                for name in update_characters:
+                    character = data.get(name)
                     ch = saved_characters[character['name']]
                     if ch['league'] != character['league'] \
                             or ch['experience'] != character['experience'] \
@@ -120,7 +154,8 @@ def update_characters_table():
                         p.experience = character['experience']
 
                         # If gems changed - update with new set
-                        gems_qs = get_main_skills(character['name'], value)
+                        gems_qs = get_main_skills(
+                            character['name'], poe_nickname)
                         if not set(p.gems.all().values_list('id', flat=True)) == set(gems_qs):
                             p.gems.clear()
                             p.gems.add(*gems_qs)
@@ -128,22 +163,6 @@ def update_characters_table():
                         p.save(update_fields=[
                                'league_id', 'class_name', 'level',
                                'ascendancy_id', 'class_id', 'experience'])
-
-                else:
-                    # create new
-                    logging.info('New character: {}'.format(character['name']))
-                    p = PoeCharacter.objects.create(
-                        name=character['name'],
-                        league_id=poe_leagues[character['league']],
-                        profile_id=key,
-                        class_name=character['class'],
-                        class_id=character['classId'],
-                        ascendancy_id=character['ascendancyClass'],
-                        level=character['level'],
-                        experience=character['experience'],
-                    )
-                    gems_qs = get_main_skills(character['name'], value)
-                    p.gems.add(*gems_qs)
 
 
 @retry_on_lock(DB_TIMEOUT, retries=DB_RETRIES)
@@ -161,6 +180,8 @@ class Command(BaseCommand):
         update_ladders_table()
         update_characters_table()
         update_ladder_info()
-        logging.info('Done in {} seconds'.format(round(time.time() - start_time, 2)))
+        logging.info('Done in {} seconds'.format(
+            round(time.time() - start_time, 2)))
         if settings.DEBUG:
-            logging.info('Total db queries: {}'.format(len(connection.queries)))
+            logging.info('Total db queries: {}'.format(
+                len(connection.queries)))
