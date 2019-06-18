@@ -8,6 +8,8 @@ import sys
 
 import aiohttp
 from discord.ext import commands
+from discord import VoiceRegion as region
+from discord.errors import Forbidden
 
 from discordbot.cogs.utils.checks import admin_command
 
@@ -19,6 +21,24 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=self.bot.loop)
+        self.eu_regions = [
+            region.amsterdam,
+            region.eu_central,
+            region.frankfurt,
+            region.eu_west,
+            region.russia
+        ]
+
+    @commands.command(hidden=True)
+    @admin_command
+    async def region(self, ctx):
+        new_region = random.choice(
+            [x for x in self.eu_regions if x != ctx.guild.region])
+        try:
+            await ctx.guild.edit(region=new_region, reason="Lag Change")
+            await ctx.send(f'Changed to {new_region} region')
+        except Forbidden:
+            await ctx.send(f'Missing permissions for editing {ctx.guild}')
 
     @commands.command(hidden=True)
     @admin_command
