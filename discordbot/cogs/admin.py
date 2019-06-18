@@ -36,7 +36,7 @@ class Admin(commands.Cog):
             [x for x in self.eu_regions if x != ctx.guild.region])
         try:
             await ctx.guild.edit(region=new_region, reason="Lag Change")
-            await ctx.send(f'Changed to {new_region} region')
+            await ctx.send(f'Changed to {new_region} region', delete_after=5)
         except Forbidden:
             await ctx.send(f'Missing permissions for editing {ctx.guild}')
 
