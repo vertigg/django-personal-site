@@ -1,7 +1,9 @@
 import logging
 
 import wikipedia
+from discord import Color, Embed
 from discord.ext import commands
+from django.template.defaultfilters import truncatechars
 
 logger = logging.getLogger("botLogger")
 
@@ -14,26 +16,36 @@ class Wikipedia(commands.Cog):
     @commands.group()
     async def wiki(self, ctx, *, search: str):
         """Википедия в Дискорде, не отходя от кассы"""
-        # article = str(ctx.message.content).replace('!wiki ', '')
         if not ctx.invoked_subcommand:
-            try:
-                await ctx.send('`{}`'.format(self.get_article(search)[0]))
-            except Exception as e:
-                logger.error(e)
+            await ctx.send(embed=self.get_search_result(search))
 
-    def get_article(self, article):
+    def truncate_summary(self, summary: str):
+        return summary if len(summary) < 2000 else truncatechars(summary, 1500)
+
+    def get_thumbnail_image(self, images: list):
+        if images:
+            jpeg_images = list(filter(
+                lambda image: any(x in image for x in ['jpg', 'jpeg']), images))
+            if jpeg_images:
+                return jpeg_images[0]
+        return None
+
+    def get_search_result(self, request):
         try:
-            wikiresult = wikipedia.summary(article).split('\n')[0]
-            wikilink = wikipedia.page(article).url
-        except wikipedia.exceptions.DisambiguationError as e:
-            wikiresult = str(str(e).split(': \n')[1].split('\n')).strip('[]')
-            if len(wikiresult) >= 250:
-                wikiresult = 'Слишком много результатов, попробуй запрос поточнее'
-            wikilink = 'Слишком много результатов чтобы выдать ссылку, попробуй поточнее'
-        except Exception as ex:
-            wikiresult = str(ex)
-            wikilink = str(ex)
-        return wikiresult, wikilink
+            page = wikipedia.page(request)
+            embed = Embed(
+                url=page.url,
+                title=page.title,
+                colour=Color(0x00910b),
+                description=self.truncate_summary(page.summary))
+            embed.set_thumbnail(url=self.get_thumbnail_image(page.images))
+            return embed
+        except wikipedia.exceptions.DisambiguationError as exc:
+            return Embed(
+                title=f"Too many results for {exc.title}",
+                colour=Color(0x00910b),
+                description=self.truncate_summary(', '.join(exc.options))
+            )
 
 
 def setup(bot):
