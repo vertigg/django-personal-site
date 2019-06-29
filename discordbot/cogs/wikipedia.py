@@ -20,7 +20,7 @@ class Wikipedia(commands.Cog):
             await ctx.send(embed=self.get_search_result(search))
 
     def truncate_summary(self, summary: str):
-        return summary if len(summary) < 2000 else truncatechars(summary, 1500)
+        return summary if len(summary) < 1000 else truncatechars(summary, 700)
 
     def get_thumbnail_image(self, images: list):
         if images:
@@ -38,7 +38,9 @@ class Wikipedia(commands.Cog):
                 title=page.title,
                 colour=Color(0x00910b),
                 description=self.truncate_summary(page.summary))
-            embed.set_thumbnail(url=self.get_thumbnail_image(page.images))
+            thumbnail = self.get_thumbnail_image(page.images)
+            if thumbnail:
+                embed.set_thumbnail(url=thumbnail)
             return embed
         except wikipedia.exceptions.DisambiguationError as exc:
             return Embed(
