@@ -1,4 +1,18 @@
+import os
+import sys
+
+import django
 from django.apps import AppConfig
+
+BOT_PATH = '/home/vertigo/homesite' if os.name != 'nt' else \
+    "C:\\Users\\EpicWin\\Desktop\\HomeSite"
+
+
+def setup_django():
+    os.chdir(BOT_PATH)
+    sys.path.append(BOT_PATH)
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VertigoProject.settings")
+    django.setup()
 
 
 class DiscordbotConfig(AppConfig):

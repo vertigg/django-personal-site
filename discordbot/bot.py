@@ -3,21 +3,9 @@ import os
 import sys
 import discord
 from discord.ext import commands
+from apps import setup_django
 
-
-def __setup_django(root_path):
-    import django
-    os.chdir(root_path)
-    sys.path.append(root_path)
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VertigoProject.settings")
-    django.setup()
-
-if os.name == 'nt':
-    PROJECT_PATH = "C:\\Users\\EpicWin\\Desktop\\HomeSite"
-else:
-    PROJECT_PATH = '/home/vertigo/homesite'
-__setup_django(PROJECT_PATH)
-
+setup_django()
 logging.config.fileConfig('discordbot/logger.ini')
 discord_logger = logging.getLogger('discordLogger')
 logger = logging.getLogger('botLogger')

@@ -1,9 +1,8 @@
 import logging
 import time
-from functools import wraps
 from itertools import groupby
 
-from django.db.utils import OperationalError
+
 from poeladder.models import PoeActiveGem
 
 logging.getLogger(__name__)
