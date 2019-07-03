@@ -4,6 +4,7 @@ import wikipedia
 from discord import Color, Embed
 from discord.ext import commands
 from django.template.defaultfilters import truncatechars
+from wikipedia.exceptions import DisambiguationError, PageError
 
 logger = logging.getLogger("botLogger")
 
@@ -42,11 +43,18 @@ class Wikipedia(commands.Cog):
             if thumbnail:
                 embed.set_thumbnail(url=thumbnail)
             return embed
-        except wikipedia.exceptions.DisambiguationError as exc:
+        except DisambiguationError as exc:
             return Embed(
                 title=f"Too many results for {exc.title}",
                 colour=Color(0x00910b),
                 description=self.truncate_summary(', '.join(exc.options))
+            )
+        except PageError as exc:
+            title = exc.title if hasattr(exc, 'title') else exc.pageid
+            return Embed(
+                title=f"No results for {title}",
+                colour=Color(0x00910b),
+                description=self.truncate_summary(exc.__unicode__())
             )
 
 
