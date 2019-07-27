@@ -31,13 +31,13 @@ class Counters(commands.Cog):
         if counter.group and counter.group.latest_counter_streak >= 3:
             await ctx.send(f'{counter} is on {counter.group.latest_counter_streak} streak!')
         await ctx.send(
-            f'Counter {counter} incremented by 1. Current value {counter.value}')
+            f'Counter {counter} has been incremented by 1. Current value {counter.value}')
 
     async def decrement_counter(self, ctx, name):
         counter = Counter.objects.get(name=name)
         counter.decrement_value()
         await ctx.send(
-            f'Counter {counter} decremented by 1. Current value {counter.value}')
+            f'Counter {counter} has been decremented by 1. Current value {counter.value}')
 
     @commands.group()
     async def bodycount(self, ctx):
