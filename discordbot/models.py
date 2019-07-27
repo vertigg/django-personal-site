@@ -1,11 +1,76 @@
 import uuid
 
+from discord import Colour, Embed
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
+
+
+class CounterGroup(models.Model):
+    name = models.CharField(max_length=20, unique=True, blank=False, null=True)
+    title = models.CharField(max_length=20)
+    latest_counter_id = models.PositiveIntegerField(blank=True, null=True)
+    latest_counter_streak = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f'<CounterGroup> {self.title}'
+
+    def to_embed(self):
+        return Embed(
+            title=f'{self.title}',
+            colour=Colour(0xff0074),
+            description='\n'.join([x.to_message()
+                                   for x in self.counters.all()])
+        )
+
+
+class Counter(models.Model):
+    name = models.CharField(max_length=20, unique=True, blank=False, null=True)
+    title = models.CharField(max_length=20)
+    flavor_text = models.TextField(blank=True)
+    value_description = models.TextField()
+    value = models.IntegerField(default=0)
+    group = models.ForeignKey(
+        CounterGroup, on_delete=models.SET_NULL, blank=True, null=True, related_name='counters')
+
+    def increment_value(self):
+        self.value += 1
+        self.save(update_fields=['value'])
+
+    def decrement_value(self):
+        self.value -= 1
+        self.save(update_fields=['value'])
+
+    def __str__(self):
+        return f'{self.title}'
+
+    def to_embed(self):
+        return Embed(
+            title=f'{self.title}',
+            colour=Colour(0xff0074),
+            description=f"{self.value_description}: {self.value}"
+        )
+
+    def to_message(self):
+        return f"{self.value_description}: {self.value}"
+
+    def _update_counter_group(self):
+        if self.group.latest_counter_id == self.id:
+            self.group.latest_counter_streak += 1
+            self.group.save(update_fields=['latest_counter_streak'])
+        else:
+            self.group.latest_counter_id = self.id
+            self.group.latest_counter_streak = 1
+            self.group.save(
+                update_fields=['latest_counter_id', 'latest_counter_streak'])
+
+    def save(self, *args, **kwargs):
+        if self.group:
+            self._update_counter_group()
+        super().save(*args, **kwargs)
 
 
 class WFAlert(models.Model):

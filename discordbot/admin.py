@@ -1,8 +1,21 @@
 from django.contrib import admin
-from django.forms import TextInput, Textarea, NumberInput
 from django.db import models
-from discordbot.models import Wisdom, DiscordUser, Gachi, DiscordSettings, DiscordLink, WFAlert
+from django.forms import NumberInput, Textarea, TextInput
 from django.template.defaultfilters import truncatechars
+
+from discordbot.models import (Counter, CounterGroup, DiscordLink,
+                               DiscordSettings, DiscordUser, Gachi, WFAlert,
+                               Wisdom)
+
+
+@admin.register(Counter)
+class BasicCounterAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(CounterGroup)
+class CounterGroupAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(DiscordLink)
