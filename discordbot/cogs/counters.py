@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands.errors import MissingRequiredArgument
 
-from discordbot.cogs.utils.checks import mod_command
+from discordbot.cogs.utils.checks import admin_command
 from discordbot.models import Counter, CounterGroup
 
 logger = logging.getLogger('botLogger.counters')
@@ -45,14 +45,14 @@ class Counters(commands.Cog):
             await self.counter_info(ctx)
 
     @bodycount.command()
-    @mod_command
+    @admin_command
     async def add(self, ctx, alias):
         if alias in self.counter_aliases.keys():
             counter_name = self.counter_aliases.get(alias)
             await self.increment_counter(ctx, counter_name)
 
     @bodycount.command()
-    @mod_command
+    @admin_command
     async def remove(self, ctx, alias):
         if alias in self.counter_aliases.keys():
             counter_name = self.counter_aliases.get(alias)
