@@ -159,6 +159,10 @@ class LadderUpdateController(object):
         elif r.status_code == 403:
             self.logger.error(
                 f"Forbidden: 403. Can't access {account} profile")
+            profile = DiscordUser.objects.get(poe_profile=account)
+            profile.poe_account = ''
+            profile.save()
+            self.logger.info(f'{account} unsubscribed from ladder')
             return
         elif r.status_code != 200:
             self.logger.error(
