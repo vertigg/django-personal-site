@@ -16,7 +16,7 @@ if settings.DEBUG:
     from django.db import connection
 
 
-class LadderUpdateController(object):
+class LadderUpdateController:
 
     POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
     POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
@@ -57,8 +57,8 @@ class LadderUpdateController(object):
         if r.status_code == 429:
             self.logger.error('Rate limited!')
             time.sleep(65)
-            r = session.get(POE_INFO.format(
-                character, account), cookies=cookies)
+            r = self.session.get(self.POE_INFO.format(
+                character, account), cookies=self.cookies)
         data = json.loads(r.text)
         return detect_skills(data)
 
@@ -78,7 +78,7 @@ class LadderUpdateController(object):
         for league in league_api_data:
             if league['id'] not in self.league_names:
                 # create new league
-                self.logger.info('New league: {}'.format(league['id']))
+                self.logger.info(f'New league: {league["id"]}')
                 PoeLeague.objects.create(
                     name=league['id'],
                     url=league['url'],
@@ -149,24 +149,26 @@ class LadderUpdateController(object):
                     'league_id', 'class_name', 'level',
                     'ascendancy_id', 'class_id', 'experience'])
 
+    def _unsub_user(self, account):
+        profile = DiscordUser.objects.get(poe_profile=account)
+        PoeCharacter.objects.filter(profile=profile).delete()
+        profile.poe_profile = ''
+        profile.save(update_fields=['poe_profile'])
+        self.logger.info(f'{account} removed from ladder')
+
     def _get_account_data(self, account):
         """Retrieves PoE Account data with all characters"""
         r = self.session.get(self.POE_PROFILE.format(account))
         if r.status_code == 429:
             self.logger.error('Rate limited!')
             time.sleep(65)
-            r = self.session.get(POE_PROFILE.format(account))
+            r = self.session.get(self.POE_PROFILE.format(account))
         elif r.status_code == 403:
-            self.logger.error(
-                f"Forbidden: 403. Can't access {account} profile")
-            profile = DiscordUser.objects.get(poe_profile=account)
-            profile.poe_account = ''
-            profile.save()
-            self.logger.info(f'{account} unsubscribed from ladder')
+            self.logger.error(f"Forbidden: 403. Can't access {account} profile")
+            self._unsub_user(account)
             return
         elif r.status_code != 200:
-            self.logger.error(
-                f'Error requesting {account} {r.status_code}: {r.text}')
+            self.logger.error(f'Error requesting {account} {r.status_code}: {r.text}')
             return
         api_data = json.loads(r.text)
         time.sleep(1.1)
@@ -205,7 +207,7 @@ class LadderUpdateController(object):
                         data, update_characters, poe_account)
 
     def update_ladder_info(self):
-        info, created = PoeInfo.objects.get_or_create(key='last_update')
+        info, _ = PoeInfo.objects.get_or_create(key='last_update')
         info.timestamp = timezone.localtime()
         info.save(update_fields=['timestamp'])
 
@@ -215,8 +217,7 @@ class LadderUpdateController(object):
         self.update_leagues()
         self.update_characters()
         self.update_ladder_info()
-        self.logger.info(
-            f'Done in {round(time.time() - start_time, 2)} seconds')
+        self.logger.info(f'Done in {round(time.time() - start_time, 2)} seconds')
 
         if settings.DEBUG:
             self.logger.info(f'Total db queries: {len(connection.queries)}')

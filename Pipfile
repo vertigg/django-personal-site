@@ -58,6 +58,8 @@ python-dateutil = "*"
 [dev-packages]
 "pep8" = "*"
 ipdb = "*"
+pylint = "*"
+pylint-django = "*"
 
 [requires]
 python_version = "3.7"
