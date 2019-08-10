@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import subprocess
+import sys
 
 from discord.ext import commands
 
@@ -33,7 +34,7 @@ class KillingFloor(commands.Cog):
             self.lock = True
             logger.info('[KFGOOGLE]: Script started')
             self.process = subprocess.Popen(
-                ["python3", "discordbot/SteamStats.py"], stderr=subprocess.PIPE)
+                [sys.executable, "discordbot/SteamStats.py"], stderr=subprocess.PIPE)
             while self.process.poll() is None:
                 await asyncio.sleep(1)
             if self.process.poll() is 0:
