@@ -1,8 +1,9 @@
 import logging
-import os
 import sys
+
 import discord
 from discord.ext import commands
+
 from apps import setup_django
 
 setup_django()
@@ -10,8 +11,6 @@ logging.config.fileConfig('discordbot/logger.ini')
 discord_logger = logging.getLogger('discordLogger')
 logger = logging.getLogger('botLogger')
 
-from discordbot.models import DiscordSettings
-from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
 
 bot = commands.Bot(command_prefix='!',
                    description='Super duper halal bot for clowans. List of commands below')
@@ -19,9 +18,10 @@ bot = commands.Bot(command_prefix='!',
 
 @bot.event
 async def on_ready():
+    from discordbot.models import DiscordSettings
     game = discord.Game(DiscordSettings.objects.get(key='game').value)
     await bot.change_presence(activity=game)
-    logger.info('Logged in as {0}:{1}'.format(bot.user.name, bot.user.id))
+    logger.info(f'Logged in as {bot.user.name}:{bot.user.id}')
 
 
 @bot.event
@@ -39,13 +39,14 @@ def load_cogs():
         try:
             if "cogs." not in cog:
                 cog = "cogs." + cog
-            bot.load_extension(cog)
-            logger.info("%s loaded", cog)
+                bot.load_extension(cog)
+                logger.info(f"{cog} loaded")
         except (AttributeError, ImportError) as ex:
             logger.error("%s", ex)
 
 
 if __name__ == '__main__':
+    from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
     logger.info('Script started')
     load_cogs()
     logger.info(sys.version)
