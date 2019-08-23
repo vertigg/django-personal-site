@@ -1,28 +1,36 @@
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Count
-from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.http import HttpResponseRedirect
 
 from poeladder.filters import PoeCharacterFilter
 from poeladder.forms import SearchForm
 from poeladder.models import PoeCharacter, PoeLeague
+from django.views.generic import RedirectView
 
 
-def ladder(request):
+class MainLadderView(RedirectView):
     """Returns main page or current most populated league ladder"""
-    top_league = (PoeLeague.objects
-                  .filter(poecharacter__isnull=False)
-                  .distinct()
-                  .filter(end_date__gt=timezone.localtime())
-                  .annotate(players=Count('poecharacter'))
-                  .order_by('-players')
-                  .first())
-    if top_league:
-        return redirect(
-            reverse('poeladder:ladder_url', kwargs={'slug': top_league.slug}))
-    return render(request, 'poeladder/ladder.html', {'ladder_main': True})
+
+    def get_redirect_url(self, *args, **kwargs):
+        top_league = (PoeLeague.objects
+                      .filter(poecharacter__isnull=False)
+                      .distinct()
+                      .filter(end_date__gt=timezone.localtime())
+                      .annotate(players=Count('poecharacter'))
+                      .order_by('-players')
+                      .first())
+        if top_league:
+            return reverse('poeladder:ladder_url', kwargs={'slug': top_league.slug})
+        return None
+
+    def get(self, request, *args, **kwargs):
+        url = self.get_redirect_url(*args, **kwargs)
+        if url:
+            return HttpResponseRedirect(url)
+        return render(request, 'ladder.html', {'ladder_main': True})
 
 
 def league_ladder(request, slug):
@@ -52,7 +60,7 @@ def league_ladder(request, slug):
             if choice[0] == int(class_filter.form.cleaned_data['class_id']):
                 class_filter.__dict__['class_name'] = choice[1]
 
-    return render(request, 'poeladder/ladder.html', {
+    return render(request, 'ladder.html', {
         'active_league': active_league,
         'class_filter': class_filter,
         'current_profile': current_profile,
@@ -84,4 +92,4 @@ def search(request):
                 characters = paginator.page(paginator.num_pages)
             response['characters'] = characters
 
-    return render(request, 'poeladder/ladder.html', response)
+    return render(request, 'ladder.html', response)

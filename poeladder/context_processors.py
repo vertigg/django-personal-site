@@ -15,7 +15,7 @@ def poe_info(request):
         try:
             db_time = PoeInfo.objects.get(key='last_update').timestamp
             update_time = timezone.localtime(db_time)
-        except Exception as e:
+        except (AttributeError, PoeInfo.DoesNotExist):
             update_time = None
         return {
             'old_leagues': old_leagues,

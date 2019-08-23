@@ -1,9 +1,10 @@
-from poeladder.models import PoeCharacter
 from django import forms
-import django_filters
+from django_filters import ChoiceFilter, FilterSet
+
+from poeladder.models import PoeCharacter
 
 
-class PoeCharacterFilter(django_filters.FilterSet):
+class PoeCharacterFilter(FilterSet):
 
     class_choices = (
         (0, 'Scion'),
@@ -14,7 +15,7 @@ class PoeCharacterFilter(django_filters.FilterSet):
         (5, 'Templar'),
         (6, 'Shadow'),
     )
-    class_id = django_filters.ChoiceFilter(
+    class_id = ChoiceFilter(
         choices=class_choices,
         empty_label='All classes',
         widget=forms.Select(attrs={

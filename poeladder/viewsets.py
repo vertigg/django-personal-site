@@ -1,12 +1,13 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter, SearchFilter
+
 from poeladder.models import PoeCharacter
 from poeladder.serializers import CharacterSerializer
-from rest_framework import viewsets
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 class CharacterViewSet(viewsets.ModelViewSet):
-    """ Return a list of all existing characters in ladder"""
+    """Return a list of all existing characters in ladder"""
     queryset = PoeCharacter.objects.all()
     serializer_class = CharacterSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
