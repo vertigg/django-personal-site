@@ -73,7 +73,7 @@ class Overwatch(commands.Cog):
                     ladder.items(), key=lambda x: x[1], reverse=True)
                 msg = ''
                 for player in sorted_ladder:
-                    msg += '    {0} - {1}\n'.format(player[1], player[0])
+                    msg += f'    {player[1]} - {player[0]}\n'
                 await tmp_message.edit(content=f'<:OSsloth:230773934197440522> \n```xl\nOverwatch rankings\n\n{msg}\n```')
                 self.timeout = round(time())
                 self.futures.clear()
@@ -111,11 +111,7 @@ class Overwatch(commands.Cog):
                 result = soup.find(
                     "div", {"class": "competitive-rank"}).text
                 ladder[nickname] = result
-        except AttributeError:
-            pass
-        except TypeError as ex:
-            logger.error(ex)
-        except Exception as ex:
+        except (AttributeError, TypeError) as ex:
             logger.error(ex)
 
 

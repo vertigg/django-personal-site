@@ -1,16 +1,15 @@
 import logging
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from discord.ext import commands
 from imgurpython import ImgurClient
 
 from discordbot.credentials import IMGUR
-from discordbot.models import DiscordPicture, DiscordSettings, Wisdom, MixEvent, DiscordUser
+from discordbot.models import DiscordPicture, Wisdom, MixEvent, DiscordUser
 
 from .utils.checks import admin_command, compare_timestamps, mod_command
-from .utils.db import get_nickname_cache, get_random_entry, update_display_names
-from .utils.formatters import wisdom_format
+from .utils.db import get_random_entry
 
 logger = logging.getLogger('botLogger')
 

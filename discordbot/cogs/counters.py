@@ -1,8 +1,6 @@
 import logging
 
-import discord
 from discord.ext import commands
-from discord.ext.commands.errors import MissingRequiredArgument
 
 from discordbot.cogs.utils.checks import admin_command
 from discordbot.models import Counter, CounterGroup
@@ -23,7 +21,7 @@ class Counters(commands.Cog):
             await ctx.send(embed=group.to_embed())
         except CounterGroup.DoesNotExist:
             counter = Counter.objects.get(name=ctx.command.name)
-            await ctx.send(embed=group.to_embed())
+            await ctx.send(embed=counter.to_embed())
 
     async def increment_counter(self, ctx, name):
         counter = Counter.objects.get(name=name)
