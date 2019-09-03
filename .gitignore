@@ -289,4 +289,4 @@ data.db
 # wip
 app/
 apexmap/
-static/
+/static/
