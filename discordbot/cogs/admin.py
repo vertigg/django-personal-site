@@ -7,9 +7,10 @@ import random
 import sys
 
 import aiohttp
-from discord.ext import commands
+import pandas as pd
 from discord import VoiceRegion as region
 from discord.errors import Forbidden
+from discord.ext import commands
 
 from discordbot.cogs.utils.checks import admin_command
 
