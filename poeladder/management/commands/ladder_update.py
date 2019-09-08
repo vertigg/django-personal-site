@@ -12,9 +12,6 @@ from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 
 from .utils import detect_skills
 
-if settings.DEBUG:
-    from django.db import connection
-
 
 class LadderUpdateController:
 
@@ -28,12 +25,16 @@ class LadderUpdateController:
         self.logger = self._setup_logger()
         self.session = requests.session()
         self.cookies = {'POESESSID': settings.POESESSID}
-        self.leagues = {x[0]: x[1]
-                        for x in PoeLeague.objects.values_list('name', 'id')}
-        self.league_names = set(self.leagues.keys())
+        self.leagues, self.league_names = self._get_local_leagues_info()
         self.profiles = {x[0]: x[1] for x in DiscordUser.objects
                          .exclude(poe_profile__exact='')
                          .values_list('id', 'poe_profile')}
+
+    def _get_local_leagues_info(self):
+        leagues = {x[0]: x[1]
+                   for x in PoeLeague.objects.values_list('name', 'id')}
+        league_names = set(leagues.keys())
+        return leagues, league_names
 
     def _setup_logger(self):
         formatter = logging.Formatter(
@@ -89,6 +90,9 @@ class LadderUpdateController:
         if 'Void' not in self.league_names:
             self.logger.info('New league: Void')
             PoeLeague.objects.create(name='Void')
+
+        # Update local league info
+        self.leagues, self.league_names = self._get_local_leagues_info()
 
     def _build_character_data(self, api_data):
         data = {}
@@ -220,6 +224,7 @@ class LadderUpdateController:
         self.logger.info(f'Done in {round(time.time() - start_time, 2)} seconds')
 
         if settings.DEBUG:
+            from django.db import connection
             self.logger.info(f'Total db queries: {len(connection.queries)}')
 
 
