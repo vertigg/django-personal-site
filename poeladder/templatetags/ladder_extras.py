@@ -6,7 +6,7 @@ register = template.Library()
 
 def calculate_progress(level, current_experience):
     diff = experience[level + 1]['total_xp'] - current_experience
-    return round((1 - (diff / experience[level]['xp_to_gain'])) * 10, 2)
+    return round((1 - (diff / experience[level]['xp_to_gain'])) * 100, 2)
 
 
 @register.filter
