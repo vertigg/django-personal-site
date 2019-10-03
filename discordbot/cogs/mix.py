@@ -21,7 +21,7 @@ class Mix(commands.Cog):
         self.wisdom_history = deque([], maxlen=5)
         self.imgur_update()
 
-    @commands.command(aliases=['ьшч', 'Mix'])
+    @commands.command(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
