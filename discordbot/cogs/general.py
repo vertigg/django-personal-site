@@ -1,5 +1,6 @@
 import random
 import re
+from datetime import datetime
 
 import discord
 from discord.ext import commands
@@ -7,6 +8,7 @@ from discord.ext import commands
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
 from .utils.checks import admin_command, mod_command, is_youtube_link
 from .utils.db import get_random_entry, update_display_names
+from .utils.formatters import ru_plural
 
 
 class General(commands.Cog):
@@ -132,6 +134,14 @@ class General(commands.Cog):
             await ctx.send('{} added'.format(url))
         else:
             await ctx.send('Wrong youtube link format')
+
+    @commands.command(aliases=['perediwka'])
+    async def peredishka(self, ctx):
+        current_weekday = datetime.now().weekday()
+        if not current_weekday in [5, 6]:
+            difference = 5 - current_weekday
+            await ctx.send(f'Осталось {difference} '
+                           f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки')
 
 
 def setup(bot):

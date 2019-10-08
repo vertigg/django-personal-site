@@ -24,3 +24,13 @@ def wisdom_format(cache, wisdom_history):
     message += '\nLatest wisdom:\n{0.id:<4} : {1:^18} : {0.text:35}\n\nTotal wisdoms: {2}'.format(
         latest_wisdom, check_author_name(latest_wisdom.author_id, cache), wisdom_count)
     return pyformat.format(message)
+
+
+def ru_plural(value, quantitative):
+    if value % 100 in (11, 12, 13, 14):
+        return quantitative[2]
+    if value % 10 == 1:
+        return quantitative[0]
+    if value % 10 in (2, 3, 4):
+        return quantitative[1]
+    return quantitative[2]
