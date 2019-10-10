@@ -5,7 +5,12 @@ from django.template.defaultfilters import truncatechars
 
 from discordbot.models import (Counter, CounterGroup, DiscordLink,
                                DiscordSettings, DiscordUser, Gachi, WFAlert,
-                               Wisdom)
+                               Wisdom, MarkovText)
+
+
+@admin.register(MarkovText)
+class MarkovTextAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Counter)

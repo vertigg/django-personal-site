@@ -1,26 +1,30 @@
+import logging
 import random
 import re
 from datetime import datetime
 
 import discord
+import pandas as pd
+import pytz
 from discord.ext import commands
 from markovify import Text
 
-from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
-from .utils.checks import admin_command, mod_command, is_youtube_link
+from discordbot.models import (DiscordLink, DiscordSettings, DiscordUser,
+                               Gachi, MarkovText)
+
+from .utils.checks import admin_command, is_youtube_link, mod_command
 from .utils.db import get_random_entry, update_display_names
-from .utils.formatters import ru_plural
+from .utils.formatters import clean_up_markov_text, ru_plural
+
+logger = logging.getLogger('botLogger.general')
 
 
 class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.markov_text = Text(self._open_markov_chain_text())
-
-    def _open_markov_chain_text(self):
-        with open('discordbot/static/discordbot/text/markov.txt', 'r', encoding='utf-8') as f:
-            return f.read()
+        self.markov_model = MarkovText.objects.first()
+        self.markov_text = Text(self.markov_model.text)
 
     @staticmethod
     def get_link(key):
@@ -151,9 +155,40 @@ class General(commands.Cog):
         else:
             await ctx.send('Ахаха передишка')
 
-    @commands.command()
+    @commands.group(invoke_without_command=True)
     async def markov(self, ctx, *, sentence_size=200):
-        await ctx.send(self.markov_text.make_short_sentence(sentence_size))
+        if not ctx.invoked_subcommand:
+            await ctx.send(self.markov_text.make_short_sentence(sentence_size))
+
+    @markov.command()
+    @admin_command
+    async def update(self, ctx):
+        if ctx.guild.id in [178976406288465920, 121372102522699778]:
+            if self.markov_model.last_update:
+                last_update = self.markov_model.last_update.replace(tzinfo=None)
+                logger.info(f'Updating markov text since {last_update}')
+                messages = await ctx.channel.history(limit=None, after=last_update).flatten()
+            else:
+                logger.info('Downloading chat history')
+                messages = await ctx.channel.history(limit=None).flatten()
+            if messages:
+                messages_df = pd.DataFrame([{
+                    'message_id': x.id,
+                    'author_id': x.author.id,
+                    'content': x.content,
+                    'created_at': x.created_at,
+                } for x in messages]).astype({'created_at': 'datetime64'})
+                new_text = clean_up_markov_text(messages_df)
+                if new_text:
+                    self.markov_model.text = f'{self.markov_model.text} {new_text}'
+                    self.markov_model.last_update = (messages_df.created_at
+                                                     .dt.tz_localize(pytz.UTC)
+                                                     .dt.to_pydatetime().max())
+                    self.markov_model.save()
+                    self.markov_text = Text(self.markov_model.text)
+                    logger.info(f'Markov text has been updated with {len(new_text)} characters')
+                else:
+                    logger.info('There are no messages to add')
 
 
 def setup(bot):

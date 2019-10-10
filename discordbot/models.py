@@ -257,6 +257,11 @@ class MixEvent(models.Model):
         return "<MixEvent: {}>".format(self.created_at)
 
 
+class MarkovText(models.Model):
+    text = models.TextField()
+    last_update = models.DateTimeField(blank=True, null=True, auto_now=False)
+
+
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'discorduser'):
