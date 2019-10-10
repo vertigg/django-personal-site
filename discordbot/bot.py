@@ -33,7 +33,7 @@ async def on_message(message):
 
 def load_cogs():
     cogs = ['admin', 'general', 'overwatch', 'mix', 'django', 'counters',
-            'brawl', 'warframe', 'killing_floor', 'wikipedia']
+            'brawl', 'warframe', 'killing_floor', 'wikipedia', 'markov']
     logger.info("Loading cogs...")
     for cog in cogs:
         try:
