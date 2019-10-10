@@ -166,6 +166,7 @@ class General(commands.Cog):
     @admin_command
     async def update(self, ctx):
         if ctx.guild.id in [178976406288465920, 121372102522699778]:
+            self.markov_model.refresh_from_db()
             if self.markov_model.last_update:
                 last_update = self.markov_model.last_update.replace(tzinfo=None)
                 logger.info(f'Updating markov text since {last_update}')
