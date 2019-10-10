@@ -4,6 +4,7 @@ from datetime import datetime
 
 import discord
 from discord.ext import commands
+from markovify import Text
 
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
 from .utils.checks import admin_command, mod_command, is_youtube_link
@@ -15,6 +16,11 @@ class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.markov_text = Text(self._open_markov_chain_text())
+
+    def _open_markov_chain_text(self):
+        with open('discordbot/static/discordbot/text/markov.txt', 'r', encoding='utf-8') as f:
+            return f.read()
 
     @staticmethod
     def get_link(key):
@@ -138,10 +144,16 @@ class General(commands.Cog):
     @commands.command(aliases=['perediwka'])
     async def peredishka(self, ctx):
         current_weekday = datetime.now().weekday()
-        if not current_weekday in [5, 6]:
+        if current_weekday not in [5, 6]:
             difference = 5 - current_weekday
             await ctx.send(f'Осталось {difference} '
                            f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки')
+        else:
+            await ctx.send('Ахаха передишка')
+
+    @commands.command()
+    async def markov(self, ctx, *, sentence_size=200):
+        await ctx.send(self.markov_text.make_short_sentence(sentence_size))
 
 
 def setup(bot):

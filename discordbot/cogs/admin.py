@@ -105,6 +105,13 @@ class Admin(commands.Cog):
             return
         await ctx.send(python.format(result))
 
+    @commands.command(hidden=True)
+    @admin_command
+    async def gitupdate(self, ctx):
+        """Autoupdate bot to latest commit"""
+        os.system('git pull')
+        os.system('supervisorctl restart bot')
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))
