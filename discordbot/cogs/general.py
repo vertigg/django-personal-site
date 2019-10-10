@@ -7,6 +7,7 @@ import discord
 import pandas as pd
 import pytz
 from discord.ext import commands
+from discord.errors import HTTPException
 from markovify import Text
 
 from discordbot.models import (DiscordLink, DiscordSettings, DiscordUser,
@@ -15,6 +16,7 @@ from discordbot.models import (DiscordLink, DiscordSettings, DiscordUser,
 from .utils.checks import admin_command, is_youtube_link, mod_command
 from .utils.db import get_random_entry, update_display_names
 from .utils.formatters import clean_up_markov_text, ru_plural
+
 
 logger = logging.getLogger('botLogger.general')
 
@@ -180,7 +182,7 @@ class General(commands.Cog):
                 } for x in messages]).astype({'created_at': 'datetime64'})
                 new_text = clean_up_markov_text(messages_df)
                 if new_text:
-                    self.markov_model.text = f'{self.markov_model.text} {new_text}'
+                    self.markov_model.text = f'{new_text} {self.markov_model.text}'
                     self.markov_model.last_update = (messages_df.created_at
                                                      .dt.tz_localize(pytz.UTC)
                                                      .dt.to_pydatetime().max())
@@ -189,6 +191,12 @@ class General(commands.Cog):
                     logger.info(f'Markov text has been updated with {len(new_text)} characters')
                 else:
                     logger.info('There are no messages to add')
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if hasattr(error, 'original') and isinstance(error.original, HTTPException):
+            if ctx.command.name == 'markov':
+                await ctx.send(f"Can't generate text with length of {ctx.kwargs.get('sentence_size')}")
 
 
 def setup(bot):

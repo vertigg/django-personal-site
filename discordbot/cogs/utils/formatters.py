@@ -56,4 +56,4 @@ def clean_up_markov_text(df: pd.DataFrame):
                      .apply(lambda x: emoji_regex.sub(' ', x))
                      .apply(lambda x: re.sub(r'\s+', ' ', x))
                      .str.strip())
-    return ' '.join(df.content).strip()
+    return re.sub(r'\s+', ' ', ' '.join(df.content)).strip()
