@@ -29,7 +29,7 @@ class Markov(commands.Cog):
         self.markov_text = Text(self.markov_model.text)
 
     def _add_punctuation(self, text):
-        if not any([text.endswith(y) for y in string.punctuation]) and len(text) > 3:
+        if not any([text.endswith(y) for y in string.punctuation]) and len(text) > 1:
             return f'{text}.'
         return text
 
@@ -45,7 +45,8 @@ class Markov(commands.Cog):
     def _clean_up_markov_text(self, df: pd.DataFrame):
         """Processes message dataframe into markov chain clean text"""
         df = df[df.author_id != 223837667186442240]
-        df = df[~df.content.str.contains(r'^!') | df.content.notnull()]
+        df = df.dropna(subset=['content'])
+        df = df[~df.content.str.contains(r'^!')]
         df['content'] = df.content.apply(self._clean_message)
         df = df[~df.content.eq('')]
         return ' '.join(df.content).strip()
