@@ -1,5 +1,6 @@
 import logging
 import re
+import string
 
 import discord
 import pandas as pd
@@ -27,8 +28,14 @@ class Markov(commands.Cog):
         self.markov_model = MarkovText.objects.first()
         self.markov_text = Text(self.markov_model.text)
 
+    def _add_punctuation(self, text):
+        if not any([text.endswith(y) for y in string.punctuation]) and len(text) > 3:
+            return f'{text}.'
+        return text
+
     def _clean_up_markov_text(self, df: pd.DataFrame):
         # Filter empty messages and messages from bot
+        df['content'] = df.content.str.strip()
         df = df[df.author_id != 223837667186442240]
         df = df[~df.content.str.contains(r'^!')]
         df = df[df.content.notnull()]
@@ -37,7 +44,10 @@ class Markov(commands.Cog):
                          .apply(lambda x: self.mention_regex.sub(' ', x))
                          .apply(lambda x: self.emoji_regex.sub(' ', x))
                          .apply(lambda x: re.sub(r'\s+', ' ', x))
+                         .apply(self._add_punctuation)
+                         .str.capitalize()
                          .str.strip())
+        df = df[~df.content.eq('')]
         return re.sub(r'\s+', ' ', ' '.join(df.content)).strip()
 
     @commands.group(invoke_without_command=True)
