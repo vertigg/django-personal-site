@@ -36,8 +36,8 @@ class Markov(commands.Cog):
     def _clean_message(self, text):
         """Cleans up discord message from mentions, links and emojis"""
         text = self.http_regex.sub(' ', text.strip())
-        text = self.mention_regex(' ', text)
-        text = self.emoji_regex(' ', text)
+        text = self.mention_regex.sub(' ', text)
+        text = self.emoji_regex.sub(' ', text)
         text = re.sub(r'\s+', ' ', text)
         text = self._add_punctuation(text)
         return text.strip().capitalize()
