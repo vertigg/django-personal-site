@@ -52,14 +52,14 @@ class Markov(commands.Cog):
         return ' '.join(df.content).strip()
 
     @commands.group(invoke_without_command=True)
-    async def markov(self, ctx, *, sentence_size=200):
+    async def markov(self, ctx):
         if not ctx.invoked_subcommand:
-            await ctx.send(self.markov_text.make_short_sentence(sentence_size))
+            await ctx.send(self.markov_text.make_sentence())
 
     @markov.command()
     @admin_command
     async def update(self, ctx):
-        if ctx.channel.id in [178976406288465920]:
+        if ctx.channel.id in [178976406288465920, 465820028718153738]:
             self.markov_model.refresh_from_db()
             if self.markov_model.last_update:
                 last_update = self.markov_model.last_update.replace(tzinfo=None)
