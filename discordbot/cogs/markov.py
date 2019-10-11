@@ -18,6 +18,7 @@ logger = logging.getLogger('botLogger.Markov')
 
 class Markov(commands.Cog):
 
+    max_sentences = 5
     http_regex = re.compile(
         r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)')
     mention_regex = re.compile(r'\<\@\d+\>')
@@ -52,9 +53,11 @@ class Markov(commands.Cog):
         return ' '.join(df.content).strip()
 
     @commands.group(invoke_without_command=True)
-    async def markov(self, ctx):
+    async def markov(self, ctx, *, sentences=3):
+        sentences_count = sentences if sentences <= self.max_sentences else self.max_sentences
         if not ctx.invoked_subcommand:
-            await ctx.send(self.markov_text.make_sentence())
+            text = ' '.join([self.markov_text.make_short_sentence(250, tries=100) for x in range(sentences_count)])
+            await ctx.send(text)
 
     @markov.command()
     @admin_command
