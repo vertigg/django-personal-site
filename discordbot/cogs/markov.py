@@ -33,22 +33,22 @@ class Markov(commands.Cog):
             return f'{text}.'
         return text
 
+    def _clean_message(self, text):
+        """Cleans up discord message from mentions, links and emojis"""
+        text = self.http_regex.sub(' ', text.strip())
+        text = self.mention_regex(' ', text)
+        text = self.emoji_regex(' ', text)
+        text = re.sub(r'\s+', ' ', text)
+        text = self._add_punctuation(text)
+        return text.strip().capitalize()
+
     def _clean_up_markov_text(self, df: pd.DataFrame):
-        # Filter empty messages and messages from bot
-        df['content'] = df.content.str.strip()
+        """Processes message dataframe into markov chain clean text"""
         df = df[df.author_id != 223837667186442240]
-        df = df[~df.content.str.contains(r'^!')]
-        df = df[df.content.notnull()]
-        df['content'] = (df.content
-                         .apply(lambda x: self.http_regex.sub(' ', x))
-                         .apply(lambda x: self.mention_regex.sub(' ', x))
-                         .apply(lambda x: self.emoji_regex.sub(' ', x))
-                         .apply(lambda x: re.sub(r'\s+', ' ', x))
-                         .apply(self._add_punctuation)
-                         .str.capitalize()
-                         .str.strip())
+        df = df[~df.content.str.contains(r'^!') | df.content.notnull()]
+        df['content'] = df.content.apply(self._clean_message)
         df = df[~df.content.eq('')]
-        return re.sub(r'\s+', ' ', ' '.join(df.content)).strip()
+        return ' '.join(df.content).strip()
 
     @commands.group(invoke_without_command=True)
     async def markov(self, ctx, *, sentence_size=200):
