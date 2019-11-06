@@ -1,4 +1,3 @@
-
 from discordbot.cogs.utils.checks import check_author_name
 from discordbot.models import Wisdom
 

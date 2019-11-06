@@ -1,6 +1,6 @@
-from re import match
 import logging
 from functools import wraps
+from re import match
 from time import time
 
 from discordbot.models import DiscordUser
