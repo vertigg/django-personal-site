@@ -2,7 +2,6 @@ import logging
 import re
 import string
 
-import discord
 import pandas as pd
 import pytz
 from discord.errors import HTTPException
@@ -11,7 +10,7 @@ from markovify import Text
 
 from discordbot.models import MarkovText
 
-from .utils.checks import admin_command, mod_command
+from .utils.checks import admin_command
 
 logger = logging.getLogger('botLogger.Markov')
 
@@ -23,12 +22,18 @@ class Markov(commands.Cog):
         r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)')
     mention_regex = re.compile(r'\<\@\d+\>')
     emoji_regex = re.compile(r'\<:\w+:\d+\>')
+    multiple_spaces_regex = re.compile(r'\s+')
+
+    regexes = [http_regex, mention_regex, emoji_regex, multiple_spaces_regex]
 
     def __init__(self, bot):
         self.bot = bot
-        self.markov_model = MarkovText.objects.first()
+        self.markov_model = MarkovText.objects.get(key='default')
         self.markov_text = Text(self.markov_model.text)
         self._locked = False
+        self._excluded_ids = [223837667186442240, 359297047830069251]
+        # TODO: Add additional field for id of text channel
+        self._allowed_channels = [178976406288465920, 465820028718153738]
 
     def _add_punctuation(self, text):
         if not any([text.endswith(y) for y in string.punctuation]) and len(text) > 1:
@@ -37,24 +42,21 @@ class Markov(commands.Cog):
 
     def _clean_message(self, text):
         """Cleans up discord message from mentions, links and emojis"""
-        text = self.http_regex.sub(' ', text.strip())
-        text = self.mention_regex.sub(' ', text)
-        text = self.emoji_regex.sub(' ', text)
-        text = re.sub(r'\s+', ' ', text)
-        text = self._add_punctuation(text)
-        return text.strip().capitalize()
+        for regex_pattern in self.regexes:
+            text = regex_pattern.sub(' ', text.strip())
+        return self._add_punctuation(text).strip().capitalize()
 
     def _clean_up_markov_text(self, df: pd.DataFrame):
         """Processes message dataframe into markov chain clean text"""
-        df = df[~df.author_id.isin([223837667186442240, 359297047830069251])]
-        df = df.dropna(subset=['content'])
-        df = df[~df.content.str.contains(r'^!')]
+        df = df[~df.author_id.isin(self._excluded_ids)]  # Remove messages from certain people
+        df = df.dropna(subset=['content'])  # Remove messages without text content
+        df = df[~df.content.str.contains(r'^!')]  # Remove messages that starts with command_prefix
         df['content'] = df.content.apply(self._clean_message)
         df = df[~df.content.eq('')]
         return ' '.join(df.content).strip()
 
     @commands.group(invoke_without_command=True)
-    async def markov(self, ctx, *, sentences=3):
+    async def markov(self, ctx, *, sentences: int = 3):
         if not self._locked:
             sentences_count = sentences if sentences <= self.max_sentences else self.max_sentences
             if not ctx.invoked_subcommand:
@@ -66,7 +68,7 @@ class Markov(commands.Cog):
     @markov.command()
     @admin_command
     async def update(self, ctx):
-        if ctx.channel.id in [178976406288465920, 465820028718153738]:
+        if ctx.channel.id in self._allowed_channels:
             self._locked = True
             try:
                 self.markov_model.refresh_from_db()
@@ -102,7 +104,7 @@ class Markov(commands.Cog):
     async def on_command_error(self, ctx, error):
         if hasattr(error, 'original') and isinstance(error.original, HTTPException):
             if ctx.command.name == 'markov':
-                await ctx.send(f"Can't generate text with length of {ctx.kwargs.get('sentence_size')}")
+                await ctx.send(f"Can't generate text with length of {ctx.kwargs.get('sentences')}")
 
 
 def setup(bot):

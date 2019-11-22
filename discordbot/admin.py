@@ -1,16 +1,33 @@
-from django.contrib import admin
+from datetime import datetime
+
+from django.contrib import admin, messages
 from django.db import models
-from django.forms import NumberInput, Textarea, TextInput
+from django.forms import Textarea, TextInput
+from django.http import HttpResponseRedirect
 from django.template.defaultfilters import truncatechars
 
-from discordbot.models import (Counter, CounterGroup, DiscordLink,
-                               DiscordSettings, DiscordUser, Gachi, WFAlert,
-                               Wisdom, MarkovText)
+from discordbot.models import (
+    Counter, CounterGroup, DiscordLink, DiscordSettings, DiscordUser, Gachi,
+    MarkovText, WFAlert, Wisdom)
 
 
 @admin.register(MarkovText)
 class MarkovTextAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('key', 'last_update')
+    fields = ('key', 'last_update', 'text_length')
+    readonly_fields = ('last_update', 'text_length')
+
+    def text_length(self, obj):
+        return len(obj.text)
+
+    def response_change(self, request, obj):
+        if '_clearobject' in request.POST:
+            obj.text = ''
+            obj.last_update = datetime(1970, 1, 1)
+            obj.save()
+            messages.add_message(request, messages.INFO, 'Object has been cleared')
+            return HttpResponseRedirect('.')
+        return super().response_change(request, obj)
 
 
 @admin.register(Counter)

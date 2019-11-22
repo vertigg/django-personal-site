@@ -48,7 +48,7 @@ def get_random_entry(model):
     """Get random entry from given model
 
     Args:
-        model (BaseModel): Django model with pid field
+        model (BaseModel): Django model with `pid` field
 
     Returns:
         random_entry: Random entry from given model with pid=0
