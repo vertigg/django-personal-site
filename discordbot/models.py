@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
+from django.utils.translation import gettext_lazy as _
 
 
 class CounterGroup(models.Model):
@@ -91,16 +92,25 @@ class WFAlert(models.Model):
         return self.content
 
 
-class WFSettings(models.Model):
-    nitain_extract = models.BooleanField(default=False)
-    orokin_cell = models.BooleanField(default=False)
-    orokin_reactor_bp = models.BooleanField(default=False)
-    orokin_catalyst_bp = models.BooleanField(default=False)
-    tellurium = models.BooleanField(default=False)
-    forma_bp = models.BooleanField(default=False)
-    exilus_ap = models.BooleanField(default=False)
-    kavat = models.BooleanField(default=False)
+class WFSettingsMeta(models.base.ModelBase):
+    settings = {
+        'nitain_extract': _('Nitain Extract'),
+        'orokin_cell': _('Orokin Cell'),
+        'orokin_reactor_bp': _('Orokin Reactor (Blueprint)'),
+        'orokin_catalyst_bp': _('Orokin Catalyst (Blueprint)'),
+        'tellurium': _('Tellurium'),
+        'forma_bp': _('Forma Blueprint'),
+        'exilus_ap': _('Exilus Adapter'),
+        'kavat': _('Kavat Genetic Code'),
+    }
 
+    def __new__(cls, name, bases, attrs, **kwargs):
+        for field, label in cls.settings.items():
+            attrs[field] = models.BooleanField(default=False, verbose_name=label)
+        return super(WFSettingsMeta, cls).__new__(cls, name, bases, attrs, **kwargs)
+
+
+class WFSettings(models.Model, metaclass=WFSettingsMeta):
     class Meta:
         db_table = 'discord_wf_settings'
 

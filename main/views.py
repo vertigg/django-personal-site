@@ -1,17 +1,15 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.contrib.auth.views import (FormView, LoginView, LogoutView,
                                        TemplateView)
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse
-from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import RedirectView
 
 from discordbot.forms import WFSettingsForm
-from discordbot.models import DiscordUser, WFSettings
+from discordbot.models import DiscordUser
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
                         MainAuthenticationForm, MainUserCreationForm)
 from poeladder.models import PoeCharacter
@@ -54,75 +52,49 @@ class UnlinkDiscordProfile(LoginRequiredMixin, RedirectView):
         return reverse(self.pattern_name)
 
 
-@login_required(login_url='/login/')
-def profile_view(request):
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'profile.html'
+    login_url = '/login/'
 
-    is_linked = hasattr(request.user, 'discorduser')
-    is_updated = False
-    invalid_token = False
-    token_form = DiscordTokenForm
-    user = request.user
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['is_linked'] = hasattr(request.user, 'discorduser')
+        if context['is_linked']:
+            context.update({
+                'profile_form': DiscordProfileForm(
+                    user=request.user, instance=request.user.discorduser),
+                'wf_settings_form': WFSettingsForm(
+                    instance=request.user.discorduser.wf_settings),
+            })
+        else:
+            context.update({'token_form': DiscordTokenForm})
+        return self.render_to_response(context)
 
-    if is_linked:
-        if user.discorduser.wf_settings is None:
-            user.discorduser.wf_settings = WFSettings.objects.create()
-            user.discorduser.save()
-        profile_form = DiscordProfileForm(
-            user=request.user, instance=get_profile(request))
-        wf_settings_form = WFSettingsForm(instance=get_wfsettings(request))
-    else:
-        profile_form = None
-        wf_settings_form = None
-
-    if request.method == "POST":
+    def post(self, request, *args, **kwargs):
+        user = request.user
         if 'token_link' in request.POST:
             form = DiscordTokenForm(request.POST)
             if form.is_valid():
-                clean_token = form.cleaned_data.get('token')
+                token = form.cleaned_data.get('token')
                 try:
-                    discord_user = DiscordUser.objects.get(token=clean_token)
+                    discord_user = DiscordUser.objects.get(token=token)
                     discord_user.user = request.user
-                    user.save()
-                    return redirect('main:profile')
+                    request.user.save()
                 except ObjectDoesNotExist:
-                    invalid_token = True
+                    messages.add_message(request, messages.ERROR, 'Invalid token')
         if 'profile_update' in request.POST:
-            form = DiscordProfileForm(
-                request.POST, user=request.user, instance=get_profile(request))
+            profile_form = DiscordProfileForm(
+                request.POST, user=user, instance=user.discorduser)
             wf_form = WFSettingsForm(
-                request.POST, instance=get_wfsettings(request))
-            if form.is_valid():
-                passed_poe_profile = form.cleaned_data.get('poe_profile')
+                request.POST, instance=user.discorduser.wf_settings)
+            if profile_form.is_valid():
+                passed_poe_profile = profile_form.cleaned_data.get('poe_profile')
                 if passed_poe_profile is None or passed_poe_profile == '' \
                         or passed_poe_profile != user.discorduser.poe_profile:
                     PoeCharacter.objects.filter(
                         profile=user.discorduser.id).delete()
-                form.save()
-                is_updated = True
-                profile_form = DiscordProfileForm(
-                    request.POST,
-                    user=request.user,
-                    instance=get_profile(request))
-            else:
-                profile_form = form
+                profile_form.save()
             if wf_form.is_valid():
                 wf_form.save()
-                wf_settings_form = WFSettingsForm(
-                    request.POST, instance=get_wfsettings(request))
-
-    return render(request, 'profile.html', {
-        'is_linked': is_linked,
-        'token_form': token_form,
-        'profile_form': profile_form,
-        'invalid_token': invalid_token,
-        'wf_settings_form': wf_settings_form,
-        'update_success': is_updated,
-    })
-
-
-def get_wfsettings(request):
-    return request.user.discorduser.wf_settings
-
-
-def get_profile(request):
-    return request.user.discorduser
+            messages.add_message(request, messages.SUCCESS, 'Profile settings has been updated')
+        return redirect('main:profile')

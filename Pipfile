@@ -27,10 +27,11 @@ python-dateutil = "*"
 pandas = "*"
 markovify = "*"
 "discord.py" = "*"
-Django = "*"
+Django = "<3.0"
 google-api-python-client = "*"
 google-auth = "*"
 oauth2client = "*"
+django-rest-knox = "*"
 
 [requires]
 python_version = "3.7"
