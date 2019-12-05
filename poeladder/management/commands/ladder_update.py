@@ -19,8 +19,6 @@ class LadderUpdateController:
     POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
     POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
     POE_INFO = 'https://www.pathofexile.com/character-window/get-items?character={0}&accountName={1}'
-    DB_TIMEOUT = 10
-    DB_RETRIES = 5
 
     def __init__(self):
         self.logger = self._setup_logger()
@@ -32,8 +30,8 @@ class LadderUpdateController:
                          .values_list('id', 'poe_profile')}
 
     def _get_local_leagues_info(self):
-        leagues = {x[0]: x[1]
-                   for x in PoeLeague.objects.values_list('name', 'id')}
+        leagues = {x[0]: {'league_id': x[1], 'end_date': x[2]}
+                   for x in PoeLeague.objects.values_list('name', 'id', 'end_date')}
         league_names = set(leagues.keys())
         return leagues, league_names
 
@@ -64,6 +62,11 @@ class LadderUpdateController:
         data = json.loads(r.text)
         return detect_skills(data)
 
+    def _parse_league_datetime(self, str_datetime: str) -> datetime:
+        if isinstance(str_datetime, str):
+            return datetime.strptime(str_datetime, '%Y-%m-%dT%H:%M:%S%z')
+        return None
+
     def update_leagues(self):
         league_api_data = json.loads(self.session.get(self.POE_LEAGUES).text)
         api_league_names = {x['id'] for x in league_api_data}
@@ -78,8 +81,9 @@ class LadderUpdateController:
             PoeLeague.objects.filter(name__in=difference).delete()
 
         for league in league_api_data:
-            if league['id'] not in self.league_names:
-                # create new league
+            league_name = league.get('id')
+            if league_name not in self.league_names:
+                # Create new league
                 self.logger.info(f'New league: {league["id"]}')
                 PoeLeague.objects.create(
                     name=league['id'],
@@ -87,6 +91,10 @@ class LadderUpdateController:
                     start_date=league['startAt'],
                     end_date=league['endAt']
                 )
+            # Check if league's end date changed
+            elif self._parse_league_datetime(league['endAt']) != self.leagues[league_name]['end_date']:
+                PoeLeague.objects.filter(name=league_name).update(end_date=league['endAt'])
+                self.logger.info(f'{league_name.capitalize()} league has been updated with new end date {league["endAt"]}')
 
         if 'Void' not in self.league_names:
             self.logger.info('New league: Void')
@@ -111,7 +119,7 @@ class LadderUpdateController:
             self.logger.info(f'New character: {name}')
             p = PoeCharacter.objects.create(
                 name=name,
-                league_id=self.leagues[character['league']],
+                league_id=self.leagues[character['league']]['league_id'],
                 profile_id=discord_id,
                 class_name=character['class'],
                 class_id=character['classId'],
@@ -137,7 +145,7 @@ class LadderUpdateController:
                     or ch['ascendancy_id'] != character['ascendancyClass']:
                 self.logger.info(f'Updating {name}')
                 p = PoeCharacter.objects.get(name=name)
-                p.league_id = self.leagues[character['league']]
+                p.league_id = self.leagues[character['league']]['league_id']
                 p.class_name = character['class']
                 p.class_id = character['classId']
                 p.ascendancy_id = character['ascendancyClass']
