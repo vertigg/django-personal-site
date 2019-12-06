@@ -79,9 +79,7 @@ class WFAlert(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True, blank=False, null=False)
     announced = models.BooleanField(default=False)
-
     content = models.TextField(blank=False, null=False)
-    keywords = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Warframe Alert'
@@ -93,19 +91,25 @@ class WFAlert(models.Model):
 
 
 class WFSettingsMeta(models.base.ModelBase):
-    settings = {
-        'nitain_extract': _('Nitain Extract'),
-        'orokin_cell': _('Orokin Cell'),
-        'orokin_reactor_bp': _('Orokin Reactor (Blueprint)'),
-        'orokin_catalyst_bp': _('Orokin Catalyst (Blueprint)'),
-        'tellurium': _('Tellurium'),
-        'forma_bp': _('Forma Blueprint'),
+    alerts = {
+        'orokin_reactor_bp': _('Orokin Reactor'),
+        'orokin_catalyst_bp': _('Orokin Catalyst'),
+        'forma_bp': _('Forma'),
         'exilus_ap': _('Exilus Adapter'),
-        'kavat': _('Kavat Genetic Code'),
+        'fieldron': _('Fieldron'),
+        'mutagen_mass': _('Mutagen Mass'),
+        'mutalist_nav': _('Mutalist Alad V Nav Coordinate'),
+        'detonite_injector': _('Detonite Injector'),
+        'snipetron': _('Snipetron Vandal'),
+        'twin_vipers': _('Twin Vipers Wraith'),
+        'latron': _('Latron Wraith'),
+        'strun': _('Strun Wraith'),
+        'dera': _('Dera Vandal'),
+        'karak': _('Karak Wraith'),
     }
 
     def __new__(cls, name, bases, attrs, **kwargs):
-        for field, label in cls.settings.items():
+        for field, label in cls.alerts.items():
             attrs[field] = models.BooleanField(default=False, verbose_name=label)
         return super(WFSettingsMeta, cls).__new__(cls, name, bases, attrs, **kwargs)
 
