@@ -1,10 +1,10 @@
 from django import forms
-from django_filters import ChoiceFilter, FilterSet
+from django_filters import ChoiceFilter, FilterSet, CharFilter
 
 from poeladder.models import PoeCharacter
 
 
-class PoeCharacterFilter(FilterSet):
+class PoeClassFilter(FilterSet):
 
     class_choices = (
         (0, 'Scion'),
@@ -26,3 +26,11 @@ class PoeCharacterFilter(FilterSet):
     class Meta:
         model = PoeCharacter
         fields = ['class_id']
+
+
+class PoeSearchFilter(FilterSet):
+    name = CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = PoeCharacter
+        fields = ('name',)

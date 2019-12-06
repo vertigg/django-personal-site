@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.db import models
-from django.forms import TextInput
 
 from poeladder.models import PoeCharacter
 
@@ -14,8 +12,3 @@ class PoeCharacterAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return [f.name for f in self.model._meta.fields]
-
-    formfield_overrides = {
-        models.TextField: {'widget': TextInput(attrs={'size': 20})},
-        models.CharField: {'widget': TextInput(attrs={'size': 20})},
-    }

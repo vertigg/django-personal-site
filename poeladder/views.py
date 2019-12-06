@@ -1,14 +1,13 @@
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
-from django.http import HttpResponseRedirect
-
-from poeladder.filters import PoeCharacterFilter
-from poeladder.forms import SearchForm
-from poeladder.models import PoeCharacter, PoeLeague
 from django.views.generic import RedirectView
+from django_filters.views import FilterView
+
+from poeladder.filters import PoeClassFilter, PoeSearchFilter
+from poeladder.models import PoeCharacter, PoeLeague
 
 
 class MainLadderView(RedirectView):
@@ -33,63 +32,42 @@ class MainLadderView(RedirectView):
         return render(request, 'ladder.html', {'ladder_main': True})
 
 
-def league_ladder(request, slug):
-    """View for league-specific ladder """
-    active_league = get_object_or_404(PoeLeague, slug=slug)
-    page = request.GET.get('page', 1)
-    query_set = (PoeCharacter.objects.all()
-                 .filter(league_id=active_league.id)
-                 .order_by('-level', '-experience')
-                 .prefetch_related('gems')
-                 .select_related('profile'))
+class LadderView(FilterView):
+    filterset_class = PoeClassFilter
+    context_object_name = 'characters'
+    template_name = 'ladder.html'
+    model = PoeCharacter
+    paginate_by = 10
 
-    class_filter = PoeCharacterFilter(request.GET, query_set)
-    current_profile = request.user.discorduser.poe_profile if hasattr(
-        request.user, 'discorduser') else None
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.active_league = None
 
-    paginator = Paginator(class_filter.qs, 15)
-    try:
-        characters = paginator.page(page)
-    except PageNotAnInteger:
-        characters = paginator.page(1)
-    except EmptyPage:
-        characters = paginator.page(paginator.num_pages)
+    def _get_current_user_profile(self, request):
+        return request.user.discorduser.poe_profile if hasattr(
+            request.user, 'discorduser') else None
 
-    if not characters:
-        for choice in class_filter.form.fields['class_id'].choices:
-            if choice[0] == int(class_filter.form.cleaned_data['class_id']):
-                class_filter.__dict__['class_name'] = choice[1]
+    def get_queryset(self):
+        self.active_league = get_object_or_404(PoeLeague, slug=self.kwargs.get('slug'))
+        return (PoeCharacter.objects.all()
+                .filter(league_id=self.active_league.id)
+                .order_by('-level', '-experience')
+                .prefetch_related('gems')
+                .select_related('profile'))
 
-    return render(request, 'ladder.html', {
-        'active_league': active_league,
-        'class_filter': class_filter,
-        'current_profile': current_profile,
-        'characters': characters
-    })
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=None, **kwargs)
+        context['active_league'] = self.active_league
+        context['class_filter'] = self.filterset_class(self.request.GET, self.get_queryset())
+        context['current_profile'] = self._get_current_user_profile(self.request)
+        return context
 
 
-def search(request):
-    """View for cross-league character search by name"""
-    response = {'search': True, 'title': 'Search results'}
-    page = request.GET.get('page', 1)
-    if request.method == 'GET':
-        form = SearchForm(request.GET)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            response['search_query'] = request.GET['name'] if name else 'All characters'
-            response['search_results'] = (PoeCharacter.objects
-                                          .filter(name__icontains=name)
-                                          .order_by('name')
-                                          .prefetch_related('gems')
-                                          .select_related('profile')) if name \
-                else PoeCharacter.objects.all()
-            paginator = Paginator(response['search_results'], 10)
-            try:
-                characters = paginator.page(page)
-            except PageNotAnInteger:
-                characters = paginator.page(1)
-            except EmptyPage:
-                characters = paginator.page(paginator.num_pages)
-            response['characters'] = characters
-
-    return render(request, 'ladder.html', response)
+class LadderSearchView(FilterView):
+    extra_context = {'search': True, 'title': 'Search results'}
+    context_object_name = 'search_results'
+    filterset_class = PoeSearchFilter
+    template_name = 'ladder.html'
+    model = PoeCharacter
+    paginate_by = 10
+    ordering = 'name'

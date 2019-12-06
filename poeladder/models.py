@@ -1,7 +1,8 @@
 from django.db import models
-from discordbot.models import DiscordUser
 from django.urls import reverse
 from django.utils.text import slugify
+
+from discordbot.models import DiscordUser
 
 
 class PoeInfo(models.Model):
@@ -28,6 +29,7 @@ class PoeLeague(models.Model):
         super(PoeLeague, self).save(*args, **kwargs)
 
     class Meta:
+        verbose_name = 'League'
         verbose_name_plural = 'Leagues'
         db_table = 'poeladder_leagues'
 
@@ -46,6 +48,7 @@ class PoeActiveGem(models.Model):
         return self.name
 
     class Meta:
+        verbose_name = 'Gem'
         verbose_name_plural = 'Gems'
         db_table = 'poeladder_gems'
         ordering = ('name',)
@@ -64,6 +67,7 @@ class PoeCharacter(models.Model):
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
 
     class Meta:
+        verbose_name = 'Character'
         verbose_name_plural = 'Characters'
         db_table = 'poeladder_characters'
 

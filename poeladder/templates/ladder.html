@@ -14,8 +14,15 @@
 {% include "navbar.html" %}
 {% endblock %}
 
-{% block title %} {% if active_league %} {{active_league.name}} {% else %}Path of Exile Private
-Ladder{% endif %}{% endblock %}
+{% block title %} 
+    {% if active_league %} 
+        {{active_league.name}} 
+    {% elif title %}
+        {{ title }}
+    {% else %}
+        Path of Exile Private Ladder
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 

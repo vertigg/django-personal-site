@@ -28,7 +28,7 @@
             <tbody>
                 {% for character in characters %}
                     <tr class= "LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}" >
-                        <td>{{forloop.counter0|add:characters.start_index}}</td>
+                        <td>{{forloop.counter0|add:page_obj.start_index}}</td>
                         <td class="row-link">
                             <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
                                 <div class="cell-link" style="height:100%; width:100%">
@@ -60,7 +60,9 @@
                 {% endfor %}
             </tbody>
           </table>
-    {% include "paginator.html" with item=characters%}
+          {% if is_paginated %}
+              {% include "paginator.html" with item=page_obj%}
+          {% endif %}
     </div>
     <div class="col-xs-12" style="height:50px;"></div>
 {% endif %}
