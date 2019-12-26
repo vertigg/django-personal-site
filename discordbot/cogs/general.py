@@ -143,15 +143,16 @@ class General(commands.Cog):
 
     @commands.command(aliases=['perediwka'])
     async def peredishka(self, ctx):
-        if ctx.message.author.id in ['138275152415817728']:
+        if ctx.message.author.id in [138275152415817728]:
             await ctx.send('Передышки не будет')
-        current_weekday = datetime.now().weekday()
-        if current_weekday not in [5, 6]:
-            difference = 5 - current_weekday
-            await ctx.send(f'Осталось {difference} '
-                           f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки')
         else:
-            await ctx.send('Ахаха передишка')
+            current_weekday = datetime.now().weekday()
+            if current_weekday not in [5, 6]:
+                difference = 5 - current_weekday
+                await ctx.send(f'Осталось {difference} '
+                               f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки')
+            else:
+                await ctx.send('Ахаха передишка')
 
 
 def setup(bot):
