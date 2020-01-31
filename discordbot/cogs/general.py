@@ -1,18 +1,18 @@
+import json
 import logging
 import random
 import re
 from datetime import datetime
 
+import aiohttp
 import discord
 from discord.ext import commands
 
-from discordbot.models import (DiscordLink, DiscordSettings, DiscordUser,
-                               Gachi)
+from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
 
-from .utils.checks import admin_command, is_youtube_link, mod_command
+from .utils.checks import is_youtube_link, mod_command
 from .utils.db import get_random_entry, update_display_names
 from .utils.formatters import ru_plural
-
 
 logger = logging.getLogger('botLogger.general')
 
@@ -21,6 +21,7 @@ class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession(loop=self.bot.loop)
 
     @staticmethod
     def get_link(key):
@@ -153,6 +154,18 @@ class General(commands.Cog):
                                f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки')
             else:
                 await ctx.send('Ахаха передишка')
+
+    @commands.command(aliases=['korona', 'ncov'])
+    async def corona(self, ctx):
+        url = self.get_link('corona').url
+        async with self.session.get(url) as response:
+            data = await response.read()
+        try:
+            data = json.loads(data)
+            confirmed = data['features'][0]['attributes']['value']
+            await ctx.send(f'Total confirmed: {confirmed}')
+        except KeyError:
+            await ctx.send(f'Error in parsing response from server')
 
 
 def setup(bot):
