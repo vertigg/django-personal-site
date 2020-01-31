@@ -157,15 +157,21 @@ class General(commands.Cog):
 
     @commands.command(aliases=['korona', 'ncov'])
     async def corona(self, ctx):
-        url = self.get_link('corona').url
-        async with self.session.get(url) as response:
-            data = await response.read()
-        try:
-            data = json.loads(data)
-            confirmed = data['features'][0]['attributes']['value']
-            await ctx.send(f'Total confirmed: {confirmed}')
-        except KeyError:
-            await ctx.send(f'Error in parsing response from server')
+        result = dict.fromkeys(['corona', 'corona_deaths', 'corona_recovered'], 'Not available')
+        for item in result.keys():
+            url = self.get_link(item).url
+            try:
+                async with self.session.get(url) as response:
+                    data = await response.read()
+                    data = json.loads(data)
+                    result[item] = data['features'][0]['attributes']['value']
+            except (KeyError, DiscordLink.DoesNotExist):
+                pass
+        await ctx.send(
+            f'Total confirmed: {result["corona"]}\n'
+            f'Total deaths: {result["corona_deaths"]}\n'
+            f'Total recovered: {result["corona_recovered"]}'
+        )
 
 
 def setup(bot):
