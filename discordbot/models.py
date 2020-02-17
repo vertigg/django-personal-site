@@ -1,4 +1,6 @@
+import json
 import uuid
+from urllib.parse import urlencode
 
 from discord import Colour, Embed
 from django.contrib.auth.models import User
@@ -278,6 +280,102 @@ class MarkovText(models.Model):
 
     def __str__(self):
         return f'<Markov Text Object: {self.key}>'
+
+
+class CoronaReportManager(models.Manager):
+    def previous_report(self):
+        try:
+            return self.get_queryset()[1]
+        except (IndexError, ValueError):
+            return None
+
+
+class CoronaReport(models.Model):
+    REPORT_FIELDS = ['confirmed', 'recovered', 'deaths']
+    API_URL = 'https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/'
+    API_ROOT = 'rest/services/ncov_cases/FeatureServer/1/query?'
+
+    confirmed = models.IntegerField()
+    recovered = models.IntegerField()
+    deaths = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now=True)
+    objects = CoronaReportManager()
+
+    class Meta:
+        ordering = ('-timestamp',)
+
+    @classmethod
+    def get_api_url(cls):
+        return cls.API_URL + cls.API_ROOT + cls.query_data()
+
+    @classmethod
+    def query_data(cls):
+        return urlencode({
+            'outStatistics': [{
+                "statisticType": "sum",
+                "onStatisticField": field.capitalize(),
+                "outStatisticFieldName": field} for field in cls.REPORT_FIELDS],
+            'f': 'pjson'
+        })
+
+    @property
+    def header(self):
+        return (f'**Corona report for '
+                f'{self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}**\n')
+
+    @property
+    def default_report(self):
+        report_fields = [f'Total {field.capitalize()}: {getattr(self, field)}'
+                         for field in self.REPORT_FIELDS]
+        return '\n'.join([self.header, *report_fields])
+
+    @classmethod
+    def generate_report(cls, instance=None, other=None) -> str:
+        """Calculates difference with previous report, either automatically
+        or by sending previous report manually
+
+        Args:
+            instance (CoronaReport, optional): First instance of CoronaReport
+            other (CoronaReport, optional): Another instance of CoronaReport
+            Defaults to None.
+        Returns:
+            Formatted message for Discord chat
+        """
+        if not instance:
+            instance = cls.objects.first()
+            if not instance:
+                return 'Not enough data gathered. Please try again in 15 minutes'
+
+        if not other:
+            other = cls.objects.previous_report()
+            # If no previous report was found - send normal message
+            if not other:
+                return instance.default_report
+
+        if not isinstance(other, CoronaReport):
+            raise Exception(
+                f'Can not calculate difference between {instance} '
+                f'and {other}'
+            )
+        if other.timestamp >= instance.timestamp:
+            raise Exception(
+                f'Instance timestamp should be greater than {other} timestamp'
+            )
+
+        report_strings = []
+        for field in cls.REPORT_FIELDS:
+            field_string = ''
+            old_value = getattr(other, field)
+            new_value = getattr(instance, field)
+            diff = new_value - old_value
+            field_string += f'Total {field.capitalize()}: {new_value}'
+            if diff != 0:
+                field_string += f' ({"+" if diff > 0 else "-"}{diff})'
+            report_strings.append(field_string)
+        return '\n'.join([instance.header, *report_strings])
+
+    def __str__(self):
+        return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'
 
 
 @receiver(post_save, sender=User)

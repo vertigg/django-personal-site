@@ -19,8 +19,8 @@ def forwards(apps, schema_editor):
 def backwards(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     link = apps.get_model('discordbot', 'DiscordLink')
-    link.objects.filter(key='corona_deaths').delete()
-    link.objects.filter(key='corona_recovered').delete()
+    link.objects.using(db_alias).filter(key='corona_deaths').delete()
+    link.objects.using(db_alias).filter(key='corona_recovered').delete()
 
 
 class Migration(migrations.Migration):

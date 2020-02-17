@@ -8,7 +8,9 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
+from discordbot.serializers import CoronaReportSerializer
+from discordbot.models import (CoronaReport, DiscordLink, DiscordSettings,
+                               DiscordUser, Gachi)
 
 from .utils.checks import is_youtube_link, mod_command
 from .utils.db import get_random_entry, update_display_names
@@ -157,21 +159,7 @@ class General(commands.Cog):
 
     @commands.command(aliases=['korona', 'ncov'])
     async def corona(self, ctx):
-        result = dict.fromkeys(['corona', 'corona_deaths', 'corona_recovered'], 'Not available')
-        for item in result.keys():
-            url = self.get_link(item).url
-            try:
-                async with self.session.get(url) as response:
-                    data = await response.read()
-                    data = json.loads(data)
-                    result[item] = data['features'][0]['attributes']['value']
-            except (KeyError, DiscordLink.DoesNotExist):
-                pass
-        await ctx.send(
-            f'Total confirmed: {result["corona"]}\n'
-            f'Total deaths: {result["corona_deaths"]}\n'
-            f'Total recovered: {result["corona_recovered"]}'
-        )
+        await ctx.send(CoronaReport.generate_report())
 
 
 def setup(bot):

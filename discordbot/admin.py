@@ -6,9 +6,9 @@ from django.forms import Textarea, TextInput
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import truncatechars
 
-from discordbot.models import (
-    Counter, CounterGroup, DiscordLink, DiscordSettings, DiscordUser, Gachi,
-    MarkovText, WFAlert, Wisdom)
+from discordbot.models import (CoronaReport, Counter, CounterGroup,
+                               DiscordLink, DiscordSettings, DiscordUser,
+                               Gachi, MarkovText, WFAlert, Wisdom)
 
 
 @admin.register(MarkovText)
@@ -94,3 +94,4 @@ class GachiAdmin(admin.ModelAdmin):
 
 
 admin.site.register(WFAlert)
+admin.site.register(CoronaReport)
