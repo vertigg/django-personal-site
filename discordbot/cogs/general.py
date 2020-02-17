@@ -159,7 +159,7 @@ class General(commands.Cog):
 
     @commands.command(aliases=['korona', 'ncov'])
     async def corona(self, ctx):
-        await ctx.send(CoronaReport.generate_report())
+        await ctx.send(embed=CoronaReport.generate_embed_report())
 
 
 def setup(bot):

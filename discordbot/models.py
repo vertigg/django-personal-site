@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import timedelta
 from urllib.parse import urlencode
 
 from discord import Colour, Embed
@@ -9,6 +10,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -283,9 +285,12 @@ class MarkovText(models.Model):
 
 
 class CoronaReportManager(models.Manager):
-    def previous_report(self):
+    def previous_report(self, instance_id):
         try:
-            return self.get_queryset()[1]
+            return (self.get_queryset()
+                    .filter(timestamp__gte=timezone.now() - timedelta(days=1))
+                    .exclude(id=instance_id)
+                    .last())
         except (IndexError, ValueError):
             return None
 
@@ -320,17 +325,21 @@ class CoronaReport(models.Model):
 
     @property
     def header(self):
-        return (f'**Corona report for '
+        return (f'**Corona report from '
                 f'{self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}**\n')
 
     @property
-    def default_report(self):
+    def default_report(self) -> Embed:
         report_fields = [f'Total {field.capitalize()}: {getattr(self, field)}'
                          for field in self.REPORT_FIELDS]
-        return '\n'.join([self.header, *report_fields])
+        return Embed(
+            title=self.header,
+            colour=Colour(0xff0074),
+            description='\n'.join(report_fields),
+        )
 
     @classmethod
-    def generate_report(cls, instance=None, other=None) -> str:
+    def generate_embed_report(cls, instance=None, other=None) -> Embed:
         """Calculates difference with previous report, either automatically
         or by sending previous report manually
 
@@ -347,7 +356,7 @@ class CoronaReport(models.Model):
                 return 'Not enough data gathered. Please try again in 15 minutes'
 
         if not other:
-            other = cls.objects.previous_report()
+            other = cls.objects.previous_report(instance.id)
             # If no previous report was found - send normal message
             if not other:
                 return instance.default_report
@@ -372,7 +381,23 @@ class CoronaReport(models.Model):
             if diff != 0:
                 field_string += f' ({"+" if diff > 0 else "-"}{diff})'
             report_strings.append(field_string)
-        return '\n'.join([instance.header, *report_strings])
+        footer = f'Compared to report from {other.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'
+        embed = Embed(
+            title=instance.header,
+            colour=Colour(0xff0074),
+            description='\n'.join(report_strings),
+            footer=footer
+        )
+        embed.set_footer(text=footer)
+        return embed
+
+    def to_embed(self):
+        return Embed(
+            title=f'{self.title}',
+            colour=Colour(0xff0074),
+            description='\n'.join([x.to_message()
+                                   for x in self.counters.all()])
+        )
 
     def __str__(self):
         return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'
