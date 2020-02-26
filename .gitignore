@@ -290,3 +290,4 @@ data.db
 app/
 apexmap/
 /static/
+/misc/

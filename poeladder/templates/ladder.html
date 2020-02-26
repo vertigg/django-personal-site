@@ -27,12 +27,21 @@
 {% block content %}
 
 {% if ladder_main %}
-<div class="d-flex h-100 justify-content-center flex-column" style="margin-top:150px">
-    <div class='mx-auto' style="min-width:110px;"><img src="{% static 'poeladder/img/logo.png' %}"> </div>
-    <h6>
-        <div id='timer' class='mx-auto text-center'></div>
-    </h6>
+<section class="fog">
+    <div class="absolute-bg"></div>
+    <div class="fog-container">
+        <div class="fog-img fog-img-first"></div>
+        <div class="fog-img fog-img-second"></div>
+        <div class="title">
+            
+            <div><img src="{% static 'poeladder/img/logo.png' %}"> </div>
+            <h6>
+                <div id='timer'></div>
+            </h6>
+        </div>
 </div>
+</section>
+
 {% endif %}
 
 {% if search %}{% include "search.html"%}{% endif %}
