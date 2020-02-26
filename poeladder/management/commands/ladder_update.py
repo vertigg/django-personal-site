@@ -11,7 +11,7 @@ from django.utils import timezone
 from discordbot.models import DiscordUser
 from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 
-from .utils import detect_skills
+from .utils import detect_skills, requests_retry_session
 
 
 class LadderUpdateController:
@@ -22,7 +22,7 @@ class LadderUpdateController:
 
     def __init__(self):
         self.logger = self._setup_logger()
-        self.session = requests.session()
+        self.session = requests_retry_session()
         self.cookies = {'POESESSID': settings.POESESSID}
         self.leagues, self.league_names = self._get_local_leagues_info()
         self.profiles = {x[0]: x[1] for x in DiscordUser.objects
@@ -94,7 +94,9 @@ class LadderUpdateController:
             # Check if league's end date changed
             elif self._parse_league_datetime(league['endAt']) != self.leagues[league_name]['end_date']:
                 PoeLeague.objects.filter(name=league_name).update(end_date=league['endAt'])
-                self.logger.info(f'{league_name.capitalize()} league has been updated with new end date {league["endAt"]}')
+                self.logger.info(
+                    f'{league_name.capitalize()} league has '
+                    f'been updated with new end date {league["endAt"]}')
 
         if 'Void' not in self.league_names:
             self.logger.info('New league: Void')
