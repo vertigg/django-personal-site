@@ -6,7 +6,7 @@ from poeladder.models import PoeCharacter
 from poeladder.serializers import CharacterSerializer
 
 
-class CharacterViewSet(viewsets.ModelViewSet):
+class CharacterViewSet(viewsets.ReadOnlyModelViewSet):
     """Return a list of all existing characters in ladder"""
     queryset = PoeCharacter.objects.all()
     serializer_class = CharacterSerializer
