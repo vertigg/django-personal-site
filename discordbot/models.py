@@ -379,7 +379,9 @@ class CoronaReport(models.Model):
             diff = new_value - old_value
             field_string += f'Total {field.capitalize()}: {new_value}'
             if diff != 0:
-                field_string += f' ({"+" if diff > 0 else "-"}{diff})'
+                proc_diff = round((new_value - old_value) / old_value, 2)
+                sign = '+' if diff > 0 else '-'
+                field_string += f' ({sign}{diff})({sign}{proc_diff}%)'
             report_strings.append(field_string)
         footer = f'Compared to report from {other.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'
         embed = Embed(
