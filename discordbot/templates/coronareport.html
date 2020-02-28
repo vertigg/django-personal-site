@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>CoronaReport Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  </head>
+  <body>
+    <main>
+    <div class="container-fluid">
+	  <!-- Highcharts display -->
+	  <div class="border" id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+	  <!-- Table data -->
+	</main>
+      </div>
+    </div>
+	
+    <!-- Chartjs libraries -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    
+    <script>
+      _categories = {{categories|safe}};
+      _deaths = {{deaths|safe}};
+      _recovered = {{recovered|safe}};
+      _confirmed = {{confirmed|safe}};
+      
+      Highcharts.chart('container', {
+	  chart: {
+      zoomType: 'x'
+	  },
+	  title: {
+      text: 'Corona Virus Report Data'
+	  },
+	  subtitle: {
+      text: 'monkaS'
+	  },
+	  xAxis: {
+      categories:_categories,
+      crosshair: true,
+      type: 'datetime'
+	  },
+	  yAxis: {
+              min: 0,
+              title: {
+		            text: 'People count'
+              }
+	  },
+	  tooltip: {
+              headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+              pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+		  '<td style="padding:0"><b>{point.y} people</b></td></tr>',
+              footerFormat: '</table>',
+              shared: true,
+              useHTML: true
+	  },
+	  plotOptions: {
+              column: {
+		  pointPadding: 0.2,
+		  borderWidth: 0
+        }
+	  },
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    },
+	  series: [{
+              name: 'Deaths',
+              data: _deaths
+	      
+	  },
+    {
+      name: 'Recovered',
+      data: _recovered
+    },
+    {
+      name: 'Confirmed',
+      data: _confirmed
+    },
+    ]
+      });
+      </script>
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    
+  </body>
+</html>
