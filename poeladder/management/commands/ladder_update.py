@@ -5,10 +5,10 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from discordbot.models import DiscordUser
+from main.management.commands.utils import AdvancedCommand
 from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 
 from .utils import detect_skills, requests_retry_session
@@ -20,8 +20,8 @@ class LadderUpdateController:
     POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
     POE_INFO = 'https://www.pathofexile.com/character-window/get-items?character={0}&accountName={1}'
 
-    def __init__(self):
-        self.logger = self._setup_logger()
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
         self.session = requests_retry_session()
         self.cookies = {'POESESSID': settings.POESESSID}
         self.leagues, self.league_names = self._get_local_leagues_info()
@@ -34,20 +34,6 @@ class LadderUpdateController:
                    for x in PoeLeague.objects.values_list('name', 'id', 'end_date')}
         league_names = set(leagues.keys())
         return leagues, league_names
-
-    def _setup_logger(self):
-        formatter = logging.Formatter(
-            '%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-        file_handler = logging.FileHandler('logs/ladder_update.log')
-        file_handler.setFormatter(formatter)
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-
-        logger = logging.getLogger(self.__class__.__name__)
-        logger.setLevel(logging.INFO)
-        logger.addHandler(file_handler)
-        logger.addHandler(stream_handler)
-        return logger
 
     def get_main_skills(self, character, account):
         r = self.session.get(self.POE_INFO.format(
@@ -228,19 +214,19 @@ class LadderUpdateController:
 
     def run(self):
         self.logger.info(datetime.now())
-        start_time = time.time()
         self.update_leagues()
         self.update_characters()
         self.update_ladder_info()
-        self.logger.info(f'Done in {round(time.time() - start_time, 2)} seconds')
 
         if settings.DEBUG:
             from django.db import connection
             self.logger.info(f'Total db queries: {len(connection.queries)}')
 
 
-class Command(BaseCommand):
+class Command(AdvancedCommand):
     help = 'Updates PoE ladder'
 
     def handle(self, *args, **options):
-        LadderUpdateController().run()
+        self.add_file_handler('logs/ladder_update.log')
+        LadderUpdateController(self.logger).run()
+        self.log_execution_time()

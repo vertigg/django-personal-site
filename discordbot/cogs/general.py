@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 import re
@@ -8,7 +7,6 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from discordbot.serializers import CoronaReportSerializer
 from discordbot.models import (CoronaReport, DiscordLink, DiscordSettings,
                                DiscordUser, Gachi)
 
@@ -67,11 +65,6 @@ class General(commands.Cog):
     async def shles(self, ctx):
         """SHLES"""
         await ctx.send(self.get_link('shles'))
-
-    @commands.command()
-    async def ip(self, ctx):
-        """Напомните ип плс"""
-        await ctx.send(str(DiscordSettings.objects.get(key='ip')) + ' <:OSsloth:230773934197440522>')
 
     @commands.command(hidden=True)
     async def low(self, ctx):

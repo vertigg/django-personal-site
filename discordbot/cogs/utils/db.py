@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime
+from itertools import chain
 
 from django.core.exceptions import FieldError
-from itertools import chain
+
 from discordbot.models import (DiscordSettings, DiscordUser,
                                create_discord_token)
 
