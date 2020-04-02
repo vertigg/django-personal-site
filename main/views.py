@@ -12,6 +12,7 @@ from discordbot.forms import WFSettingsForm
 from discordbot.models import DiscordUser
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
                         MainAuthenticationForm, MainUserCreationForm)
+from main.utils import BLACKLIST_URL, generate_blacklist
 from poeladder.models import PoeCharacter
 
 
@@ -98,3 +99,13 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                 wf_form.save()
             messages.add_message(request, messages.SUCCESS, 'Profile settings has been updated')
         return redirect('main:profile')
+
+
+class GenerateBlacklistView(RedirectView):
+
+    def get(self, request, *args, **kwargs):
+        generate_blacklist()
+        return super().get(request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        return BLACKLIST_URL

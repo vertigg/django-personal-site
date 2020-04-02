@@ -1,6 +1,8 @@
 from django.urls import path
-from main.views import (HomeView, MainLoginView, MainLogoutView, SignupView,
-                        UnlinkDiscordProfile, ProfileView)
+
+from main.views import (GenerateBlacklistView, HomeView, MainLoginView,
+                        MainLogoutView, ProfileView, SignupView,
+                        UnlinkDiscordProfile)
 
 app_name = 'main'
 
@@ -11,4 +13,5 @@ urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('unlink/', UnlinkDiscordProfile.as_view(), name='unlink'),
+    path('generate_blacklist/', GenerateBlacklistView.as_view(), name='ips')
 ]
