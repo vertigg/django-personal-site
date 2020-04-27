@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 import discord
@@ -48,6 +49,7 @@ def load_cogs():
 if __name__ == '__main__':
     from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
     logger.info('Script started')
+    token = TEST_TOKEN if os.getenv('DISCORD_TEST', None) else BOT_TOKEN
     load_cogs()
     logger.info(sys.version)
-    bot.run(BOT_TOKEN, reconnect=True)
+    bot.run(token, reconnect=True)

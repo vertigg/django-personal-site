@@ -4,8 +4,8 @@ import sys
 import django
 from django.apps import AppConfig
 
-BOT_PATH = '/home/vertigo/homesite' if os.name != 'nt' else \
-    "C:\\Users\\EpicWin\\Desktop\\HomeSite"
+BOT_PATH = os.getenv('BOT_PATH', '/home/vertigo/homesite') if os.name != 'nt' \
+    else "C:\\Users\\EpicWin\\Desktop\\HomeSite"
 
 
 def setup_django():

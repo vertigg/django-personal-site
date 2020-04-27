@@ -1,6 +1,8 @@
-FROM python:3-slim-stretch
+FROM mcr.microsoft.com/vscode/devcontainers/python:3.7
 
 ENV PYTHONUNBUFFERED 1
+RUN locale-gen C.UTF-8 || true
+ENV LANG=C.UTF-8
 
 RUN apt update \
     && apt install -y \
@@ -8,6 +10,8 @@ RUN apt update \
     gcc \
     python-dev \
     && mkdir /app
+
+RUN git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
 
 WORKDIR /app
 
