@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/python:3.7
+FROM python:3.7.7-buster
 
 ENV PYTHONUNBUFFERED 1
 RUN locale-gen C.UTF-8 || true

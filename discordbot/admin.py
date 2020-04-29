@@ -1,9 +1,10 @@
+import io
 from datetime import datetime
 
 from django.contrib import admin, messages
 from django.db import models
 from django.forms import Textarea, TextInput
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.defaultfilters import truncatechars
 
 from discordbot.models import (CoronaReport, Counter, CounterGroup,
@@ -23,10 +24,17 @@ class MarkovTextAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         if '_clearobject' in request.POST:
             obj.text = ''
-            obj.last_update = datetime(1970, 1, 1)
+            obj.last_update = None
             obj.save()
             messages.add_message(request, messages.INFO, 'Object has been cleared')
             return HttpResponseRedirect('.')
+        if '_download' in request.POST:
+            buffer = io.StringIO()
+            buffer.write(obj.text)
+            buffer.seek(0)
+            response = HttpResponse(buffer, content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename={obj.key}.txt'
+            return response
         return super().response_change(request, obj)
 
 

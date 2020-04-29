@@ -278,7 +278,7 @@ class MixEvent(models.Model):
 class MarkovText(models.Model):
     text = models.TextField()
     last_update = models.DateTimeField(blank=True, null=True, auto_now=False)
-    key = models.CharField(max_length=200, help_text='Unique identifier', unique=True)
+    key = models.IntegerField(help_text='Discord Channel ID', unique=True)
 
     def __str__(self):
         return f'<Markov Text Object: {self.key}>'
