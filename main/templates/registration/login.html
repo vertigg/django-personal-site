@@ -10,15 +10,15 @@
 <div class="container login-centered col-sm">
     <div class="display-6 text-center">
         <img style="width: 200px" src="{% static 'main/image/monka.png'%}">
-        <h1 >You are already logged in</h1>
+        <h1>You are already logged in</h1>
     </div>
-    </div>
+</div>
 {% else %}
 <div class="container login-centered col-sm-3 col-xs-6" style="min-width:300px;">
     <h1 class="display-4 text-center">Login</h1>
     <form method="post" action="{% url 'main:login' %}">
         {% csrf_token %}
-        
+
         <div class="form-group">
             <td>Username</td>
             <td>{{ form.username }}</td>
@@ -33,9 +33,10 @@
         </div>
     </form>
     <div class="form-group has-errors text-muted small">
-            Don't have an account? Make one <a href="{% url 'main:signup' %}">here</a>
-        </div>    <div class="form-group has-errors text-muted small">
-        </div>
+        Don't have an account? Make one <a href="{% url 'main:signup' %}?{{ request.GET.urlencode }}">here</a>
+    </div>
+    <div class="form-group has-errors text-muted small">
+    </div>
     {% if form.errors %}
     <div class="form-group has-errors text-danger small">
         <p>Your username and password didn't match. Please try again.</p>

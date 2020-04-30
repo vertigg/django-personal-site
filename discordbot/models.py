@@ -1,15 +1,17 @@
-import json
+import urllib.parse as urllib
 import uuid
 from datetime import timedelta
 from urllib.parse import urlencode
 
 from discord import Colour, Embed
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -248,6 +250,22 @@ class DiscordUser(models.Model):
     def __str__(self):
         return self.display_name
 
+    def generate_new_token(self):
+        while True:
+            _new_token = uuid.uuid4().hex[:20].upper()
+            if not (DiscordUser.objects
+                    .filter(token=_new_token)
+                    .exists()):
+                break
+        self.token = _new_token
+        self.save(update_fields=['token'])
+
+    def get_activation_url(self):
+        self.generate_new_token()
+        params = urllib.urlencode({'token': self.token})
+        url = urllib.urljoin(settings.DEFAULT_DOMAIN, reverse('main:profile'))
+        return f'{url}?{params}'
+
 
 class Wisdom(models.Model):
     id = models.IntegerField(blank=True, null=False, primary_key=True)
@@ -409,7 +427,3 @@ class CoronaReport(models.Model):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'discorduser'):
         instance.discorduser.save()
-
-
-def create_discord_token():
-    return uuid.uuid4().hex[:20].upper()

@@ -4,8 +4,7 @@ from itertools import chain
 
 from django.core.exceptions import FieldError
 
-from discordbot.models import (DiscordSettings, DiscordUser,
-                               create_discord_token)
+from discordbot.models import DiscordSettings, DiscordUser
 
 logger = logging.getLogger("botLogger.db")
 
@@ -26,7 +25,6 @@ def update_display_names(servers):
         if discord_id not in cache:
             DiscordUser.objects.create(id=discord_id,
                                        display_name=member.display_name,
-                                       token=create_discord_token(),
                                        avatar_url=member.avatar_url)
         elif member.display_name != cache[discord_id]:
             (DiscordUser.objects

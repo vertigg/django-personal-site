@@ -16,6 +16,8 @@ load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
+DEFAULT_DOMAIN = 'https://epicvertigo.xyz'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 WARFRAME_KEY = os.getenv('WARFRAME_KEY')
@@ -41,8 +43,6 @@ if not DEBUG:
 LOGIN_REDIRECT_URL = 'main:home'
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') or INTERNAL_IPS
-SITE_HOST = ALLOWED_HOSTS[0]
-
 # Application definition
 
 INSTALLED_APPS = [

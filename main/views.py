@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (FormView, LoginView, LogoutView,
                                        TemplateView)
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import RedirectView
@@ -33,6 +34,11 @@ class SignupView(FormView):
     template_name = 'registration/signup.html'
     success_url = reverse_lazy('main:home')
 
+    def get_success_url(self):
+        if self.request.GET.get('next'):
+            return self.request.GET.get('next')
+        return super().get_success_url()
+
     def form_valid(self, form):
         form.save()
         username = form.cleaned_data.get('username')
@@ -56,6 +62,17 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'profile.html'
     login_url = '/login/'
 
+    def _link_discord_user(self, request, request_method='POST'):
+        form = DiscordTokenForm(getattr(request, request_method))
+        if form.is_valid():
+            token = form.cleaned_data.get('token')
+            try:
+                discord_user = DiscordUser.objects.get(token=token)
+                discord_user.user = request.user
+                request.user.save()
+            except ObjectDoesNotExist:
+                messages.add_message(request, messages.ERROR, 'Invalid token')
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         context['is_linked'] = hasattr(request.user, 'discorduser')
@@ -67,21 +84,16 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                     instance=request.user.discorduser.wf_settings),
             })
         else:
+            if request.GET.get('token'):
+                self._link_discord_user(request, request_method='GET')
+                return HttpResponseRedirect(reverse_lazy('main:profile'))
             context.update({'token_form': DiscordTokenForm})
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         user = request.user
         if 'token_link' in request.POST:
-            form = DiscordTokenForm(request.POST)
-            if form.is_valid():
-                token = form.cleaned_data.get('token')
-                try:
-                    discord_user = DiscordUser.objects.get(token=token)
-                    discord_user.user = request.user
-                    request.user.save()
-                except ObjectDoesNotExist:
-                    messages.add_message(request, messages.ERROR, 'Invalid token')
+            self._link_discord_user(request)
         if 'profile_update' in request.POST:
             profile_form = DiscordProfileForm(
                 request.POST, user=user, instance=user.discorduser)

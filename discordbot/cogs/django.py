@@ -4,7 +4,7 @@ import subprocess
 
 from discord.ext import commands
 
-from discordbot.models import DiscordUser, create_discord_token
+from discordbot.models import DiscordUser
 
 from .utils.checks import admin_command, mod_command
 from .utils.db import update_display_names
@@ -20,9 +20,24 @@ class DjangoDiscord(commands.Cog):
 
     @commands.command()
     async def register(self, ctx):
-        """Get your website token!"""
-        token = self.generate_token(ctx.message.author.id)
-        await ctx.author.send(token)
+        """
+        Command that creates activation link for current DiscordUser. User will be
+        created if it doesn't exist in database. If user exists, this will
+        regenerate token
+        """
+        discord_user = DiscordUser.objects.filter(id=ctx.message.author.id).first()
+        if not discord_user:
+            discord_user = DiscordUser.objects.create(
+                id=ctx.message.author.id,
+                display_name=ctx.message.author.display_name,
+                avatar_url=ctx.message.author.avatar_url
+            )
+        url = discord_user.get_activation_url()
+        message = ('Registration complete. You can finish user profile creation '
+                   f'by following this url: {url}. If link does not work for '
+                   'some reason you can always finish registration manually by '
+                   f'typing token below into token form ```{discord_user.token}```')
+        await ctx.author.send(message)
 
     @commands.command(hidden=True)
     @admin_command
@@ -58,13 +73,6 @@ class DjangoDiscord(commands.Cog):
                 await ctx.send(exc)
             finally:
                 self.lock = False
-
-    @staticmethod
-    def generate_token(discord_id: str):
-        """Generate token for registration"""
-        new_token = create_discord_token()
-        DiscordUser.objects.filter(id=discord_id).update(token=new_token)
-        return new_token
 
 
 def setup(bot):
