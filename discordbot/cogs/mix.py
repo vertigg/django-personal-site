@@ -3,10 +3,10 @@ from collections import deque
 from datetime import datetime
 
 from discord.ext import commands
+from django.conf import settings
 from imgurpython import ImgurClient
 
-from discordbot.credentials import IMGUR
-from discordbot.models import DiscordPicture, Wisdom, MixEvent, DiscordUser
+from discordbot.models import DiscordPicture, DiscordUser, MixEvent, Wisdom
 
 from .utils.checks import admin_command, compare_timestamps, mod_command
 from .utils.db import get_random_entry
@@ -93,8 +93,8 @@ class Mix(commands.Cog):
             return self.get_random_picture()
 
     def get_album(self):
-        client = ImgurClient(IMGUR['id'], IMGUR['secret'])
-        data = client.get_album_images(IMGUR['album'])
+        client = ImgurClient(settings.IMGUR_ID, settings.IMGUR_SECRET)
+        data = client.get_album_images(settings.IMGUR_ALBUM)
         if not data:
             return None
         pictures = {x.link: x.datetime for x in data}

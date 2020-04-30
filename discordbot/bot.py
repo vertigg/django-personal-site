@@ -47,9 +47,11 @@ def load_cogs():
 
 
 if __name__ == '__main__':
-    from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
+    # from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
+    from django.conf import settings
     logger.info('Script started')
-    token = TEST_TOKEN if os.getenv('DISCORD_TEST', None) else BOT_TOKEN
+    token = settings.DISCORD_TEST_TOKEN if os.getenv('DISCORD_TEST', None) \
+        else settings.DISCORD_BOT_TOKEN
     load_cogs()
     logger.info(sys.version)
     bot.run(token, reconnect=True)

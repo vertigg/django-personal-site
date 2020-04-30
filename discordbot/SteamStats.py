@@ -1,12 +1,17 @@
-import json
-import requests
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import time
 import argparse
+import json
 import logging
-from credentials import STEAM_API_KEY
+import time
+from os import getenv
+
+import gspread
+import requests
+from dotenv import load_dotenv
+from oauth2client.service_account import ServiceAccountCredentials
+
 start_time = time.time()
+load_dotenv()
+STEAM_API_KEY = getenv('STEAM_API_KEY')
 
 logger = logging.getLogger('stats')
 logger.setLevel(logging.DEBUG)
@@ -65,7 +70,7 @@ def openGameSettingsFile():
     """Open GameSettings file for given GAMEID"""
     global gameSettings
     try:
-        with open('discordbot/StatsFiles/'+args['GAMEID']+'.json', 'r', encoding='utf-8') as f:
+        with open('discordbot/StatsFiles/' + args['GAMEID'] + '.json', 'r', encoding='utf-8') as f:
             gameSettings = json.load(f)
         if not 'selfCreated' in gameSettings or not gameSettings['selfCreated']:
             logger.warning('Settings file is wrong or corrupted')
@@ -77,7 +82,7 @@ def openGameSettingsFile():
 
 
 def saveGameSettingsFile(gameSettings):
-    with open('discordbot/StatsFiles/'+args['GAMEID']+'.json', 'w+', encoding='utf-8') as f:
+    with open('discordbot/StatsFiles/' + args['GAMEID'] + '.json', 'w+', encoding='utf-8') as f:
         f.write(json.dumps(gameSettings, sort_keys=True,
                            indent=4, ensure_ascii=False))
     logger.info('Game Settings saved')
@@ -109,10 +114,10 @@ def createGameSettingsFile():
             stats_index += 1
             users[player]['SteamID'] = current['SteamID']
     statsBlock['Name'] = convertDict[str(index)]
-    statsBlock['Done'] = convertDict[str(index+1)]
-    statsBlock['Undone'] = convertDict[str(index+2)]
-    statsBlock['Percent'] = convertDict[str(index+3)]
-    statsBlock['Total'] = convertDict[str(index+4)]
+    statsBlock['Done'] = convertDict[str(index + 1)]
+    statsBlock['Undone'] = convertDict[str(index + 2)]
+    statsBlock['Percent'] = convertDict[str(index + 3)]
+    statsBlock['Total'] = convertDict[str(index + 4)]
     gameSettings['stats'] = statsBlock
     gameSettings['users'] = users
     gameSettings['firstRow'] = len(gameSettings['users']) + 1
@@ -180,7 +185,7 @@ def fixABC(letter, data, content):
     """Update full column or cell_range for given letter"""
     count = 0
     cell_range = ws.range('{0}{2}:{0}{1}'.format(letter, str(
-        len(data)+gameSettings['achOffset']), gameSettings['firstRow']))
+        len(data) + gameSettings['achOffset']), gameSettings['firstRow']))
     if letter == 'C':
         for cell in cell_range:
             cell.value = f"=IMAGE(\"{data[count][content]}\",2)"
@@ -203,7 +208,7 @@ def fastCheckABC(compareList, letter, data, content):
         try:
             if compareList[i] != data[i][content]:
                 ws.update_acell('{0}{1}'.format(letter, str(
-                    i+gameSettings['firstRow'])), data[i][content])
+                    i + gameSettings['firstRow'])), data[i][content])
                 logger.info('{0} {1} changed'.format(
                     content.capitalize(), data[i][content]))
                 changes += 1
@@ -239,9 +244,9 @@ def playerCheck():
             logger.info('Fixing statistics block for {}'.format(player))
             stats = gameSettings['stats']
             ws.update_acell('{0}{1}'.format(stats['Done'], current['statsIndex']), '=COUNTIF({0}{1}:{0}{2}, "1")'.format(
-                current['letter'], gameSettings['firstRow'], len(master)+gameSettings['achOffset']))
+                current['letter'], gameSettings['firstRow'], len(master) + gameSettings['achOffset']))
             ws.update_acell('{0}{1}'.format(stats['Undone'], current['statsIndex']), '=COUNTIF({0}{1}:{0}{2}, "0")'.format(
-                current['letter'], gameSettings['firstRow'], len(master)+gameSettings['achOffset']))
+                current['letter'], gameSettings['firstRow'], len(master) + gameSettings['achOffset']))
             ws.update_acell('{0}{1}'.format(stats['Percent'], current['statsIndex']),
                             '={2}{0}/{1}'.format(current['statsIndex'], len(master), stats['Done']))
             ws.update_acell('{0}1'.format(stats['Total']), '=SUM({2}1:{2}{0})/({1}*{0})'.format(
@@ -251,7 +256,7 @@ def playerCheck():
             for i in range(len(listPlayer)):
                 if int(listPlayer[i]) != achievements[i]['achieved']:
                     ws.update_acell('{0}{1}'.format(current['letter'], str(
-                        i+gameSettings['firstRow'])), achievements[i]['achieved'])
+                        i + gameSettings['firstRow'])), achievements[i]['achieved'])
                     logger.info('{0} achieved {1}'.format(
                         player, master[i]['displayName']))
                     changes += 1
@@ -265,7 +270,7 @@ def playerFullColumn(current, achievements, player):
     """Update full column or cell_range for player"""
     count = 0
     cell_range = ws.range('{0}{2}:{0}{1}'.format(current['letter'], str(
-        len(achievements)+gameSettings['achOffset']), gameSettings['firstRow']))
+        len(achievements) + gameSettings['achOffset']), gameSettings['firstRow']))
     for cell in cell_range:
         cell.value = achievements[count]['achieved']
         count += 1

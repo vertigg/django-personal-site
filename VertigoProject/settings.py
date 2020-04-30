@@ -21,6 +21,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 WARFRAME_KEY = os.getenv('WARFRAME_KEY')
 POESESSID = os.getenv('POESESSID')
 
+# Discord bot settings
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+DISCORD_TEST_TOKEN = os.getenv('DISCORD_TEST_TOKEN')
+IMGUR_ID = os.getenv('IMGUR_ID')
+IMGUR_ALBUM = os.getenv('IMGUR_ALBUM')
+IMGUR_SECRET = os.getenv('IMGUR_SECRET')
+STEAM_API_KEY = os.getenv('STEAM_API_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
