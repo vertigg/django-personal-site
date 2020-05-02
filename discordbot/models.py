@@ -124,6 +124,19 @@ class WFSettings(models.Model, metaclass=WFSettingsMeta):
     class Meta:
         db_table = 'discord_wf_settings'
 
+    def reset_settings(self, commit=True):
+        """Sets all fields to false and saves instance"""
+        fields = [x.name for x in self._meta.fields if x.name != 'id']
+        for field in fields:
+            setattr(self, field, False)
+        if commit:
+            self.save()
+
+    def __str__(self):
+        if hasattr(self, 'discorduser'):
+            return f'Settings for {self.discorduser} ({self.id})'
+        return f'{self.id}'
+
 
 class Brawl(models.Model):
     name = models.TextField(blank=True, null=True)
