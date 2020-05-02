@@ -32,7 +32,7 @@ IMGUR_SECRET = os.getenv('IMGUR_SECRET')
 STEAM_API_KEY = os.getenv('STEAM_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.getenv('DJANGO_DEBUG', None))
 
 if not DEBUG:
     sentry_sdk.init(
