@@ -1,12 +1,11 @@
 import logging
-from collections import deque
 from datetime import datetime
 
 from discord.ext import commands
 from django.conf import settings
 from imgurpython import ImgurClient
 
-from discordbot.models import DiscordPicture, DiscordUser, MixEvent, Wisdom
+from discordbot.models import DiscordPicture, Wisdom
 
 from .utils.checks import admin_command, compare_timestamps, mod_command
 from .utils.db import get_random_entry
@@ -18,7 +17,6 @@ class Mix(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.wisdom_history = deque([], maxlen=5)
         self.imgur_update()
 
     @commands.command(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
@@ -27,20 +25,12 @@ class Mix(commands.Cog):
         if not ctx.invoked_subcommand:
             wisdom_obj = get_random_entry(Wisdom)
             pic_url = self.get_random_picture()
-            self.report_mix_event(ctx.message.author.id, wisdom_obj)
             if wisdom_obj is not None:
                 await ctx.send('{0}\n{1}'.format(wisdom_obj.text, pic_url))
 
-    def report_mix_event(self, user_id, wisdom):
-        try:
-            user = DiscordUser.objects.get(id=user_id)
-            MixEvent.objects.create(user=user, wisdom=wisdom)
-        except DiscordUser.DoesNotExists:
-            logger.error('Can not find user with id:{}'.format(user_id))
-
     @commands.group()
     async def hb(self, ctx):
-        """Нет слов"""
+        """Returns random picture from HB's Imgur album"""
         if not ctx.invoked_subcommand:
             await ctx.send(self.get_random_picture())
 
@@ -51,17 +41,16 @@ class Mix(commands.Cog):
 
     @commands.group()
     async def wisdom(self, ctx):
-        """Спиздануть мудрость клоунов"""
+        """Get random wisdom"""
         if not ctx.invoked_subcommand:
             wisdom_obj = get_random_entry(Wisdom)
             if wisdom_obj is not None:
-                self.wisdom_history.append(wisdom_obj)
                 await ctx.send(wisdom_obj.text)
 
     @wisdom.command()
     @mod_command
     async def add(self, ctx, *, text: str):
-        """Добавить новую мудрость клоунов"""
+        """Add new wisdom to database"""
         wisdom_text = text
         Wisdom.objects.create(
             text=wisdom_text,
@@ -98,10 +87,14 @@ class Mix(commands.Cog):
         if not data:
             return None
         pictures = {x.link: x.datetime for x in data}
-        logger.info('[{0}] Database has been updated with {1} pictures'
-                    .format(__name__, len(pictures)))
-        logger.info('[{0}] Client limits are {1}/12500'
-                    .format(__name__, client.credits['ClientRemaining']))
+        logger.info(
+            '[%s] Database has been updated with %d pictures',
+            __name__, len(pictures)
+        )
+        logger.info(
+            '[%s] Client limits are %s/12500',
+            __name__, client.credits['ClientRemaining']
+        )
         return pictures
 
     def imgur_update(self):
@@ -117,19 +110,6 @@ class Mix(commands.Cog):
             if key not in saved_piclist:
                 DiscordPicture.objects.create(url=key, date=value)
         return 'Database has been updated with {} pictures'.format(len(pictures))
-
-    def refresh_wisdom_history(self):
-        """Updates current lastwisdom deque if wisdom table changes
-
-        Returns:
-            str: Bot message
-        """
-        temp_ids = [x.id for x in self.wisdom_history]
-        self.wisdom_history.clear()
-        for item in Wisdom.objects.filter(id__in=temp_ids):
-            self.wisdom_history.append(item)
-        logger.info('Wisdom deque has been updated')
-        return "Wisdom history has been updated"
 
 
 def setup(bot):

@@ -295,17 +295,6 @@ class Wisdom(models.Model):
         return truncatechars(self.text, 50)
 
 
-class MixEvent(models.Model):
-    # TODO: Webpage with mix statistics
-    user = models.ForeignKey(
-        DiscordUser, on_delete=models.CASCADE, related_name='mix_events')
-    created_at = models.DateTimeField(auto_now_add=True)
-    wisdom = models.ForeignKey(Wisdom, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "<MixEvent: {}>".format(self.created_at)
-
-
 class MarkovText(models.Model):
     text = models.TextField()
     last_update = models.DateTimeField(blank=True, null=True, auto_now=False)
@@ -384,7 +373,7 @@ class CoronaReport(models.Model):
         if not instance:
             instance = cls.objects.first()
             if not instance:
-                return 'Not enough data gathered. Please try again in 15 minutes'
+                return 'Not enough data gathered. Please try again in an hour'
 
         if not other:
             other = cls.objects.previous_report(instance.id)
@@ -419,18 +408,9 @@ class CoronaReport(models.Model):
             title=instance.header,
             colour=Colour(0xff0074),
             description='\n'.join(report_strings),
-            footer=footer
         )
         embed.set_footer(text=footer)
         return embed
-
-    def to_embed(self):
-        return Embed(
-            title=f'{self.title}',
-            colour=Colour(0xff0074),
-            description='\n'.join([x.to_message()
-                                   for x in self.counters.all()])
-        )
 
     def __str__(self):
         return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'

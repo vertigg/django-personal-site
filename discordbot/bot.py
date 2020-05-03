@@ -41,7 +41,7 @@ def load_cogs():
             if "cogs." not in cog:
                 cog = "cogs." + cog
                 bot.load_extension(cog)
-                logger.info(f"{cog} loaded")
+                logger.info("%s loaded", cog)
         except (AttributeError, ImportError) as ex:
             logger.error("%s", ex)
 
