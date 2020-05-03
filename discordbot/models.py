@@ -276,7 +276,7 @@ class DiscordUser(models.Model):
     def get_activation_url(self):
         self.generate_new_token()
         params = urllib.urlencode({'token': self.token})
-        url = urllib.urljoin(settings.DEFAULT_DOMAIN, reverse('main:profile'))
+        url = urllib.urljoin(settings.DEFAULT_DOMAIN, reverse('main:discord_link'))
         return f'{url}?{params}'
 
 
