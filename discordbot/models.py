@@ -305,12 +305,13 @@ class MarkovText(models.Model):
 
 
 class CoronaReportManager(models.Manager):
-    def previous_report(self, instance_id):
+    def previous_report(self, instance_id, timestamp):
         try:
             return (self.get_queryset()
-                    .filter(timestamp__gte=timezone.now() - timedelta(days=1))
+                    .filter(timestamp__lte=timestamp)
                     .exclude(id=instance_id)
-                    .last())
+                    .order_by('-timestamp')
+                    .first())
         except (IndexError, ValueError):
             return None
 
@@ -343,30 +344,36 @@ class CoronaReport(models.Model):
             'f': 'pjson'
         })
 
-    @property
-    def header(self):
-        return (f'**Corona report from '
-                f'{self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}**\n')
-
-    @property
-    def default_report(self) -> Embed:
-        report_fields = [f'Total {field.capitalize()}: {getattr(self, field)}'
-                         for field in self.REPORT_FIELDS]
-        return Embed(
-            title=self.header,
-            colour=Colour(0xff0074),
-            description='\n'.join(report_fields),
-        )
-
     @classmethod
-    def _generate_embed_footer(cls, other):
-        url = urllib.urljoin(
-            settings.DEFAULT_DOMAIN, reverse('discordbot:corona_report')
-        )
+    def get_footer(cls, other) -> str:
         return (
             f'Compared to report from '
-            f'{other.timestamp.strftime("%Y-%m-%d %H-%M-%S")}.\n'
-            f'Detailed chart {url}'
+            f'{other.timestamp.strftime("%Y-%m-%d %H-%M")}.\n'
+        )
+
+    @property
+    def header(self) -> str:
+        return (
+            f'**Corona report from '
+            f'{self.timestamp.strftime("%Y-%m-%d %H-%M")}**\n'
+        )
+
+    @property
+    def single_report(self) -> Embed:
+        report_fields = [f'Total {field.capitalize()}: {getattr(self, field)}'
+                         for field in self.REPORT_FIELDS]
+        embed = Embed(
+            title=self.header,
+            colour=Colour(0xff0074),
+            description='\n'.join(report_fields) + f'\n\n{self.get_chart_url()}'
+        )
+        embed.set_footer(text=f'Based on single report from {self.timestamp}')
+        return embed
+
+    @classmethod
+    def get_chart_url(cls):
+        return urllib.urljoin(
+            settings.DEFAULT_DOMAIN, reverse('discordbot:corona_report')
         )
 
     @classmethod
@@ -387,15 +394,14 @@ class CoronaReport(models.Model):
                 return 'Not enough data gathered. Please try again in an hour'
 
         if not other:
-            other = cls.objects.previous_report(instance.id)
+            other = cls.objects.previous_report(instance.id, instance.timestamp)
             # If no previous report was found - send normal message
             if not other:
-                return instance.default_report
+                return instance.single_report
 
         if not isinstance(other, CoronaReport):
             raise Exception(
-                f'Can not calculate difference between {instance} '
-                f'and {other}'
+                f'Can not calculate difference between {instance} and {other}'
             )
         if other.timestamp >= instance.timestamp:
             raise Exception(
@@ -414,17 +420,17 @@ class CoronaReport(models.Model):
                 sign = '+' if diff > 0 else '-'
                 field_string += f' ({sign}{diff})({sign}{proc_diff}%)'
             report_strings.append(field_string)
-        footer = cls._generate_embed_footer(other)
         embed = Embed(
             title=instance.header,
             colour=Colour(0xff0074),
             description='\n'.join(report_strings),
         )
-        embed.set_footer(text=footer)
+        embed.description += f'\n\n{cls.get_chart_url()}'
+        embed.set_footer(text=cls.get_footer(other))
         return embed
 
     def __str__(self):
-        return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'
+        return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M")}'
 
 
 @receiver(post_save, sender=User)
