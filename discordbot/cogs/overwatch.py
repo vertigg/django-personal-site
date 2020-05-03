@@ -14,7 +14,7 @@ from discord.ext import commands
 from discordbot.models import DiscordUser
 from .utils.db import update_display_names
 
-logger = logging.getLogger('logger')
+logger = logging.getLogger('discordbot.ow')
 
 LINK = "https://playoverwatch.com/en-gb/career/pc/eu/"
 HEADERS = {

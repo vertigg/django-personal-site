@@ -6,8 +6,7 @@ from django.core.management.base import BaseCommand
 
 class AdvancedCommand(BaseCommand):
     _logger = None
-    _log_formatter = logging.Formatter(
-        '%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    logger_name = 'management_command'
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         self.start_time = time.time()
@@ -28,15 +27,5 @@ class AdvancedCommand(BaseCommand):
         self.logger.info(f'Done in {self.execution_time} seconds')
 
     def _setup_management_logger(self):
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(self._log_formatter)
-
-        logger = logging.getLogger(self.__class__.__name__)
-        logger.setLevel(logging.INFO)
-        logger.addHandler(stream_handler)
+        logger = logging.getLogger(self.logger_name)
         return logger
-
-    def add_file_handler(self, filepath: str):
-        file_handler = logging.FileHandler(filepath)
-        file_handler.setFormatter(self._log_formatter)
-        self.logger.addHandler(file_handler)

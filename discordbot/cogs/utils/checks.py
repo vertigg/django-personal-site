@@ -5,7 +5,7 @@ from time import time
 
 from discordbot.models import DiscordUser
 
-logger = logging.getLogger('botLogger.checks')
+logger = logging.getLogger('discordbot.utils.checks')
 
 
 def check_author_name(discord_id, cache):

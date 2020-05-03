@@ -9,7 +9,7 @@ from discordbot.models import DiscordUser
 from .utils.checks import admin_command, mod_command
 from .utils.db import update_display_names
 
-logger = logging.getLogger('botLogger.django')
+logger = logging.getLogger('discordbot.django')
 
 
 class DjangoDiscord(commands.Cog):

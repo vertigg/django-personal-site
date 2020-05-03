@@ -225,8 +225,8 @@ class LadderUpdateController:
 
 class Command(AdvancedCommand):
     help = 'Updates PoE ladder'
+    logger_name = 'ladder_update'
 
     def handle(self, *args, **options):
-        self.add_file_handler('logs/ladder_update.log')
         LadderUpdateController(self.logger).run()
         self.log_execution_time()

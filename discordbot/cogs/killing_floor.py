@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from discordbot.models import DiscordLink
 
-logger = logging.getLogger("botLogger.kf")
+logger = logging.getLogger('discordbot.kf')
 
 
 class KillingFloor(commands.Cog):

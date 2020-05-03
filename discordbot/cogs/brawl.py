@@ -8,7 +8,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 from discordbot.models import Brawl, DiscordLink, DiscordSettings
 
-logger = logging.getLogger('botLogger.brawl')
+logger = logging.getLogger('discordbot.brawl')
 
 
 class GoogleBrawl(commands.Cog):
@@ -43,12 +43,12 @@ class GoogleBrawl(commands.Cog):
         gcredentials, response = self.authorize_google(json_file, token)
         if response is not None and 'newStartPageToken' in response:
             if token == response.get('newStartPageToken'):
-                logger.info('[GSPREAD] Brawl lists are the same.')
+                logger.info('Brawl lists are the same.')
                 return self.get_brawl_table()
             elif token != response.get('newStartPageToken') and spreadsheet not in str(response):
-                logger.info('[GSPREAD]: Brawl dictionary is not in response. New page token is {}'.format(
+                logger.info('Brawl dictionary is not in response. New page token is {}'.format(
                     response.get('newStartPageToken')))
-                logger.info('[GSPREAD]: Brawl lists are the same.')
+                logger.info('Brawl lists are the same.')
                 DiscordSettings.objects.filter(key='token').update(
                     value=response.get('newStartPageToken'))
                 return self.get_brawl_table()
@@ -57,9 +57,9 @@ class GoogleBrawl(commands.Cog):
                 if brawl_list is not None:
                     DiscordSettings.objects.filter(key='token').update(
                         value=response.get('newStartPageToken'))
-                    logger.info('[GSPREAD] Brawl lists updated.')
+                    logger.info('Brawl lists updated.')
                 else:
-                    logger.error("[GSPREAD] Using cached brawl table")
+                    logger.error("Using cached brawl table")
                     brawl_list = self.get_brawl_table()
                 return brawl_list
         else:
@@ -77,7 +77,7 @@ class GoogleBrawl(commands.Cog):
             service = discovery.build('drive', 'v3', credentials=gcredentials)
             response = service.changes().list(pageToken=token).execute()
             logger.debug(response)
-            logger.info('[GSPREAD] Current state: {0}, New state: {1}'.format(
+            logger.info('Current state: {0}, New state: {1}'.format(
                 token, response['newStartPageToken']))
             return gcredentials, response
         except Exception as ex:
@@ -94,7 +94,7 @@ class GoogleBrawl(commands.Cog):
                                  for column in raw_data)
 
             if 0 in list(map(len, filtered_data)):
-                logger.error("[GSPREAD] Brawl lists can't be empty!")
+                logger.error("Brawl lists can't be empty!")
                 return None
             else:
                 self.update_brawl_table(raw_data)

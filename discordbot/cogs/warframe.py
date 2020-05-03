@@ -13,7 +13,7 @@ from django.db.models import Q
 
 from discordbot.models import DiscordUser, WFAlert, WFSettings
 
-logger = logging.getLogger("botLogger.warframe")
+logger = logging.getLogger('discordbot.warframe')
 
 
 class Warframe(commands.Cog):

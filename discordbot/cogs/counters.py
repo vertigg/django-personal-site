@@ -5,7 +5,7 @@ from discord.ext import commands
 from discordbot.cogs.utils.checks import admin_command
 from discordbot.models import Counter, CounterGroup
 
-logger = logging.getLogger('botLogger.counters')
+logger = logging.getLogger('discordbot.counters')
 
 
 class Counters(commands.Cog):

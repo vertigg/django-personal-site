@@ -8,13 +8,12 @@ from discord.ext import commands
 from apps import setup_django
 
 setup_django()
-logging.config.fileConfig('discordbot/logger.ini')
-discord_logger = logging.getLogger('discordLogger')
-logger = logging.getLogger('botLogger')
+logger = logging.getLogger('discordbot')
 
-
-bot = commands.Bot(command_prefix='!',
-                   description='Super duper halal bot for clowans. List of commands below')
+bot = commands.Bot(
+    command_prefix='!',
+    description='Super duper halal bot for clowans. List of commands below'
+)
 
 
 @bot.event
@@ -22,7 +21,7 @@ async def on_ready():
     from discordbot.models import DiscordSettings
     game = discord.Game(DiscordSettings.objects.get(key='game').value)
     await bot.change_presence(activity=game)
-    logger.info(f'Logged in as {bot.user.name}:{bot.user.id}')
+    logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
 
 
 @bot.event
@@ -47,7 +46,6 @@ def load_cogs():
 
 
 if __name__ == '__main__':
-    # from discordbot.credentials import BOT_TOKEN, TEST_TOKEN
     from django.conf import settings
     logger.info('Script started')
     token = settings.DISCORD_TEST_TOKEN if os.getenv('DISCORD_TEST', None) \

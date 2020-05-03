@@ -14,7 +14,7 @@ from .utils.checks import admin_command
 from .utils.exceptions import MissingContextError, UnavailableChannelError
 from .utils.formatters import clean_text
 
-logger = logging.getLogger('botLogger.Markov')
+logger = logging.getLogger('discordbot.markov')
 
 
 class Markov(commands.Cog):

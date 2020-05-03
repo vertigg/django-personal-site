@@ -14,7 +14,7 @@ from discord.ext import commands
 
 from discordbot.cogs.utils.checks import admin_command
 
-logger = logging.getLogger('botLogger.admin')
+logger = logging.getLogger('discordbot.admin')
 
 
 class Admin(commands.Cog):

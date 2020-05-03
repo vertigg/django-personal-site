@@ -171,3 +171,87 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # For debug - Disable STATIC_ROOT, enable STATICFILES_DIRS
 # STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+# Logging stuff
+LOGGING_DATE_FMT = '%Y-%m-%d %H:%M:%S'
+LOGGING_FILE_DJANGO = os.path.join('logs', 'django.log')
+LOGGING_FILE_DISCORD = os.path.join('logs', 'discord.log')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': (
+                '[%(asctime)s] [%(levelname)s] [%(name)s:%(funcName)s] '
+                '%(message)s'
+            ),
+            'datefmt': LOGGING_DATE_FMT
+        },
+        'compact': {
+            'format': '[%(levelname)s] [%(name)s] %(message)s',
+            'datefmt': LOGGING_DATE_FMT
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'console-info': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'console-errors': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file-discord': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOGGING_FILE_DISCORD,
+            'formatter': 'verbose'
+        },
+        'file-django': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOGGING_FILE_DJANGO,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console-errors'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'django': {
+            'handlers': ['console', 'file-django'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'discord': {
+            'handlers': ['console', 'file-discord'],
+            'level': 'ERROR',
+            'propagate': False
+        },
+        'discordbot': {
+            'handlers': ['console', 'file-discord'],
+            'level': 'DEBUG',
+            'formatter': 'compact',
+            'propagate': False
+        },
+        'ladder_update': {
+            'handlers': ['console', 'file-django'],
+            'level': 'DEBUG',
+            'formatter': 'compact',
+            'propagate': False
+        },
+        'googleapiclient': {
+            'handlers': ['console-errors'],
+            'level': 'ERROR'
+        },
+    },
+}

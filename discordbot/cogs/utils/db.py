@@ -6,7 +6,7 @@ from django.core.exceptions import FieldError
 
 from discordbot.models import DiscordSettings, DiscordUser
 
-logger = logging.getLogger("botLogger.db")
+logger = logging.getLogger('discordbot.utils.db')
 
 
 def get_nickname_cache():

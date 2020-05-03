@@ -10,7 +10,7 @@ from discordbot.models import DiscordPicture, Wisdom
 from .utils.checks import admin_command, compare_timestamps, mod_command
 from .utils.db import get_random_entry
 
-logger = logging.getLogger('botLogger')
+logger = logging.getLogger('discordbot.mix')
 
 
 class Mix(commands.Cog):

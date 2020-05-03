@@ -1,6 +1,5 @@
 import urllib.parse as urllib
 import uuid
-from datetime import timedelta
 from urllib.parse import urlencode
 
 from discord import Colour, Embed
@@ -12,7 +11,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 

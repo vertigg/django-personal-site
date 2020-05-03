@@ -14,7 +14,7 @@ from .utils.checks import is_youtube_link, mod_command
 from .utils.db import get_random_entry, update_display_names
 from .utils.formatters import ru_plural
 
-logger = logging.getLogger('botLogger.general')
+logger = logging.getLogger('discordbot.general')
 
 
 class General(commands.Cog):

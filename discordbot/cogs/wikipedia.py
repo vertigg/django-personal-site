@@ -6,7 +6,7 @@ from discord.ext import commands
 from django.template.defaultfilters import truncatechars
 from wikipedia.exceptions import DisambiguationError, PageError
 
-logger = logging.getLogger("botLogger")
+logger = logging.getLogger('discordbot.wiki')
 
 
 class Wikipedia(commands.Cog):
