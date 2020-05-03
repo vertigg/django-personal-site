@@ -25,8 +25,8 @@ class CoronaChartView(TemplateView):
         )
         context.update({
             "categories": list(df.timestamp.dt.strftime('%Y-%m-%d')),
-            'recovered': list(df.deaths),
-            'deaths': list(df.recovered),
+            'recovered': list(df.recovered),
+            'deaths': list(df.deaths),
             'confirmed': list(df.confirmed)
         })
         return context
