@@ -6,10 +6,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from discordbot.models import DiscordUser
+from poeladder.models import PoeCharacter
 
 
 class MainAuthenticationForm(AuthenticationForm):
@@ -43,11 +43,26 @@ class MainUserCreationForm(UserCreationForm):
 
 class DiscordTokenForm(forms.Form):
     token = forms.CharField(
-        required=False,
+        required=True,
         max_length=20,
-        help_text=_("17 characters, digits only."),
+        help_text=_("20 characters, digits only."),
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+
+    def clean_token(self):
+        token = self.cleaned_data.get('token')
+        if not DiscordUser.objects.filter(token=token).exists():
+            raise ValidationError('Invalid token', code='invalid')
+        return token
+
+    def link_discord_profile(self, user):
+        token = self.cleaned_data.get('token')
+        try:
+            discord_user = DiscordUser.objects.get(token=token)
+            discord_user.user = user
+            user.save()
+        except DiscordUser.DoesNotExist:
+            raise ValidationError('Discord user is missing', code='missing_discord_user')
 
 
 class DiscordProfileForm(ModelForm):
@@ -58,17 +73,19 @@ class DiscordProfileForm(ModelForm):
         # self.fields['steam_id'].validators = [RegexValidator(r'^\d{1,17}$')]
         # self.fields['steam_id'].max_length = 17
         self.fields['blizzard_id'].validators = [
-            RegexValidator(r"([\w]+)\-([\d]{4,5})$")]
+            RegexValidator(r"([\w]+)\-([\d]{4,5})$")
+        ]
 
     class Meta:
         model = DiscordUser
-        fields = ['blizzard_id', 'poe_profile']
+        fields = ('blizzard_id', 'poe_profile')
         widgets = {
             'blizzard_id': forms.TextInput(attrs={'class': 'form-control'}),
             'poe_profile': forms.TextInput(attrs={'class': 'form-control'}),
         }
         help_texts = {
-            'poe_profile': "'Character' tab in your profile must be public. Ladder updates every 24 hours"
+            'poe_profile': ("'Character' tab in your profile must be public. "
+                            "Ladder updates every 24 hours")
         }
         labels = {'poe_profile': _("Path of Exile Profile")}
 
@@ -80,9 +97,15 @@ class DiscordProfileForm(ModelForm):
         if DiscordUser.objects.filter(poe_profile=profile).exists():
             if not self.user.discorduser.poe_profile == profile:
                 raise ValidationError(
-                    ('"{}" profile already exists'.format(profile)))
-            else:
-                return profile
+                    f'"{profile}" profile is already linked to another user'
+                )
         if requests.get(check_link.format(profile)).status_code != 200:
-            raise ValidationError(("Account name is wrong or private"))
+            raise ValidationError(
+                f'Account name "{profile}" is incorrect or profile is private'
+            )
         return profile
+
+    def save(self, commit=True, user=None):
+        if user and not self.cleaned_data.get('poe_profile'):
+            PoeCharacter.objects.filter(profile=user.discorduser.id).delete()
+        return super().save(commit=commit)

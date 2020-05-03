@@ -11,3 +11,6 @@ class WFSettingsForm(forms.ModelForm):
         widgets = {x.attname: forms.CheckboxInput(attrs={'class': 'custom-control-input'})
                    for x in model._meta.fields
                    if isinstance(x, BooleanField)}
+
+    def save(self, commit=True, **kwargs):
+        return super().save(commit=commit)

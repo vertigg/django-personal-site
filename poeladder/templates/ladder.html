@@ -7,21 +7,20 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script type="text/javascript" src="{% static 'poeladder/js/jquery.plugin.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'poeladder/js/jquery.countdown.min.js' %}"></script>
-<script src="{% static 'poeladder/js/ext.js' %}"></script>
 {% endblock %}
 
 {% block header %}
 {% include "navbar.html" %}
 {% endblock %}
 
-{% block title %} 
-    {% if active_league %} 
-        {{active_league.name}} 
-    {% elif title %}
-        {{ title }}
-    {% else %}
-        Path of Exile Private Ladder
-    {% endif %}
+{% block title %}
+{% if active_league %}
+{{active_league.name}}
+{% elif title %}
+{{ title }}
+{% else %}
+Path of Exile Private Ladder
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -33,13 +32,13 @@
         <div class="fog-img fog-img-first"></div>
         <div class="fog-img fog-img-second"></div>
         <div class="title">
-            
+
             <div><img src="{% static 'poeladder/img/logo.png' %}"> </div>
             <h6>
                 <div id='timer'></div>
             </h6>
         </div>
-</div>
+    </div>
 </section>
 
 {% endif %}

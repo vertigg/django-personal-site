@@ -3,17 +3,13 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (FormView, LoginView, LogoutView,
                                        TemplateView)
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import RedirectView
 
 from discordbot.forms import WFSettingsForm
-from discordbot.models import DiscordUser
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
                         MainAuthenticationForm, MainUserCreationForm)
-from poeladder.models import PoeCharacter
 
 
 class HomeView(TemplateView):
@@ -48,65 +44,106 @@ class SignupView(FormView):
         return super().form_valid(form)
 
 
-class UnlinkDiscordProfile(LoginRequiredMixin, RedirectView):
-    pattern_name = 'main:profile'
+class DiscordLinkRequiredMixin(LoginRequiredMixin):
+    """
+    Mixin that checks if current User is linked to DiscordUser by checking
+    it's attributes.
+    """
 
-    def get_redirect_url(self, *args, **kwargs):
-        if hasattr(self.request.user, 'discorduser'):
-            self.request.user.discorduser.user_id = None
-            self.request.user.save()
-        return reverse(self.pattern_name)
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'discorduser'):
+            return redirect('main:discord_link')
+        return super().dispatch(request, *args, **kwargs)
 
 
-class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'profile.html'
+class ProfileView(DiscordLinkRequiredMixin, TemplateView):
+    """
+    General profile view with two forms - general settings for DiscordUser and
+    Warframe settings. For now it requires User to be linked with DiscordUser
+    instance.
+    """
     login_url = '/login/'
+    template_name = 'profile.html'
+    success_messages = {
+        'DiscordProfileForm': 'Profile settings has been updated',
+        'WFSettingsForm': 'Warframe alerts settings has been updated',
+    }
 
-    def _link_discord_user(self, request, request_method='POST'):
-        form = DiscordTokenForm(getattr(request, request_method))
-        if form.is_valid():
-            token = form.cleaned_data.get('token')
-            try:
-                discord_user = DiscordUser.objects.get(token=token)
-                discord_user.user = request.user
-                request.user.save()
-            except ObjectDoesNotExist:
-                messages.add_message(request, messages.ERROR, 'Invalid token')
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['is_linked'] = hasattr(request.user, 'discorduser')
-        if context['is_linked']:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not any([context.get(x) for x in ('profile_form', 'wf_settings_form')]):
             context.update({
                 'profile_form': DiscordProfileForm(
-                    user=request.user, instance=request.user.discorduser),
+                    user=self.request.user,
+                    instance=self.request.user.discorduser
+                ),
                 'wf_settings_form': WFSettingsForm(
-                    instance=request.user.discorduser.wf_settings),
+                    instance=self.request.user.discorduser.wf_settings
+                ),
             })
-        else:
-            if request.GET.get('token'):
-                self._link_discord_user(request, request_method='GET')
-                return HttpResponseRedirect(reverse_lazy('main:profile'))
-            context.update({'token_form': DiscordTokenForm})
-        return self.render_to_response(context)
+        return context
 
-    def post(self, request, *args, **kwargs):
-        user = request.user
-        if 'token_link' in request.POST:
-            self._link_discord_user(request)
-        if 'profile_update' in request.POST:
-            profile_form = DiscordProfileForm(
-                request.POST, user=user, instance=user.discorduser)
-            wf_form = WFSettingsForm(
-                request.POST, instance=user.discorduser.wf_settings)
-            if profile_form.is_valid():
-                passed_poe_profile = profile_form.cleaned_data.get('poe_profile')
-                if passed_poe_profile is None or passed_poe_profile == '' \
-                        or passed_poe_profile != user.discorduser.poe_profile:
-                    PoeCharacter.objects.filter(
-                        profile=user.discorduser.id).delete()
-                profile_form.save()
-            if wf_form.is_valid():
-                wf_form.save()
-            messages.add_message(request, messages.SUCCESS, 'Profile settings has been updated')
-        return redirect('main:profile')
+    def post(self, request):
+        profile_form = DiscordProfileForm(
+            data=request.POST, user=request.user,
+            instance=request.user.discorduser
+        )
+        wf_form = WFSettingsForm(
+            data=request.POST,
+            instance=request.user.discorduser.wf_settings
+        )
+        for form in (profile_form, wf_form):
+            if form.has_changed() and form.is_valid():
+                form.save(user=request.user)
+                messages.add_message(
+                    request=request,
+                    level=messages.SUCCESS,
+                    message=self.success_messages[form.__class__.__name__]
+                )
+        return self.render_to_response({
+            'profile_form': profile_form,
+            'wf_settings_form': wf_form,
+        })
+
+
+class DiscordLinkView(FormView):
+    """
+    View for linking current authenticated user with existing DiscordUser by
+    passing token generated by Discord bot into form. In case user is already
+    linked, he will be redirected to profile page. Token could also be passed
+    as query parameter and User will be linked and redirected automatically
+    """
+    form_class = DiscordTokenForm
+    template_name = 'discord_link.html'
+
+    def get_success_url(self):
+        return reverse_lazy('main:profile')
+
+    def _autolink(self, token):
+        class_form = self.get_form_class()
+        form = class_form(data={'token': token})
+        if form.is_valid():
+            return self.form_valid(form)
+        return self.form_invalid(form)
+
+    def get(self, request, *args, **kwargs):
+        if hasattr(request.user, 'discorduser'):
+            return redirect('main:profile')
+        if request.GET.get('token'):
+            return self._autolink(request.GET.get('token'))
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.link_discord_profile(self.request.user)
+        return super().form_valid(form)
+
+
+class DiscorUnlinkView(DiscordLinkRequiredMixin, RedirectView):
+    """
+    Opposite of DiscordLinkView, simply clears current User.discorduser instance
+    """
+
+    def get_redirect_url(self, *args, **kwargs):
+        self.request.user.discorduser.user_id = None
+        self.request.user.save()
+        return reverse('main:home')
