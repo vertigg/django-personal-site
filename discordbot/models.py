@@ -359,6 +359,17 @@ class CoronaReport(models.Model):
         )
 
     @classmethod
+    def _generate_embed_footer(cls, other):
+        url = urllib.urljoin(
+            settings.DEFAULT_DOMAIN, reverse('discordbot:corona_report')
+        )
+        return (
+            f'Compared to report from '
+            f'{other.timestamp.strftime("%Y-%m-%d %H-%M-%S")}.\n'
+            f'Detailed chart {url}'
+        )
+
+    @classmethod
     def generate_embed_report(cls, instance=None, other=None) -> Embed:
         """Calculates difference with previous report, either automatically
         or by sending previous report manually
@@ -403,7 +414,7 @@ class CoronaReport(models.Model):
                 sign = '+' if diff > 0 else '-'
                 field_string += f' ({sign}{diff})({sign}{proc_diff}%)'
             report_strings.append(field_string)
-        footer = f'Compared to report from {other.timestamp.strftime("%Y-%m-%d %H-%M-%S")}'
+        footer = cls._generate_embed_footer(other)
         embed = Embed(
             title=instance.header,
             colour=Colour(0xff0074),
