@@ -68,7 +68,7 @@ class Mix(commands.Cog):
                 logger.error(str(exc))
                 errors.append(str(exc))
         # Form a message
-        message = f'Added {added} images from {len(urls)} urls'
+        message = f'Added {added} image(s) from {len(urls)} url(s)'
         if errors:
             error_messages = '\n'.join(errors)
             message = f'{message}\n```{error_messages}```'
