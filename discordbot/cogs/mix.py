@@ -42,7 +42,7 @@ class Mix(commands.Cog):
         if text:
             # Extract all urls from given text
             urls.extend(extract_urls(text))
-        else:
+        if ctx.message.attachments:
             urls.extend([x.url for x in ctx.message.attachments])
         for url in urls:
             try:
