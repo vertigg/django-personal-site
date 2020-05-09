@@ -4,6 +4,7 @@ import os
 
 import aiohttp
 from discord.ext import commands
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
 
@@ -51,6 +52,12 @@ class Mix(commands.Cog):
                 response = await self.session.head(url)
                 if not is_image_mimetype(response.content_type):
                     errors.append(f'{url} is not a picture')
+                    continue
+                if response.content_length >= settings.MIX_IMAGE_SIZE_LIMIT:
+                    errors.append(
+                        f'{url} exceeds allowed filesize limit of '
+                        f'{settings.MIX_IMAGE_SIZE_LIMIT_MB} MB'
+                    )
                     continue
                 # If mimetype is okay - download file and check MD5 hash
                 response = await self.session.get(url)
