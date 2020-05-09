@@ -1,3 +1,4 @@
+import hashlib
 import urllib.parse as urllib
 import uuid
 from urllib.parse import urlencode
@@ -11,7 +12,65 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+
+
+class PseudoRandomManager(models.Manager):
+    """
+    Custom manager for models with `pid` field. Used for 'pseudo' random
+    discord bot commands
+    """
+    MAX_PID_VALUE = 5
+    PID_WEIGHT_MAPPING = (
+        (250, 1),
+        (500, 2),
+        (1000, 3),
+        (1500, 4),
+    )
+
+    def _check_columns(self):
+        if not any([isinstance(x, models.IntegerField) and x.attname == 'pid'
+                    for x in self.model._meta.fields]):
+            raise Exception(f'Model {self.model} does not have `pid` integer field')
+
+    def _get_new_weighted_pid(self, obj):
+        for delta, pid_value in self.PID_WEIGHT_MAPPING:
+            if (now() - obj.date).days <= delta:
+                return obj.pid + pid_value
+        return obj.pid + self.MAX_PID_VALUE
+
+    def _reset_pids(self):
+        """Resets all `pid` fields to 0"""
+        self._check_columns()
+        return self.get_queryset().update(pid=0)
+
+    def get_random_entry(self, pid_func=None):
+        """
+        Returns random entry based on `pid` field. This function sets field 
+        only to 0 or 1
+        """
+        self._check_columns()
+        qs = self.get_queryset().filter(pid=0).order_by('?')
+        if qs.exists():
+            obj = qs.first()
+            if pid_func and not callable(pid_func):
+                raise ValueError('pid_func should be function')
+            obj.pid = 1 if not pid_func else pid_func(obj)
+            obj.save()
+            return obj
+        if not self.get_queryset().exists():
+            return f'No records for `{self.model._meta.object_name}` model'
+        self._reset_pids()
+        return self.get_random_entry(pid_func=pid_func)
+
+    def get_random_weighted_entry(self):
+        """
+        Returns random entry based `pid` weight, which is calculated based
+        on object timestamp. Using internal _get_new_weighted_pid function
+        to calculate new pid
+        """
+        return self.get_random_entry(pid_func=self._get_new_weighted_pid)
 
 
 class CounterGroup(models.Model):
@@ -285,6 +344,7 @@ class Wisdom(models.Model):
     author = models.ForeignKey(
         DiscordUser, on_delete=models.CASCADE, verbose_name="discord user")
     date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    objects = PseudoRandomManager()
 
     class Meta:
         db_table = 'discord_wisdoms'
@@ -431,7 +491,51 @@ class CoronaReport(models.Model):
         return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M")}'
 
 
+class DiscordImage(models.Model):
+    date = models.DateTimeField()
+    image = models.ImageField(upload_to='images')
+    checksum = models.CharField(max_length=16, editable=False, null=True)
+
+    class Meta:
+        abstract = True
+
+    def save(self, force_insert=False, force_update=False,
+             using=None, update_fields=None):
+        if self.image:
+            self.checksum = hashlib.md5(self.image.read()).hexdigest()
+        return super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields
+        )
+
+    def __str__(self):
+        if self.image:
+            return self.image.name
+        return f'Image {self.id}'
+
+
+class MixImage(DiscordImage):
+    pid = models.IntegerField(default=0)
+    image = models.ImageField(upload_to='mix')
+    author = models.ForeignKey(
+        DiscordUser, on_delete=models.CASCADE,
+        null=True, verbose_name="discord user"
+    )
+    objects = PseudoRandomManager()
+
+    class Meta:
+        verbose_name = 'Mix Image'
+        verbose_name_plural = 'Mix Images'
+
+    def __str__(self):
+        if self.image:
+            return urllib.urljoin(settings.DEFAULT_DOMAIN, self.image.url)
+        return f'Current DiscordMixImage {self.id} does not have attached file'
+
+
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
+def save_user_profile(_, instance, **kwargs):
     if hasattr(instance, 'discorduser'):
         instance.discorduser.save()

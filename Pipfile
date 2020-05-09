@@ -33,6 +33,8 @@ google-auth = "*"
 oauth2client = "*"
 django-rest-knox = "*"
 python-dotenv = "*"
+Pillow = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.7"

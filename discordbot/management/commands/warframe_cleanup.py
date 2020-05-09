@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand, CommandError
-from discordbot.models import WFAlert
-from django.utils.timezone import now
 from datetime import timedelta
+
+from django.core.management.base import BaseCommand
+from django.utils.timezone import now
+
+from discordbot.models import WFAlert
 
 
 class Command(BaseCommand):

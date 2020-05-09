@@ -288,6 +288,7 @@ data.db
 app/
 apexmap/
 /static/
+/media/
 /misc/
 /logs/*
 !.gitkeep

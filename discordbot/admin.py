@@ -1,5 +1,4 @@
 import io
-from datetime import datetime
 
 from django.contrib import admin, messages
 from django.db import models
@@ -9,7 +8,7 @@ from django.template.defaultfilters import truncatechars
 
 from discordbot.models import (CoronaReport, Counter, CounterGroup,
                                DiscordLink, DiscordSettings, DiscordUser,
-                               Gachi, MarkovText, WFAlert, Wisdom)
+                               Gachi, MarkovText, MixImage, WFAlert, Wisdom)
 
 
 @admin.register(MarkovText)
@@ -99,6 +98,12 @@ class DiscordUserAdmin(admin.ModelAdmin):
 @admin.register(Gachi)
 class GachiAdmin(admin.ModelAdmin):
     fields = ('url',)
+
+
+@admin.register(MixImage)
+class DiscordMixImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'image', 'pid', 'checksum', 'date', 'author')
+    readonly_fields = ('checksum', 'date')
 
 
 admin.site.register(WFAlert)

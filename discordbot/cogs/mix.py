@@ -1,14 +1,13 @@
 import logging
-from datetime import datetime
 
 from discord.ext import commands
 from django.conf import settings
+from django.utils.timezone import now
 from imgurpython import ImgurClient
 
-from discordbot.models import DiscordPicture, Wisdom
+from discordbot.models import DiscordPicture, MixImage, Wisdom
 
 from .utils.checks import admin_command, compare_timestamps, mod_command
-from .utils.db import get_random_entry
 
 logger = logging.getLogger('discordbot.mix')
 
@@ -17,14 +16,14 @@ class Mix(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.imgur_update()
+        # self.imgur_update()
 
     @commands.command(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
-            wisdom_obj = get_random_entry(Wisdom)
-            pic_url = self.get_random_picture()
+            wisdom_obj = Wisdom.objects.get_random_entry()
+            pic_url = MixImage.objects.get_random_weighted_entry()
             if wisdom_obj is not None:
                 await ctx.send('{0}\n{1}'.format(wisdom_obj.text, pic_url))
 
@@ -32,7 +31,7 @@ class Mix(commands.Cog):
     async def hb(self, ctx):
         """Returns random picture from HB's Imgur album"""
         if not ctx.invoked_subcommand:
-            await ctx.send(self.get_random_picture())
+            await ctx.send(MixImage.objects.get_random_weighted_entry())
 
     @hb.command()
     async def update(self, ctx):
@@ -43,7 +42,7 @@ class Mix(commands.Cog):
     async def wisdom(self, ctx):
         """Get random wisdom"""
         if not ctx.invoked_subcommand:
-            wisdom_obj = get_random_entry(Wisdom)
+            wisdom_obj = Wisdom.objects.get_random_entry()
             if wisdom_obj is not None:
                 await ctx.send(wisdom_obj.text)
 
@@ -51,13 +50,11 @@ class Mix(commands.Cog):
     @mod_command
     async def add(self, ctx, *, text: str):
         """Add new wisdom to database"""
-        wisdom_text = text
         Wisdom.objects.create(
-            text=wisdom_text,
-            date=datetime.now(),
+            text=text, date=now(),
             author_id=ctx.message.author.id
         )
-        await ctx.send('{} added'.format(wisdom_text))
+        await ctx.send('{} added'.format(text))
 
     @wisdom.command(hidden=True)
     @admin_command
