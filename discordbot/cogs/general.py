@@ -11,7 +11,7 @@ from discordbot.models import (CoronaReport, DiscordLink, DiscordSettings,
                                DiscordUser, Gachi)
 
 from .utils.checks import is_youtube_link, mod_command
-from .utils.db import get_random_entry, update_display_names
+from .utils.db import update_display_names
 from .utils.formatters import ru_plural
 
 logger = logging.getLogger('discordbot.general')
@@ -124,7 +124,7 @@ class General(commands.Cog):
     async def gachi(self, ctx):
         """Take it boy"""
         if not ctx.invoked_subcommand:
-            gachi_obj = get_random_entry(Gachi)
+            gachi_obj = Gachi.objects.get_random_entry()
             if gachi_obj is not None:
                 await ctx.send(gachi_obj.url)
 

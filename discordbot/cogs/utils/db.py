@@ -2,8 +2,6 @@ import logging
 from datetime import datetime
 from itertools import chain
 
-from django.core.exceptions import FieldError
-
 from discordbot.models import DiscordSettings, DiscordUser
 
 logger = logging.getLogger('discordbot.utils.db')
@@ -41,25 +39,3 @@ def update_display_names(servers):
         .filter(key='cache_update') \
         .update(value=datetime.now())
     logger.info('Discord users table has been updated')
-
-
-def get_random_entry(model):
-    """Get random entry from given model
-
-    Args:
-        model (BaseModel): Django model with `pid` field
-
-    Returns:
-        random_entry: Random entry from given model with pid=0
-    """
-    try:
-        random_entry = model.objects.filter(pid=0).order_by('?').first()
-        model.objects.filter(id=random_entry.id).update(pid=1)
-    except AttributeError:
-        model.objects.all().update(pid=0)
-        random_entry = model.objects.filter(pid=0).order_by('?').first()
-        model.objects.filter(id=random_entry.id).update(pid=1)
-    except FieldError as ex:
-        logger.error(ex)
-        return None
-    return random_entry

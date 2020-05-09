@@ -210,6 +210,7 @@ class Brawl(models.Model):
 class Gachi(models.Model):
     pid = models.IntegerField(blank=True, null=True, default=0)
     url = models.URLField(unique=True, blank=True, null=True)
+    objects = PseudoRandomManager()
 
     class Meta:
         db_table = 'discord_gachi'

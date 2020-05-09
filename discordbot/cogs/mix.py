@@ -1,13 +1,16 @@
+import hashlib
 import logging
+import os
 
+import aiohttp
 from discord.ext import commands
-from django.conf import settings
+from django.core.files.base import ContentFile
 from django.utils.timezone import now
-from imgurpython import ImgurClient
 
-from discordbot.models import DiscordPicture, MixImage, Wisdom
+from discordbot.models import MixImage, Wisdom
 
-from .utils.checks import admin_command, compare_timestamps, mod_command
+from .utils.checks import is_image_mimetype, mod_command
+from .utils.formatters import extract_urls
 
 logger = logging.getLogger('discordbot.mix')
 
@@ -16,9 +19,9 @@ class Mix(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        # self.imgur_update()
+        self.session = aiohttp.ClientSession()
 
-    @commands.command(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
+    @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
@@ -27,16 +30,55 @@ class Mix(commands.Cog):
             if wisdom_obj is not None:
                 await ctx.send('{0}\n{1}'.format(wisdom_obj.text, pic_url))
 
+    @mix.command(aliases=['add'])
+    @mod_command
+    async def __mix_add(self, ctx, *, text: str = None):
+        """Add new picture/pictures to mix from given urls or attachments"""
+        # Check if urls or attachment provided
+        if not any([text, ctx.message.attachments]):
+            await ctx.send('No urls or files provided')
+            return
+        added, errors, urls = 0, [], []
+        if text:
+            # Extract all urls from given text
+            urls.extend(extract_urls(text))
+        else:
+            urls.extend([x.url for x in ctx.message.attachments])
+        for url in urls:
+            try:
+                # Check content type by calling head for url
+                # This could fail for some types of links (e.g. Dropbox)
+                response = await self.session.head(url)
+                if not is_image_mimetype(response.content_type):
+                    errors.append(f'{url} is not a picture')
+                    continue
+                # If mimetype is okay - download file and check MD5 hash
+                response = await self.session.get(url)
+                content = ContentFile(await response.read())
+                filename = os.path.basename(url)
+                md5 = hashlib.md5(content.read()).hexdigest()
+                if MixImage.objects.filter(checksum=md5).exists():
+                    errors.append(f'{url} picture already exists in DB')
+                    logger.info('%s already exists', filename)
+                    continue
+                obj = MixImage(date=now(), author_id=ctx.author.id)
+                obj.image.save(filename, content, save=True)
+                added += 1
+            except Exception as exc:
+                logger.error(str(exc))
+                errors.append(str(exc))
+        # Form a message
+        message = f'Added {added} images from {len(urls)} urls'
+        if errors:
+            error_messages = '\n'.join(errors)
+            message = f'{message}\n```{error_messages}```'
+        await ctx.send(message)
+
     @commands.group()
     async def hb(self, ctx):
         """Returns random picture from HB's Imgur album"""
         if not ctx.invoked_subcommand:
             await ctx.send(MixImage.objects.get_random_weighted_entry())
-
-    @hb.command()
-    async def update(self, ctx):
-        """Update pictures table from imgur album"""
-        await ctx.send(self.imgur_update())
 
     @commands.group()
     async def wisdom(self, ctx):
@@ -46,67 +88,15 @@ class Mix(commands.Cog):
             if wisdom_obj is not None:
                 await ctx.send(wisdom_obj.text)
 
-    @wisdom.command()
+    @wisdom.command(aliases=['add'])
     @mod_command
-    async def add(self, ctx, *, text: str):
+    async def __wisdom_add(self, ctx, *, text: str):
         """Add new wisdom to database"""
         Wisdom.objects.create(
             text=text, date=now(),
             author_id=ctx.message.author.id
         )
         await ctx.send('{} added'.format(text))
-
-    @wisdom.command(hidden=True)
-    @admin_command
-    async def remove(self, ctx, wisdom_id: int):
-        """Removes wisdom by given id in ctx"""
-        if isinstance(wisdom_id, int):
-            entry = Wisdom.objects.filter(id=wisdom_id).delete()
-            if entry[0] is not 0:
-                await ctx.send('Wisdom {} removed'.format(wisdom_id))
-
-    def get_random_picture(self):
-        """Gets random picture from imgur table and sets new pid based on picture's age"""
-        random_pic = DiscordPicture.objects.filter(pid__lt=2) \
-            .order_by('?').first()
-        if random_pic:
-            current_pid = random_pic.pid
-            new_pid = current_pid + compare_timestamps(random_pic.date)
-            DiscordPicture.objects.filter(id=random_pic.id).update(pid=new_pid)
-            return random_pic.url
-        else:
-            DiscordPicture.objects.all().update(pid=0)
-            return self.get_random_picture()
-
-    def get_album(self):
-        client = ImgurClient(settings.IMGUR_ID, settings.IMGUR_SECRET)
-        data = client.get_album_images(settings.IMGUR_ALBUM)
-        if not data:
-            return None
-        pictures = {x.link: x.datetime for x in data}
-        logger.info(
-            '[%s] Database has been updated with %d pictures',
-            __name__, len(pictures)
-        )
-        logger.info(
-            '[%s] Client limits are %s/12500',
-            __name__, client.credits['ClientRemaining']
-        )
-        return pictures
-
-    def imgur_update(self):
-        """Update imgur table"""
-
-        pictures = self.get_album()
-
-        if pictures is None or not isinstance(pictures, dict):
-            return 'Imgur album is empty!'
-
-        saved_piclist = DiscordPicture.objects.values_list('url', flat=True)
-        for key, value in pictures.items():
-            if key not in saved_piclist:
-                DiscordPicture.objects.create(url=key, date=value)
-        return 'Database has been updated with {} pictures'.format(len(pictures))
 
 
 def setup(bot):

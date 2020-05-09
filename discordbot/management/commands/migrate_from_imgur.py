@@ -27,7 +27,7 @@ class Command(AdvancedCommand):
         for image in tqdm(data):
             filename = os.path.basename(image.link)
             content = ContentFile(requests.get(image.link).content)
-            md5 = hashlib.md5(content.read()).digest()
+            md5 = hashlib.md5(content.read()).hexdigest()
             if MixImage.objects.filter(checksum=md5).exists():
                 print(f'{filename} already exists')
                 continue
