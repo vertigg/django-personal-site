@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from discordbot.models import DiscordUser
-from poeladder.models import PoeCharacter
+from poeladder.models import PoeCharacter, PoeLeague
 
 
 class ProfileFilter(admin.SimpleListFilter):
@@ -29,3 +29,8 @@ class PoeCharacterAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return [f.name for f in self.model._meta.fields]
+
+
+@admin.register(PoeLeague)
+class PoeLeagueAdmin(admin.ModelAdmin):
+    readonly_fields = ('name', 'start_date', 'end_date', 'slug')

@@ -3,9 +3,8 @@ import random
 import re
 from datetime import datetime
 
-import aiohttp
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from discordbot.models import (CoronaReport, DiscordLink, DiscordSettings,
                                DiscordUser, Gachi)
@@ -21,25 +20,36 @@ class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(loop=self.bot.loop)
+        self.mention_pattern = re.compile(r'\<\@\!?(?P<id>\d+)\>')
+        self.update_cache_task = self.update_cache.start()
+
+    def cog_unload(self):
+        self.update_cache_task.cancel()
+
+    @tasks.loop(hours=24, reconnect=True)
+    async def update_cache(self):
+        await self.bot.wait_until_ready()
+        logger.info('Syncing Discord user with Django database')
+        update_display_names(self.bot.guilds)
 
     @staticmethod
     def get_link(key):
         """Helper method that returns DiscordLink object by given key"""
-        return DiscordLink.objects.get(key=key)
+        try:
+            obj = DiscordLink.objects.get(key=key)
+            return obj.url
+        except DiscordLink.DoesNotExist:
+            return f'Link with key `{key}` does not exist in database'
 
     @commands.command()
     async def avatar(self, ctx, mention=None):
         """Shows user's avatar"""
-        mention_pattern = r"\<\@\!?(?P<id>\d+)\>"
         if not mention:
             await ctx.send(ctx.message.author.avatar_url)
-            return
-        if mention:
-            match = re.match(mention_pattern, mention)
+        else:
+            match = self.mention_pattern.match(mention)
             if not match:
                 await ctx.send('```How to use - !avatar @User```')
-                return
             else:
                 discord_id = match.group(1)
                 try:
@@ -47,7 +57,8 @@ class General(commands.Cog):
                     await ctx.send(avatar)
                 except DiscordUser.DoesNotExist:
                     await ctx.send("```Can't find discord user```")
-                    update_display_names(self.bot.servers)
+                    # Trigger sync update
+                    update_display_names(self.bot.guilds)
 
     @commands.command()
     @mod_command
@@ -126,7 +137,7 @@ class General(commands.Cog):
         if not ctx.invoked_subcommand:
             gachi_obj = Gachi.objects.get_random_entry()
             if gachi_obj is not None:
-                await ctx.send(gachi_obj.url)
+                await ctx.send(gachi_obj)
 
     @gachi.command()
     @mod_command
