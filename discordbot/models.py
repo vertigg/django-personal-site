@@ -219,16 +219,6 @@ class Gachi(models.Model):
         return self.url
 
 
-class DiscordPicture(models.Model):
-    id = models.IntegerField(primary_key=True, null=False)
-    pid = models.IntegerField(db_column='pID', default=0)
-    url = models.URLField(unique=True)
-    date = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'discord_pictures'
-
-
 class DiscordLink(models.Model):
     key = models.CharField(unique=True, blank=False, null=True, max_length=20)
     url = models.URLField()
