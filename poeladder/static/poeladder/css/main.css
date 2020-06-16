@@ -253,3 +253,7 @@ a.active-league {background-color: #0066cc}
     font-size: 1rem;
     text-transform: uppercase;
   }
+
+.progress-level {
+    height: 4px;
+}
