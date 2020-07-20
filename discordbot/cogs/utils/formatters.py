@@ -1,6 +1,7 @@
 import re
 import string
 
+IP_REGEX = re.compile(r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}')
 URL_REGEX = re.compile(
     r'https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b'
     r'[-a-zA-Z0-9()@:%_\+.~#?&//=]*'

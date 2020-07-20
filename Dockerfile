@@ -15,10 +15,8 @@ RUN git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/ins
 
 WORKDIR /app
 
-COPY Pipfile .
-COPY Pipfile.lock .
-RUN pip install --upgrade pip pipenv
-RUN pipenv install --dev --system
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 COPY . /app
 RUN python /app/manage.py migrate

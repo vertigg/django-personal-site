@@ -5,10 +5,10 @@ import pandas as pd
 import pytz
 from discord.errors import HTTPException
 from discord.ext import commands, tasks
-from django.db.models.functions import Length
 from markovify import Text
 
 from discordbot.models import MarkovText
+from django.db.models.functions import Length
 
 from .utils.checks import admin_command
 from .utils.exceptions import MissingContextError, UnavailableChannelError
@@ -202,7 +202,7 @@ class Markov(commands.Cog):
                 await ctx.send(f"Can't generate text with length of "
                                f"{ctx.kwargs.get('sentences')}")
 
-    @tasks.loop(hours=12, reconnect=True)
+    @tasks.loop(hours=24, reconnect=True)
     async def update_text_caches(self):
         """
         Periodically updates available cached objects with new messages

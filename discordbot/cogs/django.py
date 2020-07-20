@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import subprocess
+import sys
 
 from discord.ext import commands
 
@@ -57,8 +58,7 @@ class DjangoDiscord(commands.Cog):
                 logger.info('[LADDER]: Ladder Update has been started')
                 await ctx.send("`Updating ladder...`", delete_after=30)
                 self.process = subprocess.Popen(
-                    ["/home/vertigo/venv/bin/python3",
-                        "manage.py", "ladder_update"],
+                    [sys.executable, "manage.py", "ladder_update"],
                     stderr=subprocess.PIPE)
                 while self.process.poll() is None:
                     await ctx.trigger_typing()
