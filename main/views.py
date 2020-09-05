@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.base import RedirectView
 
 from discordbot.forms import WFSettingsForm
+from discordbot.models import DiscordUser, WFSettings
 from main.forms import (DiscordProfileForm, DiscordTokenForm,
                         MainAuthenticationForm, MainUserCreationForm)
 
@@ -90,7 +91,8 @@ class ProfileView(DiscordLinkRequiredMixin, TemplateView):
         )
         wf_form = WFSettingsForm(
             data=request.POST,
-            instance=request.user.discorduser.wf_settings
+            instance=request.user.discorduser.wf_settings,
+            request=request
         )
         for form in (profile_form, wf_form):
             if form.has_changed() and form.is_valid():
@@ -127,10 +129,27 @@ class DiscordLinkView(FormView):
         return self.form_invalid(form)
 
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('main:login')
         if hasattr(request.user, 'discorduser'):
             return redirect('main:profile')
         if request.GET.get('token'):
             return self._autolink(request.GET.get('token'))
+        if request.user.socialaccount_set.exists():
+            discord_account = request.user.socialaccount_set.filter(provider='discord').first()
+            if discord_account:
+                uid = int(discord_account.uid)
+                discord_user = DiscordUser.objects.filter(id=uid).first()
+                request.user.discorduser = discord_user
+                if not hasattr(discord_user, 'wf_settings'):
+                    discord_user.wf_settings = WFSettings.objects.create()
+                request.user.save()
+                messages.add_message(
+                    request=request,
+                    level=messages.SUCCESS,
+                    message='Successfully autolinked with existing DiscordUser instance'
+                )
+                return redirect('main:profile')
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):

@@ -248,7 +248,7 @@ class DiscordUser(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.SET_NULL, blank=True, null=True)
     wf_settings = models.OneToOneField(
-        WFSettings, on_delete=models.CASCADE, blank=True, null=True)
+        WFSettings, on_delete=models.SET_NULL, blank=True, null=True)
     token = models.CharField(unique=True, blank=True, null=True, max_length=20)
 
     id = models.IntegerField(

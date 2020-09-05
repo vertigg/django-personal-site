@@ -43,6 +43,7 @@ if not DEBUG:
 LOGIN_REDIRECT_URL = 'main:home'
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') or INTERNAL_IPS
+SOCIALACCOUNT_ADAPTER = "main.adapters.CustomSocialAccountAdapter"
 # Application definition
 
 INSTALLED_APPS = [
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'webgames',
     'main.apps.MainConfig',
@@ -61,6 +63,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dbbackup',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.discord'
 ]
 
 MIDDLEWARE = [
@@ -73,6 +79,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',) ,
     'DEFAULT_PERMISSION_CLASSES': [
@@ -82,14 +89,16 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'VertigoProject.urls'
+SITE_ID = 1
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'main/templates'),
-            os.path.join(BASE_DIR, 'poeladder/static'),
+            os.path.join(BASE_DIR, 'main', 'templates'),
+            os.path.join(BASE_DIR, 'main', 'templates', 'allauth'),
+            os.path.join(BASE_DIR, 'poeladder', 'static'),
             os.path.join(BASE_DIR, 'discordbot', 'templates'),
             os.path.join(BASE_DIR, 'webgames', 'static'),
             os.path.join(BASE_DIR, 'webgames', 'dots'),
@@ -108,6 +117,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'VertigoProject.wsgi.application'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 # DB backup settings
 
