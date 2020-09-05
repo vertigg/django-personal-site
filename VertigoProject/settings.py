@@ -33,6 +33,7 @@ STEAM_API_KEY = os.getenv('STEAM_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv('DJANGO_DEBUG', None))
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
 
 if not DEBUG:
     sentry_sdk.init(
