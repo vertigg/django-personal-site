@@ -89,7 +89,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
 
-ROOT_URLCONF = 'VertigoProject.urls'
+ROOT_URLCONF = 'homesite.urls'
 SITE_ID = 1
 
 TEMPLATES = [
@@ -117,7 +117,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'VertigoProject.wsgi.application'
+WSGI_APPLICATION = 'homesite.wsgi.application'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
