@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block css %}
+{% load static%}
+{% include "bootstrap4.html" %}
+{% endblock %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="container login-centered col-sm-3 col-xs-6" style="min-width:300px;">
+    <h3 class="display-6 text-center">{% trans "Social Network Login Failure" %}</h3>
+    <p>{% trans "An error occurred while attempting to login via your social network account." %}</p>
+</div>
+{% endblock %}

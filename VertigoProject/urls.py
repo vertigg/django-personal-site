@@ -2,9 +2,11 @@
 Definition of urls for HomeSite.
 """
 
+from allauth.socialaccount.providers.discord.urls import \
+    urlpatterns as discord_urls
 from django.conf import settings
-from django.urls import include, path
 from django.contrib import admin
+from django.urls import include, path
 
 urlpatterns = [
     # path('books', include('books.urls')),
@@ -14,6 +16,7 @@ urlpatterns = [
     path('discordbot/', include('discordbot.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
+    path('accounts/', include(discord_urls)),
 ]
 
 if settings.DEBUG:

@@ -5,6 +5,8 @@
 {% endblock %}
 {% block title%}Login{% endblock %}
 {% block content %}
+{% load socialaccount %}
+
 
 {% if user.is_authenticated %}
 <div class="container login-centered col-sm">
@@ -16,6 +18,10 @@
 {% else %}
 <div class="container login-centered col-sm-3 col-xs-6" style="min-width:300px;">
     <h1 class="display-4 text-center">Login</h1>
+    <div class="col">
+        <a class="btn btn-primary w-100" href="{% provider_login_url "discord" %}">Login via Discord</a>
+    </div>
+    <hr>
     <form method="post" action="{% url 'main:login' %}">
         {% csrf_token %}
 
