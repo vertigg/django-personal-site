@@ -12,7 +12,6 @@ class ProfileFilter(admin.SimpleListFilter):
         profiles = (DiscordUser.objects
                     .exclude(poe_profile__isnull=True)
                     .exclude(poe_profile=''))
-        print(profiles)
         return [(x.id, x.poe_profile) for x in profiles]
 
     def queryset(self, request, queryset):
