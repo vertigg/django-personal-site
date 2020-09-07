@@ -45,19 +45,7 @@ class SignupView(FormView):
         return super().form_valid(form)
 
 
-class DiscordLinkRequiredMixin(LoginRequiredMixin):
-    """
-    Mixin that checks if current User is linked to DiscordUser by checking
-    it's attributes.
-    """
-
-    def dispatch(self, request, *args, **kwargs):
-        if not hasattr(request.user, 'discorduser'):
-            return redirect('main:discord_link')
-        return super().dispatch(request, *args, **kwargs)
-
-
-class ProfileView(DiscordLinkRequiredMixin, TemplateView):
+class ProfileView(LoginRequiredMixin, TemplateView):
     """
     General profile view with two forms - general settings for DiscordUser and
     Warframe settings. For now it requires User to be linked with DiscordUser
@@ -72,16 +60,38 @@ class ProfileView(DiscordLinkRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not any([context.get(x) for x in ('profile_form', 'wf_settings_form')]):
-            context.update({
-                'profile_form': DiscordProfileForm(
-                    user=self.request.user,
-                    instance=self.request.user.discorduser
-                ),
-                'wf_settings_form': WFSettingsForm(
-                    instance=self.request.user.discorduser.wf_settings
-                ),
-            })
+        discord_user = getattr(self.request.user, 'discorduser', None)
+        discord_social = self.request.user.socialaccount_set.filter(provider='discord').first()
+        if not discord_user:
+            if discord_social:
+                uid = int(discord_social.uid)
+                _existing_discord_user = DiscordUser.objects.filter(id=uid).first()
+                if _existing_discord_user:
+                    self.request.user.discorduser = _existing_discord_user
+                    if not hasattr(_existing_discord_user, 'wf_settings'):
+                        _existing_discord_user.wf_settings = WFSettings.objects.create()
+                    self.request.user.save()
+                    messages.add_message(
+                        request=self.request,
+                        level=messages.SUCCESS,
+                        message='Successfully autolinked with existing DiscordUser instance'
+                    )
+                    discord_user = _existing_discord_user
+        context.update({
+            'discorduser': discord_user,
+            'discord_social': discord_social,
+            'blizzardsocial': self.request.user.socialaccount_set.filter(provider='battlenet').first(),
+        })
+        # if not any([context.get(x) for x in ('profile_form', 'wf_settings_form')]):
+        #     context.update({
+        #         'profile_form': DiscordProfileForm(
+        #             user=self.request.user,
+        #             instance=getattr(self.request.user, 'discorduser', None)
+        #         ),
+        #         # 'wf_settings_form': WFSettingsForm(
+        #         #     instance=self.request.user.discorduser.wf_settings
+        #         # ),
+        #     })
         return context
 
     def post(self, request):
@@ -155,14 +165,3 @@ class DiscordLinkView(FormView):
     def form_valid(self, form):
         form.link_discord_profile(self.request.user)
         return super().form_valid(form)
-
-
-class DiscorUnlinkView(DiscordLinkRequiredMixin, RedirectView):
-    """
-    Opposite of DiscordLinkView, simply clears current User.discorduser instance
-    """
-
-    def get_redirect_url(self, *args, **kwargs):
-        self.request.user.discorduser.user_id = None
-        self.request.user.save()
-        return reverse('main:home')

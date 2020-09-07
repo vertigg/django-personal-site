@@ -1,7 +1,8 @@
 """
 Definition of urls for HomeSite.
 """
-
+from allauth.socialaccount.providers.battlenet.urls import \
+    urlpatterns as battle_net_urls
 from allauth.socialaccount.providers.discord.urls import \
     urlpatterns as discord_urls
 from django.conf import settings
@@ -17,6 +18,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     path('accounts/', include(discord_urls)),
+    path('accounts/', include(battle_net_urls)),
 ]
 
 if settings.DEBUG:

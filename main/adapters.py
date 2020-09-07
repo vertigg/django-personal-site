@@ -12,7 +12,10 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             return
         try:
             user_model = get_user_model()
-            user = user_model.objects.get(email=user.email)
-            sociallogin.connect(request, user)
+            if user.email:
+                email_user = user_model.objects.get(email=user.email)
+                sociallogin.connect(request, email_user)
+            elif request.user:
+                sociallogin.connect(request, request.user)
         except:
             pass

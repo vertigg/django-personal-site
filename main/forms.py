@@ -70,17 +70,11 @@ class DiscordProfileForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(DiscordProfileForm, self).__init__(*args, **kwargs)
-        # self.fields['steam_id'].validators = [RegexValidator(r'^\d{1,17}$')]
-        # self.fields['steam_id'].max_length = 17
-        self.fields['blizzard_id'].validators = [
-            RegexValidator(r"([\w]+)\-([\d]{4,5})$")
-        ]
 
     class Meta:
         model = DiscordUser
-        fields = ('blizzard_id', 'poe_profile')
+        fields = ('poe_profile',)
         widgets = {
-            'blizzard_id': forms.TextInput(attrs={'class': 'form-control'}),
             'poe_profile': forms.TextInput(attrs={'class': 'form-control'}),
         }
         help_texts = {

@@ -45,7 +45,13 @@ LOGIN_REDIRECT_URL = 'main:home'
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') or INTERNAL_IPS
 SOCIALACCOUNT_ADAPTER = "main.adapters.CustomSocialAccountAdapter"
-# Application definition
+SOCIALACCOUNT_PROVIDERS = {
+    'battlenet': {
+        'SCOPE': ['wow.profile'],
+        'REGION': 'eu',
+    }
+}
+# Application definitionv
 
 INSTALLED_APPS = [
     # Add your apps here to enable them
@@ -67,7 +73,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.discord'
+    'allauth.socialaccount.providers.discord',
+    'allauth.socialaccount.providers.battlenet'
 ]
 
 MIDDLEWARE = [
@@ -245,6 +252,9 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        # 'django.db.backends': {
+        #     'level': 'DEBUG',
+        # },
         'django': {
             'handlers': ['console', 'file-django'],
             'level': 'INFO',
