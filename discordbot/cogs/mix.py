@@ -31,7 +31,7 @@ class Mix(commands.Cog):
             if wisdom_obj is not None:
                 await ctx.send('{0}\n{1}'.format(wisdom_obj.text, pic_url))
 
-    @mix.command(aliases=['add'])
+    @mix.command(aliases=['add', 'фвв'])
     @mod_command
     async def __mix_add(self, ctx, *, text: str = None):
         """Add new picture/pictures to mix from given urls or attachments"""

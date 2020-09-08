@@ -93,8 +93,8 @@ class DiscordUserAdmin(admin.ModelAdmin):
     list_display = ('display_name', 'id', "admin", "mod_group")
     search_fields = ('display_name',)
     list_filter = ('admin', 'mod_group',)
-    fields = ('display_name', 'id', 'steam_id', 'blizzard_id',
-              'poe_profile', 'admin', 'mod_group', 'user', 'wf_settings')
+    fields = ('display_name', 'id', 'poe_profile', 'admin', 'mod_group',
+              'user', 'wf_settings')
 
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': 20})},

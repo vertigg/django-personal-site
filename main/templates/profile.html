@@ -7,6 +7,8 @@
 {% block title %} Profile - {{ user }} {% endblock title %}
 {% block content  %}
 {% include "header.html" %}
+{% load socialaccount %}
+{% get_social_accounts user as accounts %}
 
 {% if messages %}
 <div class="position-absolute w-100 d-flex flex-column p-4">
@@ -27,27 +29,48 @@
 
 <div class="container w-75">
     <br>
-    <h1 class="display-6">Welcome back, {{user}}</h1><br>
+    <h1 class="display-6">Welcome, {{user}}</h1><br>
     <div class="row">
         <div class="col-md-4">
             <div><br>
                 <img src={% if user.discorduser.avatar_url %}"{{ user.discorduser.avatar_url|webp }}"{% else %}{% static 'main/image/default_avatar.png'%}{% endif %}
                     alt="User avatar" class="discord-avatar img-thumbnail text-center ">
                 <div class="card-body text-center">
+                    {% if user.discorduser %}
                     <h3>{{ user.discorduser }}</h3>
                     <small class="text-muted">{{ user.discorduser.id }}</small>
                     <div id="badges">
                         {% if user.discorduser.admin %}<span class="badge badge-primary">Admin</span>{% endif %}
                         {% if user.discorduser.mod_group %}<span class="badge badge-warning">Moderator</span>{% endif %}
                     </div>
+                    {% else %}
+                    <small class="text-muted">It seems that our Discord bot couldn't parse your information or you don't
+                        share any servers with our bot.</small>
+                    {% endif %}
                 </div>
-                <div class="card-body text-center">
-                    <a href="{% url 'main:unlink' %}" class="card-link">Unlink your discord account</a><br>
-                </div>
+
+                <h4>Connections</h4>
+                {% if accounts.discord.0 %}
+                <a class="btn btn-secondary w-100 disabled" href="{% provider_login_url "discord" %}">Discord
+                    connected</a>
+                {% else %}
+                <a class="btn btn-secondary w-100" href="{% provider_login_url "discord" %}">Connect Discord account</a>
+                {% endif %}
+                {% if accounts.battlenet.0 %}
+                <a class="btn btn-info w-100 disabled" href="{% provider_login_url "battlenet" %}">Battle.Net
+                    connected</a>
+                {% else %}
+                <a class="btn btn-info w-100" href="{% provider_login_url "battlenet" %}">Connect Battle.Net
+                    account</a>
+                {% endif %}
             </div>
         </div>
         <div class="col-md-6">
-            <h3>Personal info</h3>
+            <h3>General information</h3>
+            Local account username: {{user.username}}
+            {% if user.discorduser %}
+            <hr>
+            <h4>Additional Profile Info</h4>
             <form action="{% url 'main:profile' %}" method="post">
                 {% csrf_token %}
                 {% for field in profile_form  %}
@@ -64,8 +87,9 @@
                 </div>
                 {% endfor %}
                 {% endfor %}
-                <br>
-                <h3>Warframe Alerts</h3>
+                {% if user.discorduser.wf_settings %}
+                <hr>
+                <h4>Warframe Alerts</h4>
                 <small class='form-text text-danger'>Succeeded by
                     <a href='https://warframe.fandom.com/wiki/Nightwave'>Nightwave</a> since
                     <a href="https://warframe.fandom.com/wiki/Update_24#Update_24.3">Update 24.3</a></small>
@@ -82,8 +106,16 @@
                         {% if not row %}</tr>{% endif %}
                     {% endfor %}
                 </table>
+                {% else %}
+                <hr>
+                <p class="form-text text-muted small">Warframe alert settings are deprecated. If you want to be notified
+                    by Discord bot about Warframe -
+                    ask administrator to add
+                    Warframe settings to your account</p>
+                {% endif %}
                 <input class="btn btn-primary float-right" type="submit" value="Update" />
             </form>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -249,7 +249,6 @@ class DiscordUser(models.Model):
         User, on_delete=models.SET_NULL, blank=True, null=True)
     wf_settings = models.OneToOneField(
         WFSettings, on_delete=models.SET_NULL, blank=True, null=True)
-    token = models.CharField(unique=True, blank=True, null=True, max_length=20)
 
     id = models.IntegerField(
         "Discord ID",
@@ -259,34 +258,15 @@ class DiscordUser(models.Model):
         primary_key=True,
         help_text='Required. 18 characters, digits only.',
         validators=[RegexValidator(r'^\d{1,18}$')])
-
     display_name = models.TextField(
         "Username",
         max_length=40,
         help_text="Current discord display name")
-
-    steam_id = models.CharField(
-        "Steam ID",
-        blank=True,
-        null=False,
-        default='',
-        max_length=17,
-        validators=[RegexValidator(r'^\d{1,17}$')],
-        help_text="17 characters, digits only.")
-
-    blizzard_id = models.TextField(
-        "Blizzard Tag",
-        blank=True,
-        null=False,
-        default='',
-        help_text="Example: Username-0000")
-
     poe_profile = models.TextField(
         "PoE Account",
         blank=True,
         null=False,
         default='')
-
     admin = models.BooleanField(
         default=False,
         blank=False,
@@ -311,29 +291,13 @@ class DiscordUser(models.Model):
     def __str__(self):
         return self.display_name
 
-    def generate_new_token(self):
-        while True:
-            _new_token = uuid.uuid4().hex[:20].upper()
-            if not (DiscordUser.objects
-                    .filter(token=_new_token)
-                    .exists()):
-                break
-        self.token = _new_token
-        self.save(update_fields=['token'])
-
-    def get_activation_url(self):
-        self.generate_new_token()
-        params = urllib.urlencode({'token': self.token})
-        url = urllib.urljoin(settings.DEFAULT_DOMAIN, reverse('main:discord_link'))
-        return f'{url}?{params}'
-
 
 class Wisdom(models.Model):
     id = models.IntegerField(blank=True, null=False, primary_key=True)
     pid = models.IntegerField(db_column='pID', default=0)
     text = models.TextField(unique=True)
-    author = models.ForeignKey(
-        DiscordUser, on_delete=models.CASCADE, verbose_name="discord user")
+    author = models.ForeignKey(DiscordUser, on_delete=models.SET_NULL,
+                               verbose_name="discord user", blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     objects = PseudoRandomManager()
 
@@ -511,7 +475,7 @@ class MixImage(DiscordImage):
     pid = models.IntegerField(default=0)
     image = models.ImageField(upload_to='mix')
     author = models.ForeignKey(
-        DiscordUser, on_delete=models.CASCADE,
+        DiscordUser, on_delete=models.SET_NULL,
         null=True, verbose_name="discord user"
     )
     objects = PseudoRandomManager()

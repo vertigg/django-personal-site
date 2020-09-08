@@ -3,7 +3,6 @@ from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm,
                                        UsernameField, password_validation)
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.utils.translation import gettext_lazy as _
@@ -41,46 +40,16 @@ class MainUserCreationForm(UserCreationForm):
     )
 
 
-class DiscordTokenForm(forms.Form):
-    token = forms.CharField(
-        required=True,
-        max_length=20,
-        help_text=_("20 characters, digits only."),
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-
-    def clean_token(self):
-        token = self.cleaned_data.get('token')
-        if not DiscordUser.objects.filter(token=token).exists():
-            raise ValidationError('Invalid token', code='invalid')
-        return token
-
-    def link_discord_profile(self, user):
-        token = self.cleaned_data.get('token')
-        try:
-            discord_user = DiscordUser.objects.get(token=token)
-            discord_user.user = user
-            user.save()
-        except DiscordUser.DoesNotExist:
-            raise ValidationError('Discord user is missing', code='missing_discord_user')
-
-
 class DiscordProfileForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(DiscordProfileForm, self).__init__(*args, **kwargs)
-        # self.fields['steam_id'].validators = [RegexValidator(r'^\d{1,17}$')]
-        # self.fields['steam_id'].max_length = 17
-        self.fields['blizzard_id'].validators = [
-            RegexValidator(r"([\w]+)\-([\d]{4,5})$")
-        ]
 
     class Meta:
         model = DiscordUser
-        fields = ('blizzard_id', 'poe_profile')
+        fields = ('poe_profile',)
         widgets = {
-            'blizzard_id': forms.TextInput(attrs={'class': 'form-control'}),
             'poe_profile': forms.TextInput(attrs={'class': 'form-control'}),
         }
         help_texts = {

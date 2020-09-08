@@ -19,27 +19,6 @@ class DjangoDiscord(commands.Cog):
         self.process = None
         self.lock = False
 
-    @commands.command()
-    async def register(self, ctx):
-        """
-        Command that creates activation link for current DiscordUser. User will be
-        created if it doesn't exist in database. If user exists, this will
-        regenerate token
-        """
-        discord_user = DiscordUser.objects.filter(id=ctx.message.author.id).first()
-        if not discord_user:
-            discord_user = DiscordUser.objects.create(
-                id=ctx.message.author.id,
-                display_name=ctx.message.author.display_name,
-                avatar_url=ctx.message.author.avatar_url
-            )
-        url = discord_user.get_activation_url()
-        message = ('Registration complete. You can finish user profile creation '
-                   f'by following this url: {url}. If link does not work for '
-                   'some reason you can always finish registration manually by '
-                   f'typing token below into token form ```{discord_user.token}```')
-        await ctx.author.send(message)
-
     @commands.command(hidden=True)
     @admin_command
     async def users_update(self, ctx):
