@@ -1,7 +1,9 @@
-from discordbot.models import DiscordUser
+from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model
-from allauth.socialaccount.adapter import get_adapter as get_account_adapter
+from django.shortcuts import redirect
+
+from discordbot.models import DiscordUser
 
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
@@ -12,29 +14,24 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         user = sociallogin.user
         if user.id:
             return
-        User = get_user_model()
+        # If user have an email in the system - connect to this account
         if user.email:
             try:
+                User = get_user_model()
                 existing_user = User.objects.get(email=user.email)
                 sociallogin.connect(request, existing_user)
+                raise ImmediateHttpResponse(redirect('main:profile'))
             except User.DoesNotExist:
                 pass
-        if sociallogin.account.provider == 'discord':
-            uid = int(sociallogin.account.uid)
-            try:
-                existing_discord_user = DiscordUser.objects.get(id=uid)
-                existing_discord_user.user = sociallogin.user
-                # sociallogin.user.discorduser = existing_discord_user
-            except DiscordUser.DoesNotExist:
-                pass
+        # If user already logged in - connect to current account
         if request.user.id:
             sociallogin.connect(request, request.user)
 
-    def is_open_for_signup(self, request, sociallogin):
-        return True
-
     def save_user(self, request, sociallogin, form):
         user = super().save_user(request, sociallogin, form)
+        # Try to connect existing DiscordUser instance if available
+        # Otherwise user will be promted to connect with DiscordUser manually
+        # via profile
         if sociallogin.account.provider == 'discord':
             uid = int(sociallogin.account.uid)
             try:

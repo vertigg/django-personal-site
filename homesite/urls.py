@@ -10,7 +10,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    # path('books', include('books.urls')),
     path('', include('main.urls')),
     path('games/', include('webgames.urls')),
     path('ladder/', include('poeladder.urls')),
@@ -19,6 +18,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include(discord_urls)),
     path('accounts/', include(battle_net_urls)),
+    path('accounts/', include('allauth.socialaccount.urls')),
 ]
 
 if settings.DEBUG:
