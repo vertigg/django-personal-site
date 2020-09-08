@@ -61,22 +61,23 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         discord_user = getattr(self.request.user, 'discorduser', None)
-        discord_social = self.request.user.socialaccount_set.filter(provider='discord').first()
-        if not discord_user:
-            if discord_social:
-                uid = int(discord_social.uid)
-                _existing_discord_user = DiscordUser.objects.filter(id=uid).first()
-                if _existing_discord_user:
-                    self.request.user.discorduser = _existing_discord_user
-                    if not hasattr(_existing_discord_user, 'wf_settings'):
-                        _existing_discord_user.wf_settings = WFSettings.objects.create()
-                    self.request.user.save()
-                    messages.add_message(
-                        request=self.request,
-                        level=messages.SUCCESS,
-                        message='Successfully autolinked with existing DiscordUser instance'
-                    )
-                    discord_user = _existing_discord_user
+        discord_social = self.request.user.socialaccount_set.filter(
+            provider='discord').first()
+        # if not discord_user:
+        #     if discord_social:
+        #         uid = int(discord_social.uid)
+        #         _existing_discord_user = DiscordUser.objects.filter(id=uid).first()
+        #         if _existing_discord_user:
+        #             self.request.user.discorduser = _existing_discord_user
+        #             if not hasattr(_existing_discord_user, 'wf_settings'):
+        #                 _existing_discord_user.wf_settings = WFSettings.objects.create()
+        #             self.request.user.save()
+        #             messages.add_message(
+        #                 request=self.request,
+        #                 level=messages.SUCCESS,
+        #                 message='Successfully autolinked with existing DiscordUser instance'
+        #             )
+        #             discord_user = _existing_discord_user
         context.update({
             'discorduser': discord_user,
             'discord_social': discord_social,
@@ -146,7 +147,8 @@ class DiscordLinkView(FormView):
         if request.GET.get('token'):
             return self._autolink(request.GET.get('token'))
         if request.user.socialaccount_set.exists():
-            discord_account = request.user.socialaccount_set.filter(provider='discord').first()
+            discord_account = request.user.socialaccount_set.filter(
+                provider='discord').first()
             if discord_account:
                 uid = int(discord_account.uid)
                 discord_user = DiscordUser.objects.filter(id=uid).first()

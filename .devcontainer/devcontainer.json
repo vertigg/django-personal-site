@@ -10,7 +10,8 @@
 		"eamodio.gitlens",
 		"donjayamanne.githistory",
 		"fabiospampinato.vscode-todo-plus",
-		"njpwerner.autodocstring"
+		"njpwerner.autodocstring",
+		"ms-python.vscode-pylance"
 	],
 	"forwardPorts": [
 		8000
