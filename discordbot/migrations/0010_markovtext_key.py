@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='markovtext',
             name='key',
-            field=models.CharField(default='default', help_text='Unique identifier', max_length=200, unique=True),
-            preserve_default=False,
+            field=models.IntegerField(help_text='Discord Channel ID', unique=True, default=0),
         ),
     ]

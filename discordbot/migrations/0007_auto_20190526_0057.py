@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('discordbot', '0006_auto_20190426_0108'),
+        ('discordbot', '0003_remove_discorduser_bnet_token'),
     ]
 
     operations = [

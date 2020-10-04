@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
             name='DiscordUser',
             fields=[
                 ('token', models.CharField(blank=True, max_length=20, null=True, unique=True)),
-                ('id', models.CharField(blank=True, help_text='Required. 18 characters, digits only.', max_length=18, primary_key=True, serialize=False, unique=True, validators=[django.core.validators.RegexValidator('^\\d{1,18}$')], verbose_name='Discord ID')),
+                ('id', models.IntegerField(blank=True, help_text='Required. 18 characters, digits only.', max_length=18, primary_key=True, serialize=False, unique=True, validators=[django.core.validators.RegexValidator('^\\d{1,18}$')], verbose_name='Discord ID')),
                 ('display_name', models.TextField(help_text='Current discord display name', max_length=40, verbose_name='Username')),
                 ('steam_id', models.CharField(blank=True, default='', help_text='17 characters, digits only.', max_length=17, validators=[django.core.validators.RegexValidator('^\\d{1,17}$')], verbose_name='Steam ID')),
                 ('blizzard_id', models.TextField(blank=True, default='', help_text='Example: Username-0000', verbose_name='Blizzard Tag')),

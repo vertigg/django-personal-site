@@ -6,14 +6,8 @@ from django.db import migrations
 def forwards(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     link = apps.get_model('discordbot', 'DiscordLink')
-    link.objects.using(db_alias).create(
-        key='corona_deaths',
-        url='https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22Deaths%22%2C%22outStatisticFieldName%22%3A%22value%22%7D%5D&outSR=102100&cacheHint=true'
-    )
-    link.objects.using(db_alias).create(
-        key='corona_recovered',
-        url='https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22Recovered%22%2C%22outStatisticFieldName%22%3A%22value%22%7D%5D&outSR=102100&cacheHint=true'
-    )
+    link.objects.using(db_alias).create(key='corona_deaths', url='')
+    link.objects.using(db_alias).create(key='corona_recovered', url='')
 
 
 def backwards(apps, schema_editor):

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('discordbot', '0017_delete_mixevent'),
+        ('discordbot', '0015_coronareport'),
     ]
 
     operations = [
