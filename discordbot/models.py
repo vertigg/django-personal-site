@@ -250,7 +250,7 @@ class DiscordUser(models.Model):
     wf_settings = models.OneToOneField(
         WFSettings, on_delete=models.SET_NULL, blank=True, null=True)
 
-    id = models.IntegerField(
+    id = models.BigIntegerField(
         "Discord ID",
         unique=True,
         blank=True,
@@ -311,7 +311,7 @@ class Wisdom(models.Model):
 class MarkovText(models.Model):
     text = models.TextField()
     last_update = models.DateTimeField(blank=True, null=True, auto_now=False)
-    key = models.IntegerField(help_text='Discord Channel ID', unique=True)
+    key = models.BigIntegerField(help_text='Discord Channel ID', unique=True)
 
     def __str__(self):
         return f'<Markov Text Object: {self.key}>'
@@ -449,7 +449,7 @@ class CoronaReport(models.Model):
 class DiscordImage(models.Model):
     date = models.DateTimeField()
     image = models.ImageField(upload_to='images')
-    checksum = models.CharField(max_length=16, editable=False, null=True)
+    checksum = models.CharField(max_length=32, editable=False, null=True)
 
     class Meta:
         abstract = True
