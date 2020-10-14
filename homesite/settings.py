@@ -3,6 +3,7 @@ Main settings file.
 """
 
 import os
+import sys
 
 import sentry_sdk
 from dotenv import load_dotenv
@@ -32,7 +33,8 @@ IMGUR_SECRET = os.getenv('IMGUR_SECRET')
 STEAM_API_KEY = os.getenv('STEAM_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv('DJANGO_DEBUG', None))
+TESTING = 'test' in sys.argv
+
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
 
 if not DEBUG:
@@ -74,7 +76,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.discord',
-    'allauth.socialaccount.providers.battlenet'
 ]
 
 MIDDLEWARE = [

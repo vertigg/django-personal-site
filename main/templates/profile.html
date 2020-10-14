@@ -56,13 +56,6 @@
                 {% else %}
                 <a class="btn btn-secondary w-100" href="{% provider_login_url "discord" %}">Connect Discord account</a>
                 {% endif %}
-                {% if accounts.battlenet.0 %}
-                <a class="btn btn-info w-100 disabled" href="{% provider_login_url "battlenet" %}">Battle.Net
-                    connected</a>
-                {% else %}
-                <a class="btn btn-info w-100" href="{% provider_login_url "battlenet" %}">Connect Battle.Net
-                    account</a>
-                {% endif %}
             </div>
         </div>
         <div class="col-md-6">
