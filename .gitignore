@@ -270,7 +270,7 @@ datadump.json
 db.sqlite3
 .mp4
 .webm
-books/
+playground/
 *.db
 
 # Discord bot
