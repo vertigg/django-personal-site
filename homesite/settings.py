@@ -33,6 +33,7 @@ IMGUR_SECRET = os.getenv('IMGUR_SECRET')
 STEAM_API_KEY = os.getenv('STEAM_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = bool(os.getenv('DJANGO_DEBUG', None))
 TESTING = 'test' in sys.argv
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
