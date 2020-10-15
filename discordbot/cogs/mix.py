@@ -103,7 +103,7 @@ class Mix(commands.Cog):
             text=text, date=now(),
             author_id=ctx.message.author.id
         )
-        await ctx.send('{} added'.format(text))
+        await ctx.send(f'{text} added')
 
 
 def setup(bot):

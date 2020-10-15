@@ -5,11 +5,10 @@ import pandas as pd
 import pytz
 from discord.errors import HTTPException
 from discord.ext import commands, tasks
+from django.db.models.functions import Length
 from markovify import Text
 
 from discordbot.models import MarkovText
-from django.db.models.functions import Length
-
 from .utils.checks import admin_command
 from .utils.exceptions import MissingContextError, UnavailableChannelError
 from .utils.formatters import clean_text
@@ -23,7 +22,7 @@ class Markov(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self._excluded_ids = [223837667186442240, 359297047830069251]
+        self._excluded_ids = [223837667186442240, 345296059712405505]
         self.markov_texts = self._get_cached_texts()
         self.channel_locks = dict.fromkeys(self.markov_texts, False)
         self.update_text_caches.start()
@@ -114,9 +113,9 @@ class Markov(commands.Cog):
             ctx (Context, optional): Current message context. Defaults to None.
             channel_id: Discord Channel ID. Bot must have
                 permissions to read that channel. Defaults to None.
-            limit: Limits the number of messages we want to retrieve. 
+            limit: Limits the number of messages we want to retrieve.
                 Defaults to None.
-            after: Optional datetime after which we want to retrive messages. 
+            after: Optional datetime after which we want to retrive messages.
                 Defaults to None.
 
         Raises:
@@ -176,7 +175,7 @@ class Markov(commands.Cog):
     async def update(self, ctx, channel_id: int = None):
         """
         Command used for updating MarkovText object for current text channel.
-        Can be invoked by admin user only 
+        Can be invoked by admin user only
         """
         channel_id = ctx.channel.id if not channel_id and ctx else channel_id
         self.channel_locks[channel_id] = True
