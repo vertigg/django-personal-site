@@ -26,7 +26,8 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if message.author == bot.user:
+    if (message.author == bot.user
+            or message.author.id in settings.DISCORD_IGNORED_USERS):
         return
     await bot.process_commands(message)
 
