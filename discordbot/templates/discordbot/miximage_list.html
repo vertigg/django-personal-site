@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% load static %} {% block css %}
+<link
+  href="https://unpkg.com/@fortawesome/fontawesome-free@5.13.0/css/all.css"
+  rel="stylesheet"
+/>
+{% include 'bootstrap4.html' %}
+{% endblock %} {% block title %}Mix poll{% endblock title %} {% block content %}
+{% include "header.html" %}
+
+<div class="container-fluid w-75 mt-4">
+  <section class="section">
+    <h1 class="title">Mix Gallery</h1>
+    <img src="{% static 'discordbot/emotes/ricardoFlick.gif'%}" alt="" />
+  </section>
+  <hr>
+</div>
+<div class="container-fluid w-75" style="display: flex; flex-wrap: wrap">
+  {% for item in object_list %}
+  <a href="{% url 'discordbot:mix_detail' %}?page={{forloop.counter}}">
+    <img
+      class=""
+      src="{{item.image.url}}"
+      style="max-width: 128px; max-height: 128px"
+    />
+  </a>
+  {% endfor %}
+</div>
+{% endblock %} {% block footer %} {% endblock %}

@@ -24,7 +24,15 @@
 <body>
     <header>{% block header %}{% endblock %}</header>
     {% block content %}{% endblock %}
-    <footer class="footer">{% block footer %}{% endblock %}</footer>
+    {% block footer %}
+    <footer class="footer">
+        {% block footer_content %}
+        {% endblock %}
+    </footer>
+    {% endblock %}
 </body>
+
+{% block script %}
+{% endblock %}
 
 </html>

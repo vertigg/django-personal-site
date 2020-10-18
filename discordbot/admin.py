@@ -12,10 +12,12 @@ from django.forms import Textarea, TextInput
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.defaultfilters import truncatechars
 from django.urls import path
+from django.utils.safestring import mark_safe
 
 from discordbot.models import (CoronaReport, Counter, CounterGroup,
                                DiscordLink, DiscordSettings, DiscordUser,
-                               Gachi, MarkovText, MixImage, WFAlert, Wisdom)
+                               Gachi, MarkovText, MixImage, MixPollEntry,
+                               WFAlert, Wisdom)
 
 
 @admin.register(MarkovText)
@@ -118,7 +120,7 @@ class DiscordMixImageAdmin(admin.ModelAdmin):
     def download_backup(self, request):
         """
         Generates zip archive with all MixImage pictures and CSV file with all
-        MixImage data from database 
+        MixImage data from database
         """
         date = datetime.now().strftime('%y%m%d%H%M%S')
         file_list = [os.path.join(settings.MEDIA_ROOT, x) for x in
@@ -144,6 +146,15 @@ class DiscordMixImageAdmin(admin.ModelAdmin):
         resp = HttpResponse(buffer.getvalue(), content_type="application/x-zip-compressed")
         resp['Content-Disposition'] = f'attachment; filename={zip_filename}'
         return resp
+
+
+@admin.register(MixPollEntry)
+class MixPollEntryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'image', 'liked', 'modified')
+    readonly_fields = ('user', 'image', 'preview', 'liked', 'created', 'modified', 'deleted')
+
+    def preview(self, obj):
+        return mark_safe(f'<img src="{obj.image.image.url}" height=100px />')
 
 
 admin.site.register(WFAlert)

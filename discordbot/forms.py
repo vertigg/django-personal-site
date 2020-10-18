@@ -1,6 +1,7 @@
-from discordbot.models import WFSettings
 from django import forms
 from django.db.models.fields import BooleanField
+
+from discordbot.models import MixPollEntry, WFSettings
 
 
 class WFSettingsForm(forms.ModelForm):
@@ -23,3 +24,26 @@ class WFSettingsForm(forms.ModelForm):
             self.request.user.discorduser.save()
             return obj
         return super().save(commit=commit)
+
+
+class MixPollEntryForm(forms.ModelForm):
+    liked = forms.NullBooleanSelect()
+
+    class Meta:
+        model = MixPollEntry
+        fields = ['user', 'image', 'liked']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'image': forms.HiddenInput(),
+            'liked': forms.HiddenInput()
+        }
+
+    def save(self, commit: bool = True):
+        user = self.cleaned_data.get('user')
+        image = self.cleaned_data.get('image')
+        obj, created = MixPollEntry.objects.get_or_create(user=user, image=image)
+        if not created and obj.liked == self.cleaned_data.get('liked'):
+            obj.liked = None
+        else:
+            obj.liked = self.cleaned_data.get('liked')
+        return obj.save(update_fields=['liked'])

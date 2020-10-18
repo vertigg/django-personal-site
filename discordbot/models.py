@@ -1,6 +1,5 @@
 import hashlib
 import urllib.parse as urllib
-import uuid
 from urllib.parse import urlencode
 
 from discord import Colour, Embed
@@ -14,6 +13,8 @@ from django.template.defaultfilters import truncatechars
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+
+from discordbot.base.models import BaseModel
 
 
 class PseudoRandomManager(models.Manager):
@@ -446,7 +447,7 @@ class CoronaReport(models.Model):
         return f'Corona Report: {self.timestamp.strftime("%Y-%m-%d %H-%M")}'
 
 
-class DiscordImage(models.Model):
+class DiscordImage(BaseModel):
     date = models.DateTimeField()
     image = models.ImageField(upload_to='images')
     checksum = models.CharField(max_length=32, editable=False, null=True)
@@ -488,6 +489,19 @@ class MixImage(DiscordImage):
         if self.image:
             return urllib.urljoin(settings.DEFAULT_DOMAIN, self.image.url)
         return f'Current DiscordMixImage {self.id} does not have attached file'
+
+
+class MixPollEntry(BaseModel):
+    image = models.ForeignKey(MixImage, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    liked = models.BooleanField(default=False, null=True)
+
+    class Meta:
+        verbose_name = 'Mix Poll Entry'
+        verbose_name_plural = 'Mix Poll Entries'
+
+    def __str__(self):
+        return f'{self.user} {self.liked} {self.image}'
 
 
 @receiver(post_save, sender=User)
