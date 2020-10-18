@@ -9,7 +9,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.template.defaultfilters import truncatechars
+from django.template.defaultfilters import random, truncatechars
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -52,7 +52,7 @@ class PseudoRandomManager(models.Manager):
         only to 0 or 1
         """
         self._check_columns()
-        qs = self.get_queryset().filter(pid=0).order_by('?')
+        qs = self.get_queryset().filter(deleted=False, pid=0).order_by('?')
         if qs.exists():
             obj = qs.first()
             if pid_func and not callable(pid_func):
@@ -65,13 +65,27 @@ class PseudoRandomManager(models.Manager):
         self._reset_pids()
         return self.get_random_entry(pid_func=pid_func)
 
-    def get_random_weighted_entry(self):
+    def _get_random_weighted_entry(self):
         """
         Returns random entry based `pid` weight, which is calculated based
         on object timestamp. Using internal _get_new_weighted_pid function
         to calculate new pid
         """
         return self.get_random_entry(pid_func=self._get_new_weighted_pid)
+
+    pid_weights = {
+        0: 0.5,
+        1: 0.25,
+        2: 0.125,
+        3: 0.0625,
+        4: 0.03,
+        5: 0.01
+    }
+
+    def get_random_weighted_entry(self):
+        pid = random.choices(list(self.pid_weights.keys()),
+                             weights=list(self.pid_weights.values()))
+        return self.get_queryset().filter(deleted=False, pid=pid).order_by('?').first()
 
 
 class CounterGroup(models.Model):
