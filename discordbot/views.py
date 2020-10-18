@@ -3,9 +3,7 @@ import json
 import pandas as pd
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, OuterRef, Subquery, Value
-from django.db.models.fields import IntegerField
-from django.db.models.functions import Coalesce
+from django.db.models import Count
 from django.db.models.query_utils import Q
 from django.http import JsonResponse
 from django.shortcuts import Http404, redirect
@@ -56,13 +54,7 @@ class MixPollGallery(LoginRequiredMixin, ListView):
     model = MixImage
 
     def get_queryset(self):
-        sub = MixPollEntry.objects.filter(image=OuterRef('pk'))
-        likes = sub.filter(liked=True).annotate(c=Count('liked')).values('c')
-        dislikes = sub.filter(liked=False).annotate(c=Count('liked')).values('c')
-        return super().get_queryset().order_by('id').annotate(
-            likes=Coalesce(Subquery(likes, output_field=IntegerField()), Value(0)),
-            dislikes=Coalesce(Subquery(dislikes, output_field=IntegerField()), Value(0))
-        )
+        return super().get_queryset().order_by('id')
 
 
 class MixPoll(LoginRequiredMixin, ListView):

@@ -3,44 +3,26 @@
   href="https://unpkg.com/@fortawesome/fontawesome-free@5.13.0/css/all.css"
   rel="stylesheet"
 />
-{% include 'bootstrap4.html' %} {% endblock %} {% block title %}Mix Gallery{% endblock title %}
-{% block content %} {% include "header.html" %}
+{% include 'bootstrap4.html' %}
+{% endblock %} {% block title %}Mix poll{% endblock title %} {% block content %}
+{% include "header.html" %}
 
 <div class="container-fluid w-75 mt-4">
   <section class="section">
     <h1 class="title">Mix Gallery</h1>
     <img src="{% static 'discordbot/emotes/ricardoFlick.gif'%}" alt="" />
   </section>
-  <hr />
+  <hr>
 </div>
-<div class="container-fluid w-75">
-  <table class="table">
-    <thead>
-      <tr class="d-flex">
-        <th class="col-6">Image</th>
-        <th class="col-6">Likes/Dislikes</th>
-      </tr>
-    </thead>
-    <tbody>
+<div class="container-fluid w-75" style="display: flex; flex-wrap: wrap">
   {% for item in object_list %}
-  <tr class="d-flex">
-    <td class="col-6">   <a href="{% url 'discordbot:mix_detail' %}?page={{forloop.counter}}">
-      <img
+  <a href="{% url 'discordbot:mix_detail' %}?page={{forloop.counter}}">
+    <img
       class=""
       src="{{item.image.url}}"
-      style="max-width: 512px; max-height: 512px"
-      />
-     </a></td>
-    <td class="text-left">    
-      <span style="text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
-        <i class="far fa-thumbs-up"></i> {{ item.likes }}
-        <i class="far fa-thumbs-down"></i> {{ item.dislikes }}
-      </span>
-   </td>
-  </tr>
+      style="max-width: 128px; max-height: 128px"
+    />
+  </a>
   {% endfor %}
-
-</tbody>
-</table>
 </div>
 {% endblock %} {% block footer %} {% endblock %}
