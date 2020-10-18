@@ -308,7 +308,7 @@ class DiscordUser(models.Model):
         return self.display_name
 
 
-class Wisdom(models.Model):
+class Wisdom(BaseModel):
     id = models.IntegerField(blank=True, null=False, primary_key=True)
     pid = models.IntegerField(db_column='pID', default=0)
     text = models.TextField(unique=True)
