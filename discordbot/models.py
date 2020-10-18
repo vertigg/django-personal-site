@@ -85,7 +85,7 @@ class PseudoRandomManager(models.Manager):
 
     def get_random_weighted_entry(self):
         pid = random.choices(list(self.pid_weights.keys()),
-                             weights=list(self.pid_weights.values()))
+                             weights=list(self.pid_weights.values()))[0]
         return self.get_queryset().filter(deleted=False, pid=pid).order_by('?').first()
 
 
