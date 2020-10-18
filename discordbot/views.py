@@ -54,7 +54,7 @@ class MixPollGallery(LoginRequiredMixin, ListView):
     model = MixImage
 
     def get_queryset(self):
-        return super().get_queryset().order_by('id')
+        return super().get_queryset().filter(deleted=False).order_by('id')
 
 
 class MixPoll(LoginRequiredMixin, ListView):
@@ -63,10 +63,12 @@ class MixPoll(LoginRequiredMixin, ListView):
     template_name = 'discordbot/miximage_detail.html'
 
     def get_queryset(self):
-        return super().get_queryset().order_by('id').select_related('author')
+        return (super().get_queryset().filter(deleted=False)
+                .order_by('id').select_related('author'))
 
     def get_user_like(self, image):
-        obj = MixPollEntry.objects.filter(user=self.request.user, image=image).first()
+        obj = MixPollEntry.objects.filter(
+            user=self.request.user, image=image).first()
         return obj.liked if obj else None
 
     def get_total_votes(self, image):
