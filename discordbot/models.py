@@ -1,6 +1,7 @@
 import hashlib
 import random
 import urllib.parse as urllib
+from datetime import timedelta
 from urllib.parse import urlencode
 
 from discord import Colour, Embed
@@ -23,69 +24,60 @@ class PseudoRandomManager(models.Manager):
     Custom manager for models with `pid` field. Used for 'pseudo' random
     discord bot commands
     """
-    MAX_PID_VALUE = 5
     PID_WEIGHT_MAPPING = (
-        (250, 1),
-        (500, 2),
-        (1000, 3),
-        (1500, 4),
+        (0, 0.7, (0, 125)),
+        (1, 0.35, (125, 250)),
+        (2, 0.225, (250, 500)),
+        (3, 0.125, (500, 750)),
+        (4, 0.1, (750, 1000)),
+        (5, 0.05, (1000, 1500)),
     )
+    PIDS = [x[0] for x in PID_WEIGHT_MAPPING]
+    WEIGHTS = [x[1] for x in PID_WEIGHT_MAPPING]
 
     def _check_columns(self):
         if not any([isinstance(x, models.IntegerField) and x.attname == 'pid'
                     for x in self.model._meta.fields]):
             raise Exception(f'Model {self.model} does not have `pid` integer field')
 
-    def _get_new_weighted_pid(self, obj):
-        for delta, pid_value in self.PID_WEIGHT_MAPPING:
-            if (now() - obj.date).days <= delta:
-                return obj.pid + pid_value
-        return obj.pid + self.MAX_PID_VALUE
+    def refresh_weigted_pids(self):
+        """
+        Refreshes pid values across whole queryset, based on PID_WEIGHT_MAPPING
+        """
+        for pid, _, deltas in self.PID_WEIGHT_MAPPING:
+            min_date = now() - timedelta(days=deltas[0])
+            max_date = now() - timedelta(days=deltas[1])
+            self.get_queryset().filter(
+                date__lte=min_date, date__gte=max_date).update(pid=pid)
 
-    def _reset_pids(self):
+    def reset_pids(self):
         """Resets all `pid` fields to 0"""
         self._check_columns()
         return self.get_queryset().update(pid=0)
 
-    def get_random_entry(self, pid_func=None):
+    def get_random_entry(self):
         """
-        Returns random entry based on `pid` field. This function sets field 
+        Returns random entry based on `pid` field. This function sets field
         only to 0 or 1
         """
         self._check_columns()
         qs = self.get_queryset().filter(deleted=False, pid=0).order_by('?')
         if qs.exists():
             obj = qs.first()
-            if pid_func and not callable(pid_func):
-                raise ValueError('pid_func should be function')
-            obj.pid = 1 if not pid_func else pid_func(obj)
+            obj.pid = 1
             obj.save()
             return obj
         if not self.get_queryset().exists():
             return f'No records for `{self.model._meta.object_name}` model'
-        self._reset_pids()
-        return self.get_random_entry(pid_func=pid_func)
-
-    def _get_random_weighted_entry(self):
-        """
-        Returns random entry based `pid` weight, which is calculated based
-        on object timestamp. Using internal _get_new_weighted_pid function
-        to calculate new pid
-        """
-        return self.get_random_entry(pid_func=self._get_new_weighted_pid)
-
-    pid_weights = {
-        0: 0.5,
-        1: 0.25,
-        2: 0.125,
-        3: 0.0625,
-        4: 0.03,
-        5: 0.01
-    }
+        self.reset_pids()
+        return self.get_random_entry()
 
     def get_random_weighted_entry(self):
-        pid = random.choices(list(self.pid_weights.keys()),
-                             weights=list(self.pid_weights.values()))[0]
+        """
+        Returns random entry based `pid` weight, which is calculated based
+        on object timestamp.
+        """
+        pid = random.choices(self.PIDS, weights=self.WEIGHTS)[0]
         return self.get_queryset().filter(deleted=False, pid=pid).order_by('?').first()
 
 
