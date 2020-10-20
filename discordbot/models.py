@@ -25,12 +25,12 @@ class PseudoRandomManager(models.Manager):
     discord bot commands
     """
     PID_WEIGHT_MAPPING = (
-        (0, 0.7, (0, 125)),
-        (1, 0.35, (125, 250)),
-        (2, 0.225, (250, 500)),
-        (3, 0.125, (500, 750)),
+        (0, 0.33, (0, 125)),
+        (1, 0.20, (125, 250)),
+        (2, 0.15, (250, 500)),
+        (3, 0.13, (500, 750)),
         (4, 0.1, (750, 1000)),
-        (5, 0.05, (1000, 1500)),
+        (5, 0.9, (1000, 1500)),
     )
     PIDS = [x[0] for x in PID_WEIGHT_MAPPING]
     WEIGHTS = [x[1] for x in PID_WEIGHT_MAPPING]
