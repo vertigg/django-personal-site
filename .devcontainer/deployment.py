@@ -11,6 +11,10 @@ PASSWORD = os.getenv('SSH_PASSWORD')
 SERVER_ADDRESS = os.getenv('SERVER_ADDRESS')
 PATH = os.getenv('PRODUCTION_PROJECT_PATH')
 
+logging.debug(USERNAME)
+logging.debug(PATH)
+logging.debug(SERVER_ADDRESS)
+
 if not all([USERNAME, PASSWORD, PATH, SERVER_ADDRESS]):
     raise Exception('Script is improperly configured')
 
