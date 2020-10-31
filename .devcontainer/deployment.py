@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import paramiko
 
@@ -21,4 +22,5 @@ logging.info(ssh_client)
 logging.info('Running deployment command')
 command = f'cd {PATH} && git pull && supervisorctl restart bot homesite'
 stdin, stdout, stderr = ssh_client.exec_command(command)
+time.sleep(10)
 logging.info(''.join(stdout.readlines()))
