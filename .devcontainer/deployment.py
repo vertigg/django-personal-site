@@ -3,7 +3,7 @@ import os
 
 import paramiko
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 
 USERNAME = os.getenv('SSH_USERNAME')
 PASSWORD = os.getenv('SSH_PASSWORD')
@@ -21,4 +21,4 @@ logging.info(ssh_client)
 logging.info('Running deployment command')
 command = f'cd {PATH} && git pull && supervisorctl restart homesite && supervisortcl restart bot'
 stdin, stdout, stderr = ssh_client.exec_command(command)
-ssh_client.close()
+stdin.close()
