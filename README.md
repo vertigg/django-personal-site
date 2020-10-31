@@ -1,3 +1,5 @@
-# django-personal-site
+![Project deployment](https://github.com/EpicVertigo/django-personal-site/workflows/Project%20deployment/badge.svg?branch=master)
 
-Test repository for personal django site
+# Vertig Homesite
+
+Test repository for personal django site.
