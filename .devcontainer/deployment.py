@@ -19,7 +19,6 @@ ssh_client.connect(SERVER_ADDRESS, username=USERNAME, password=PASSWORD, allow_a
 
 logging.info(ssh_client)
 logging.info('Running deployment command')
-command = f'cd {PATH} && git pull && supervisorctl restart homesite && supervisortcl restart bot'
+command = f'cd {PATH} && git pull && supervisorctl restart bot homesite'
 stdin, stdout, stderr = ssh_client.exec_command(command)
-logging.info(stdout.readlines())
-stdin.close()
+logging.info(''.join(stdout.readlines()))
