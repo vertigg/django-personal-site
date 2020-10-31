@@ -22,5 +22,6 @@ logging.info(ssh_client)
 logging.info('Running deployment command')
 command = f'cd {PATH} && git pull && supervisorctl restart bot homesite'
 stdin, stdout, stderr = ssh_client.exec_command(command)
-time.sleep(10)
+time.sleep(5)
+logging.debug('STDIN: %s\ns, STDOUT: %s\n, STDERR: %s\n', stdin, stdout, stderr)
 logging.info(''.join(stdout.readlines()))
