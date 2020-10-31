@@ -4,7 +4,7 @@ import time
 
 import paramiko
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 USERNAME = os.getenv('SSH_USERNAME')
 PASSWORD = os.getenv('SSH_PASSWORD')

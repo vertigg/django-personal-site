@@ -5,27 +5,25 @@ name: Python application
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Deploy
-      env:
-        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-        SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
-        PRODUCTION_PROJECT_PATH: $ {{ secrets.PRODUCTION_PROJECT_PATH }}
-      run: |
-        python -m pip install --upgrade pip
-        pip install paramiko
-        python .devcontainer/deployment.py
-
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Deploy
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+          PRODUCTION_PROJECT_PATH: $ {{ secrets.PRODUCTION_PROJECT_PATH }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install paramiko
+          python .devcontainer/deployment.py
