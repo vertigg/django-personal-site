@@ -11,8 +11,7 @@ import pandas as pd
 from discord import VoiceRegion as region
 from discord.errors import Forbidden
 from discord.ext import commands
-
-from discordbot.cogs.utils.checks import admin_command
+from discordbot.cogs.utils.checks import admin_command, mod_command
 
 logger = logging.getLogger('discordbot.admin')
 
@@ -31,7 +30,7 @@ class Admin(commands.Cog):
         ]
 
     @commands.command(hidden=True)
-    @admin_command
+    @mod_command
     async def region(self, ctx):
         new_region = random.choice(
             [x for x in self.eu_regions if x != ctx.guild.region])

@@ -5,8 +5,6 @@ import sys
 
 from discord.ext import commands
 
-from discordbot.models import DiscordUser
-
 from .utils.checks import admin_command, mod_command
 from .utils.db import update_display_names
 

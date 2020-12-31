@@ -14,10 +14,10 @@ from django.template.defaultfilters import truncatechars
 from django.urls import path
 from django.utils.safestring import mark_safe
 
-from discordbot.models import (CoronaReport, Counter, CounterGroup,
-                               DiscordLink, DiscordSettings, DiscordUser,
-                               Gachi, MarkovText, MixImage, MixPollEntry,
-                               WFAlert, Wisdom)
+from discordbot.models import (
+    DiscordLink, DiscordSettings, DiscordUser, Gachi, MarkovText, MixImage,
+    MixPollEntry, WFAlert, Wisdom
+)
 
 
 @admin.register(MarkovText)
@@ -44,16 +44,6 @@ class MarkovTextAdmin(admin.ModelAdmin):
             response['Content-Disposition'] = f'attachment; filename={obj.key}.txt'
             return response
         return super().response_change(request, obj)
-
-
-@admin.register(Counter)
-class BasicCounterAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(CounterGroup)
-class CounterGroupAdmin(admin.ModelAdmin):
-    pass
 
 
 @admin.register(DiscordLink)
@@ -158,4 +148,3 @@ class MixPollEntryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(WFAlert)
-admin.site.register(CoronaReport)

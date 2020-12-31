@@ -2,6 +2,8 @@ import logging
 from functools import wraps
 from re import match
 
+from django.utils import timezone
+
 from discordbot.models import DiscordUser
 
 logger = logging.getLogger('discordbot.utils.checks')
@@ -24,28 +26,20 @@ def is_youtube_link(url):
 def admin_command(func):
     """Checks if command executed by admin or bot's owner"""
     @wraps(func)
-    async def decorated(*args, **kwargs):
-        try:
-            admin_list = (DiscordUser.objects
-                          .filter(admin=True)
-                          .values_list('id', flat=True))
-            if args[1].message.author.id in admin_list:
-                return await func(*args, **kwargs)
-        except Exception as ex:
-            logger.error(ex)
+    async def decorated(self, ctx, **kwargs):
+        if DiscordUser.is_admin(ctx.message.author.id):
+            return await func(self, ctx, **kwargs)
+        return await ctx.send(
+            f"You don't have permissions to call `{ctx.command.name}` command")
     return decorated
 
 
 def mod_command(func):
     """Checks if command executed by mod"""
     @wraps(func)
-    async def decorated(*args, **kwargs):
-        try:
-            mod_list = (DiscordUser.objects
-                        .filter(mod_group=True)
-                        .values_list('id', flat=True))
-            if args[1].message.author.id in mod_list:
-                return await func(*args, **kwargs)
-        except Exception as ex:
-            logger.error(ex)
+    async def decorated(self, ctx, **kwargs):
+        if DiscordUser.is_moderator(ctx.message.author.id):
+            return await func(self, ctx, **kwargs)
+        return await ctx.send(
+            f"You don't have permissions to call `{ctx.command.name}` command")
     return decorated

@@ -5,9 +5,7 @@ from datetime import datetime
 
 import discord
 from discord.ext import commands, tasks
-
-from discordbot.models import (CoronaReport, DiscordLink, DiscordSettings,
-                               DiscordUser, Gachi)
+from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
 
 from .utils.checks import is_youtube_link, mod_command
 from .utils.db import update_display_names
@@ -31,15 +29,6 @@ class General(commands.Cog):
         await self.bot.wait_until_ready()
         logger.info('Syncing Discord user with Django database')
         update_display_names(self.bot.guilds)
-
-    @staticmethod
-    def get_link(key):
-        """Helper method that returns DiscordLink object by given key"""
-        try:
-            obj = DiscordLink.objects.get(key=key)
-            return obj.url
-        except DiscordLink.DoesNotExist:
-            return f'Link with key `{key}` does not exist in database'
 
     @commands.command()
     async def avatar(self, ctx, mention=None):
@@ -75,27 +64,29 @@ class General(commands.Cog):
     @commands.command(hidden=True)
     async def shles(self, ctx):
         """SHLES"""
-        await ctx.send(self.get_link('shles'))
+        await ctx.send(DiscordLink.get('shles'))
 
     @commands.command(hidden=True)
     async def low(self, ctx):
         if ctx.message.author.id == 127135903125733376:
-            await ctx.send(self.get_link('low'))
+            await ctx.send(DiscordLink.get('low'))
         else:
             await ctx.send('<:bearrion:230370930600312832>')
 
     @commands.command()
     async def cytube(self, ctx):
         """Для тех кто не умеет добавлять сайты в закладки"""
-        cytube_url = self.get_link('cytube')
-        movies_url = self.get_link('movies')
-        await ctx.send(f'`Смотреть` <:bearrion:230370930600312832> {cytube_url}\n'
-                       f'`Брать кинцо` <:cruzhulk:230370931065749514> {movies_url}')
+        cytube_url = DiscordLink.get('cytube')
+        movies_url = DiscordLink.get('movies')
+        await ctx.send(
+            f'`Смотреть` <:bearrion:230370930600312832> {cytube_url}\n'
+            f'`Брать кинцо` <:cruzhulk:230370931065749514> {movies_url}'
+        )
 
     @commands.command()
     async def free(self, ctx):
         """Holy scriptures"""
-        await ctx.send(f'`Живи молодым и умри молодым` {self.get_link("free")}')
+        await ctx.send(f'`Живи молодым и умри молодым` {DiscordLink.get("free")}')
 
     @commands.command()
     async def choose(self, ctx, *choices: str):
@@ -104,11 +95,11 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def friday(self, ctx):
-        await ctx.send(self.get_link('friday'))
+        await ctx.send(DiscordLink.get('friday'))
 
     @commands.command(hidden=True)
     async def flick(self, ctx):
-        await ctx.send(self.get_link('ricardo'))
+        await ctx.send(DiscordLink.get('ricardo'))
 
     @commands.command()
     async def roll(self, ctx):
@@ -129,7 +120,7 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def vb(self, ctx):
-        await ctx.send(self.get_link('vb'))
+        await ctx.send(DiscordLink.get('vb'))
 
     @commands.group()
     async def gachi(self, ctx):
@@ -160,10 +151,6 @@ class General(commands.Cog):
                                f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки')
             else:
                 await ctx.send('Ахаха передишка')
-
-    @commands.command(aliases=['korona', 'ncov'])
-    async def corona(self, ctx):
-        await ctx.send(embed=CoronaReport.generate_embed_report())
 
 
 def setup(bot):

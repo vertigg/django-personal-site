@@ -30,6 +30,14 @@ class Overwatch(commands.Cog):
         self.cooldown = 300
         self.futures = []
 
+    @property
+    def ow_players(self):
+        return (
+            DiscordUser.objects
+            .exclude(blizzard_id__exact='')
+            .values_list('blizzard_id', flat=True)
+        )
+
     @commands.group()
     async def ow(self, ctx):
         if not ctx.invoked_subcommand:
@@ -59,13 +67,10 @@ class Overwatch(commands.Cog):
         if not self.lock and time() - self.timeout >= 10:
             try:
                 self.lock = True
-                ow_players = (DiscordUser.objects
-                              .exclude(blizzard_id__exact='')
-                              .values_list('blizzard_id', flat=True))
                 tmp_message = await ctx.send('`Loading ladder`')
                 ladder = {}
                 async with aiohttp.ClientSession() as session:
-                    for k in ow_players:
+                    for k in self.ow_players:
                         self.futures.append(
                             self.check_ow_ladder(k, ladder, session))
                     await self.bot.loop.create_task(asyncio.wait(self.futures))
@@ -99,7 +104,7 @@ class Overwatch(commands.Cog):
                     result = "Not ranked"
         return result
 
-    async def check_ow_ladder(self, blizzard_id: str, ladder: dict, session):
+    async def check_ow_ladder(self, blizzard_id: str, ladder: dict, session: aiohttp.ClientSession):
         try:
             async with session.get(LINK + blizzard_id, headers=HEADERS) as resp:
                 text = await resp.text()

@@ -14,13 +14,15 @@ class MainLadderView(RedirectView):
     """Returns main page or current most populated league ladder"""
 
     def get_redirect_url(self, *args, **kwargs):
-        top_league = (PoeLeague.objects
-                      .filter(poecharacter__isnull=False)
-                      .distinct()
-                      .filter(end_date__gt=timezone.localtime())
-                      .annotate(players=Count('poecharacter'))
-                      .order_by('-players')
-                      .first())
+        top_league = (
+            PoeLeague.objects
+            .filter(poecharacter__isnull=False)
+            .distinct()
+            .filter(end_date__gt=timezone.localtime())
+            .annotate(players=Count('poecharacter'))
+            .order_by('-players')
+            .first()
+        )
         if top_league:
             return reverse('poeladder:ladder_url', kwargs={'slug': top_league.slug})
         return None

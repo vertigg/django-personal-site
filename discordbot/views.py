@@ -12,28 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, TemplateView, View
 
 from discordbot.forms import MixPollEntryForm
-from discordbot.models import CoronaReport, MixImage, MixPollEntry, WFAlert
-
-
-class CoronaChartView(TemplateView):
-    template_name = 'coronareport.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        df = pd.DataFrame.from_dict(
-            CoronaReport.objects
-            .filter(timestamp__hour=0)
-            .values('timestamp', 'deaths', 'recovered', 'confirmed')
-            .order_by('timestamp')
-            .values()
-        )
-        context.update({
-            "categories": list(df.timestamp.dt.strftime('%Y-%m-%d')),
-            'recovered': list(df.recovered),
-            'deaths': list(df.deaths),
-            'confirmed': list(df.confirmed)
-        })
-        return context
+from discordbot.models import MixImage, MixPollEntry, WFAlert
 
 
 @method_decorator(csrf_exempt, name='dispatch')
