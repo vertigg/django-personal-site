@@ -1,6 +1,6 @@
 from django.test import TestCase
-from poeladder.models import PoeLeague
 from django.utils.text import slugify
+from poeladder.models import PoeLeague
 
 
 class PoeLeagueTestCase(TestCase):
