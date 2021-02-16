@@ -10,9 +10,14 @@ from apps import setup_django
 setup_django()
 logger = logging.getLogger('discordbot')
 
+intents = discord.Intents.default()
+intents.members = True
+
+
 bot = commands.Bot(
     command_prefix='!',
-    description='Super duper halal bot for clowans. List of commands below'
+    description='Super duper halal bot for clowans. List of commands below',
+    intents=intents
 )
 
 
