@@ -1,5 +1,6 @@
 import re
 import string
+from typing import List
 
 IP_REGEX = re.compile(r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}')
 URL_REGEX = re.compile(
@@ -14,7 +15,7 @@ MARKOV_REGEXES = [
 ]
 
 
-def ru_plural(value: int, quantitative: list):
+def ru_plural(value: int, quantitative: list) -> str:
     if value % 100 in (11, 12, 13, 14):
         return quantitative[2]
     if value % 10 == 1:
@@ -39,5 +40,5 @@ def clean_text(text: str) -> str:
     return add_punctuation(text).strip().capitalize()
 
 
-def extract_urls(text: str):
+def extract_urls(text: str) -> List[str]:
     return URL_REGEX.findall(text)

@@ -1,10 +1,6 @@
 import hashlib
-import random
 import urllib.parse as urllib
-from datetime import timedelta
-from urllib.parse import urlencode
 
-from discord import Colour, Embed
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
@@ -12,73 +8,10 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
-from django.urls import reverse
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from discordbot.base.models import BaseModel
-
-
-class PseudoRandomManager(models.Manager):
-    """
-    Custom manager for models with `pid` field. Used for 'pseudo' random
-    discord bot commands
-    """
-    PID_WEIGHT_MAPPING = (
-        (0, 0.33, (0, 125)),
-        (1, 0.20, (125, 250)),
-        (2, 0.15, (250, 500)),
-        (3, 0.13, (500, 750)),
-        (4, 0.1, (750, 1000)),
-        (5, 0.9, (1000, 1500)),
-    )
-    PIDS = [x[0] for x in PID_WEIGHT_MAPPING]
-    WEIGHTS = [x[1] for x in PID_WEIGHT_MAPPING]
-
-    def _check_columns(self):
-        if not any([isinstance(x, models.IntegerField) and x.attname == 'pid'
-                    for x in self.model._meta.fields]):
-            raise Exception(f'Model {self.model} does not have `pid` integer field')
-
-    def refresh_weigted_pids(self):
-        """
-        Refreshes pid values across whole queryset, based on PID_WEIGHT_MAPPING
-        """
-        for pid, _, deltas in self.PID_WEIGHT_MAPPING:
-            min_date = now() - timedelta(days=deltas[0])
-            max_date = now() - timedelta(days=deltas[1])
-            self.get_queryset().filter(
-                date__lte=min_date, date__gte=max_date).update(pid=pid)
-
-    def reset_pids(self):
-        """Resets all `pid` fields to 0"""
-        self._check_columns()
-        return self.get_queryset().update(pid=0)
-
-    def get_random_entry(self):
-        """
-        Returns random entry based on `pid` field. This function sets field
-        only to 0 or 1
-        """
-        self._check_columns()
-        qs = self.get_queryset().filter(deleted=False, pid=0).order_by('?')
-        if qs.exists():
-            obj = qs.first()
-            obj.pid = 1
-            obj.save()
-            return obj
-        if not self.get_queryset().exists():
-            return f'No records for `{self.model._meta.object_name}` model'
-        self.reset_pids()
-        return self.get_random_entry()
-
-    def get_random_weighted_entry(self):
-        """
-        Returns random entry based `pid` weight, which is calculated based
-        on object timestamp.
-        """
-        pid = random.choices(self.PIDS, weights=self.WEIGHTS)[0]
-        return self.get_queryset().filter(deleted=False, pid=pid).order_by('?').first()
+from discordbot.managers import PseudoRandomManager
 
 
 class WFAlert(models.Model):
@@ -127,7 +60,7 @@ class WFSettings(models.Model, metaclass=WFSettingsMeta):
 
     def reset_settings(self, commit=True):
         """Sets all fields to false and saves instance"""
-        fields = [x.name for x in self._meta.fields if x.name != 'id']
+        fields = list(self.__class__.alerts.keys())
         for field in fields:
             setattr(self, field, False)
         if commit:
@@ -197,14 +130,18 @@ class DiscordSettings(models.Model):
     def __str__(self):
         return self.value
 
+    @classmethod
+    def get_setting(cls, key, default=None):
+        try:
+            obj = cls.objects.get(key=key)
+            return obj.value
+        except cls.DoesNotExist:
+            if default:
+                return default
+            raise cls.DoesNotExist(f'There is no such setting with key {key}')
+
 
 class DiscordUser(models.Model):
-
-    user = models.OneToOneField(
-        User, on_delete=models.SET_NULL, blank=True, null=True)
-    wf_settings = models.OneToOneField(
-        WFSettings, on_delete=models.SET_NULL, blank=True, null=True)
-
     id = models.BigIntegerField(
         "Discord ID",
         unique=True,
@@ -212,27 +149,44 @@ class DiscordUser(models.Model):
         null=False,
         primary_key=True,
         help_text='Required. 18 characters, digits only.',
-        validators=[RegexValidator(r'^\d{1,18}$')])
+        validators=[RegexValidator(r'^\d{1,18}$')]
+    )
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+    wf_settings = models.OneToOneField(
+        WFSettings,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
     display_name = models.TextField(
         "Username",
         max_length=40,
-        help_text="Current discord display name")
+        help_text="Current discord display name"
+    )
     poe_profile = models.TextField(
         "PoE Account",
         blank=True,
         null=False,
-        default='')
+        default=''
+    )
     admin = models.BooleanField(
         default=False,
         blank=False,
         null=False,
-        help_text="User can execute @admin commands")
+        help_text="User can execute @admin commands"
+    )
     mod_group = models.BooleanField(
         "Moderator",
         default=False,
         blank=False,
         null=False,
-        help_text="User can execute @mod commands")
+        help_text="User can execute @mod commands"
+    )
     avatar_url = models.URLField(default=None, blank=True, null=True)
 
     class Meta:
@@ -259,8 +213,10 @@ class Wisdom(BaseModel):
     id = models.IntegerField(blank=True, null=False, primary_key=True)
     pid = models.IntegerField(db_column='pID', default=0)
     text = models.TextField(unique=True)
-    author = models.ForeignKey(DiscordUser, on_delete=models.SET_NULL,
-                               verbose_name="discord user", blank=True, null=True)
+    author = models.ForeignKey(
+        DiscordUser, on_delete=models.SET_NULL,
+        verbose_name="discord user", blank=True, null=True
+    )
     date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     objects = PseudoRandomManager()
 

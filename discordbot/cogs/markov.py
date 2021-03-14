@@ -67,9 +67,11 @@ class Markov(commands.Cog):
             if new_text:
                 obj, _ = MarkovText.objects.get_or_create(key=channel_id)
                 obj.text = f'{new_text} {obj.text}'
-                obj.last_update = (messages_df.created_at
-                                   .dt.tz_localize(pytz.UTC)
-                                   .dt.to_pydatetime().max())
+                obj.last_update = (
+                    messages_df.created_at
+                    .dt.tz_localize(pytz.UTC)
+                    .dt.to_pydatetime().max()
+                )
                 obj.save()
                 self.markov_texts[channel_id] = Text(obj.text)
                 message = (

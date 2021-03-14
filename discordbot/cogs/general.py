@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands, tasks
 from discordbot.models import DiscordLink, DiscordSettings, DiscordUser, Gachi
 
-from .utils.checks import is_youtube_link, mod_command
+from .utils.checks import admin_command, is_youtube_link, mod_command
 from .utils.db import update_display_names
 from .utils.formatters import ru_plural
 
@@ -50,7 +50,7 @@ class General(commands.Cog):
                     update_display_names(self.bot.guilds)
 
     @commands.command()
-    @mod_command
+    @admin_command
     async def game(self, ctx, *args):
         """Change bot's status"""
         game = ' '.join(args)

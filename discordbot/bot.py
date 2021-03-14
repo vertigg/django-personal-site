@@ -24,15 +24,14 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     from discordbot.models import DiscordSettings
-    game = discord.Game(DiscordSettings.objects.get(key='game').value)
+    game = discord.Game(DiscordSettings.get_setting('game', default='No game'))
     await bot.change_presence(activity=game)
     logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
 
 
 @bot.event
 async def on_message(message):
-    if (message.author == bot.user
-            or message.author.id in settings.DISCORD_IGNORED_USERS):
+    if message.author == bot.user:
         return
     await bot.process_commands(message)
 
