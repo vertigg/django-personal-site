@@ -184,10 +184,11 @@ class LadderUpdateController:
             api_data = self._get_account_data(poe_account)
             if api_data:
                 data = self._build_character_data(api_data)
-                api_characters = set([x.get('name') for x in api_data])
-                local_characters = set([x.name for x in
-                                        PoeCharacter.objects.filter(profile__poe_profile=poe_account)])
-
+                api_characters = {x.get('name') for x in api_data}
+                local_characters = {
+                    x.name for x in
+                    PoeCharacter.objects.filter(profile__poe_profile=poe_account)
+                }
                 new_characters = api_characters.difference(local_characters)
                 deleted_characters = local_characters.difference(
                     api_characters)

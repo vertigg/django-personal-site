@@ -50,10 +50,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     """
     login_url = '/login/'
     template_name = 'profile.html'
-    success_messages = {
-        'DiscordProfileForm': 'Profile settings has been updated',
-        'WFSettingsForm': 'Warframe alerts settings has been updated',
-    }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,11 +80,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         for form in (profile_form, wf_form):
             if form.has_changed() and form.is_valid():
                 form.save(user=request.user)
-                messages.add_message(
-                    request=request,
-                    level=messages.SUCCESS,
-                    message=self.success_messages[form.__class__.__name__]
-                )
+                messages.success(request, form.success_message)
         return self.render_to_response({
             'profile_form': profile_form,
             'wf_settings_form': wf_form,

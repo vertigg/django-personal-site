@@ -8,8 +8,8 @@ from discordbot.models import DiscordUser
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
-        """Connects socialaccount to existing user if email is already in the 
-        system
+        """
+        Connects socialaccount to existing user if email exists in the system
         """
         user = sociallogin.user
         if user.id:

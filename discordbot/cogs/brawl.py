@@ -4,9 +4,8 @@ from random import choice
 import gspread
 from apiclient import discovery
 from discord.ext import commands
-from oauth2client.service_account import ServiceAccountCredentials
-
 from discordbot.models import Brawl, DiscordLink, DiscordSettings
+from oauth2client.service_account import ServiceAccountCredentials
 
 logger = logging.getLogger('discordbot.brawl')
 
@@ -42,38 +41,37 @@ class GoogleBrawl(commands.Cog):
         spreadsheet = DiscordSettings.get_setting('spreadsheet')
         gcredentials, response = self.authorize_google(json_file, token)
         if response is not None and 'newStartPageToken' in response:
-            if token == response.get('newStartPageToken'):
+            response_token = response.get('newStartPageToken')
+            if token == response_token:
                 logger.info('Brawl lists are the same.')
                 return self.get_brawl_table()
-            elif token != response.get('newStartPageToken') and spreadsheet not in str(response):
-                logger.info('Brawl dictionary is not in response. New page token is {}'.format(
-                    response.get('newStartPageToken')))
-                logger.info('Brawl lists are the same.')
+            if token != response_token and spreadsheet not in str(response):
+                logger.info(
+                    'Brawl dictionary is not in response. New page token is %s',
+                    response_token
+                )
+                DiscordSettings.objects.filter(key='token').update(value=response_token)
+                return self.get_brawl_table()
+            brawl_list = self.read_spreadsheet(gcredentials, spreadsheet)
+            if brawl_list is not None:
                 DiscordSettings.objects.filter(key='token').update(
-                    value=response.get('newStartPageToken'))
-                return self.get_brawl_table()
+                    value=response_token)
+                logger.info('Brawl lists updated.')
             else:
-                brawl_list = self.read_spreadsheet(gcredentials, spreadsheet)
-                if brawl_list is not None:
-                    DiscordSettings.objects.filter(key='token').update(
-                        value=response.get('newStartPageToken'))
-                    logger.info('Brawl lists updated.')
-                else:
-                    logger.error("Using cached brawl table")
-                    brawl_list = self.get_brawl_table()
-                return brawl_list
+                logger.error("Using cached brawl table")
+                brawl_list = self.get_brawl_table()
+            return brawl_list
         else:
             logger.error(
                 "Can't connect to google drive. Please check logs for more info")
-            brawl_list = self.get_brawl_table()
-            return brawl_list
+            return self.get_brawl_table()
 
-    def authorize_google(self, json_file, token):
+    def authorize_google(self, json_file_path: str, token: str):
         try:
             gscope = ['https://spreadsheets.google.com/feeds',
                       'https://www.googleapis.com/auth/drive.metadata.readonly']
             gcredentials = ServiceAccountCredentials.from_json_keyfile_name(
-                json_file, gscope)
+                json_file_path, gscope)
             service = discovery.build('drive', 'v3', credentials=gcredentials)
             response = service.changes().list(pageToken=token).execute()
             logger.debug(response)
@@ -96,9 +94,8 @@ class GoogleBrawl(commands.Cog):
             if 0 in list(map(len, filtered_data)):
                 logger.error("Brawl lists can't be empty!")
                 return None
-            else:
-                self.update_brawl_table(raw_data)
-                return filtered_data
+            self.update_brawl_table(raw_data)
+            return filtered_data
         except Exception as ex:
             logger.error('[{0}] {1}'.format(__name__, ex))
             return None
@@ -134,8 +131,7 @@ class GoogleBrawl(commands.Cog):
         if brawl_list:
             phrase_list = [choice(x) for x in brawl_list]
             return message.format(r=phrase_list)
-        else:
-            return '`Something wrong with brawl lists. Please check logs for more info`'
+        return '`Something wrong with brawl lists. Please check logs for more info`'
 
 
 def setup(bot):

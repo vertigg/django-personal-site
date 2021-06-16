@@ -11,6 +11,7 @@ import pandas as pd
 from discord import VoiceRegion as region
 from discord.errors import Forbidden
 from discord.ext import commands
+from discord.ext.commands.context import Context
 from discordbot.cogs.utils.checks import admin_command, mod_command
 
 logger = logging.getLogger('discordbot.admin')
@@ -31,7 +32,7 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @mod_command
-    async def region(self, ctx):
+    async def region(self, ctx: Context):
         new_region = random.choice(
             [x for x in self.eu_regions if x != ctx.guild.region])
         try:
@@ -42,33 +43,33 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @admin_command
-    async def change_avatar(self, ctx, url):
+    async def change_avatar(self, ctx: Context, url: str):
         """Sets Bot's avatar"""
         try:
-            async with self.session.get(url) as r:
-                data = await r.read()
+            async with self.session.get(url) as response:
+                data = await response.read()
             await self.bot.user.edit(avatar=data)
-            await ctx.send("Done.")
+            await ctx.send("Done.", delete_after=5)
             logger.debug("changed avatar")
-        except Exception as e:
+        except Exception as exc:
             await ctx.send("Error, check your console or logs for more information.")
-            logger.exception(e)
+            logger.exception(exc)
 
     @commands.command(hidden=True)
     @admin_command
-    async def change_nickname(self, ctx, nickname: str):
+    async def change_nickname(self, ctx: Context, nickname: str):
         """Sets Bot's nickname"""
         try:
             await self.bot.user.edit(username=nickname)
-            await ctx.send("Done.")
+            await ctx.send("Done.", delete_after=5)
             logger.debug("changed nickname")
-        except Exception as e:
+        except Exception as exc:
             await ctx.send("Error, check your console or logs for more information.")
-            logger.exception(e)
+            logger.exception(exc)
 
     @commands.command(hidden=True)
     @admin_command
-    async def load(self, ctx, extension_name: str):
+    async def load(self, ctx: Context, extension_name: str):
         """Loads an extension."""
         try:
             if "cogs." not in extension_name:
@@ -77,20 +78,20 @@ class Admin(commands.Cog):
         except (AttributeError, ImportError) as ex:
             await ctx.send("```py\n{}: {}\n```".format(type(ex).__name__, str(ex)))
             return
-        await ctx.send("{} loaded.".format(extension_name))
+        await ctx.send(f"{extension_name} loaded.")
 
     @commands.command(hidden=True)
     @admin_command
-    async def unload(self, ctx, extension_name: str):
+    async def unload(self, ctx: Context, extension_name: str):
         """Unloads an extension."""
         if "cogs." not in extension_name:
             extension_name = "cogs." + extension_name
         self.bot.unload_extension(extension_name)
-        await ctx.send("{} unloaded.".format(extension_name))
+        await ctx.send(f"{extension_name} unloaded.")
 
     @commands.command(hidden=True)
     @admin_command
-    async def debug(self, ctx, *, code: str):
+    async def debug(self, ctx: Context, *, code: str):
         """Evaluates code."""
         code = code.strip('` `')
         python = '```py\n{}\n```'
@@ -106,7 +107,7 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @admin_command
-    async def gitupdate(self, ctx):
+    async def gitupdate(self, _):
         """Autoupdate bot to latest commit"""
         os.system('git pull')
         os.system('supervisorctl restart bot')

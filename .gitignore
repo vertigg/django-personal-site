@@ -281,6 +281,8 @@ credentials.py
 *.log
 .vs/
 env/
+.venv/
+.venv39/
 examples/
 data.db
 

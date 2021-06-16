@@ -3,15 +3,17 @@ Cog for checking Warframe alerts
 """
 
 import logging
+from functools import reduce
+from operator import or_
 
 import discord
 from discord.errors import InvalidArgument
 from discord.ext import commands, tasks
 from discord.utils import get as get_user
+from discordbot.models import DiscordUser, WFAlert, WFSettings
+
 from django.conf import settings
 from django.db.models import Q
-
-from discordbot.models import DiscordUser, WFAlert, WFSettings
 
 logger = logging.getLogger('discordbot.warframe')
 
@@ -32,14 +34,10 @@ class Warframe(commands.Cog):
             matches = [key for key, value in WFSettings.alerts.items()
                        if value.lower() in alert.content.lower()]
             if matches:
-                if len(matches) == 2:
-                    subscribers = DiscordUser.objects.select_related().filter(
-                        Q(**{f'wf_settings__{matches[0]}': True}) |
-                        Q(**{f'wf_settings__{matches[1]}': True}))
-                else:
-                    subscribers = DiscordUser.objects.select_related().filter(
-                        **{f'wf_settings__{matches[0]}': True})
-                for sub in subscribers:
+                filters = reduce(or_, [
+                    Q(**{f'wf_settings__{match}': True}) for match in matches
+                ])
+                for sub in DiscordUser.objects.select_related().filter(filters):
                     try:
                         user = get_user(self.bot.get_all_members(), id=sub.id)
                         if user:

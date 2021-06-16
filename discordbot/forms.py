@@ -5,6 +5,7 @@ from discordbot.models import MixPollEntry, WFSettings
 
 
 class WFSettingsForm(forms.ModelForm):
+    success_message = 'Warframe alerts settings has been updated'
 
     def __init__(self, *args, **kwargs) -> None:
         self.request = kwargs.pop('request', None)
@@ -17,7 +18,7 @@ class WFSettingsForm(forms.ModelForm):
                    for x in model._meta.fields
                    if isinstance(x, BooleanField)}
 
-    def save(self, commit=True, **kwargs):
+    def save(self, commit=True):
         if not self.request.user.discorduser.wf_settings:
             obj = super().save(commit=commit)
             self.request.user.discorduser.wf_settings = obj

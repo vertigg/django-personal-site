@@ -41,6 +41,7 @@ class MainUserCreationForm(UserCreationForm):
 
 
 class DiscordProfileForm(ModelForm):
+    success_message = 'Profile settings has been updated'
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

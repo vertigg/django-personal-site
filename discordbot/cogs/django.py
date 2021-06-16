@@ -23,8 +23,8 @@ class DjangoDiscord(commands.Cog):
         """Force update display names for every user in bot.servers"""
         try:
             update_display_names(self.bot.guilds)
-        except Exception as ex:
-            await ctx.send(ex)
+        except Exception as exc:
+            await ctx.send(exc)
 
     @commands.command(hidden=True)
     @mod_command
@@ -40,7 +40,7 @@ class DjangoDiscord(commands.Cog):
                 while self.process.poll() is None:
                     await ctx.trigger_typing()
                     await asyncio.sleep(10)
-                if self.process.poll() is 0:
+                if self.process.poll() == 0:
                     await ctx.send('Ladder has been updated', delete_after=30)
                     logger.info('[LADDER]: Finished updating')
                 else:
