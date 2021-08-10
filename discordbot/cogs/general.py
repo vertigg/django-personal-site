@@ -152,6 +152,14 @@ class General(commands.Cog):
             else:
                 await ctx.send('Ахаха передишка')
 
+    @commands.command()
+    async def eva8(self, ctx):
+        mag_size = 6
+        damage_range = range(0, 100, 11)
+        chances = (map(lambda x: x/10, range(1, 11)))
+        damage_series = random.choices(damage_range, k=mag_size, weights=chances)
+        await ctx.send(f'Rolled {sum(damage_series)} ({" ,".join(damage_series)})')
+
 
 def setup(bot):
     bot.add_cog(General(bot))

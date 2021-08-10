@@ -3,10 +3,9 @@ import time
 from itertools import groupby
 
 import requests
+from poeladder.models import PoeActiveGem
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-
-from poeladder.models import PoeActiveGem
 
 logging.getLogger(__name__)
 
@@ -75,8 +74,7 @@ def detect_skills(request_data):
                     groups_temp.append(socket['group'])
 
                 # Check if group has 5 or 6 linked sockets
-                socket_groups = [len(list(group))
-                                 for key, group in groupby(groups_temp)]
+                socket_groups = [len(list(group)) for _, group in groupby(groups_temp)]
                 for socket_group in socket_groups:
                     if socket_group >= 5:
 

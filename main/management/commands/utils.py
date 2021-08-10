@@ -27,5 +27,4 @@ class AdvancedCommand(BaseCommand):
         self.logger.info(f'Done in {self.execution_time} seconds')
 
     def _setup_management_logger(self):
-        logger = logging.getLogger(self.logger_name)
-        return logger
+        return logging.getLogger(self.logger_name)
