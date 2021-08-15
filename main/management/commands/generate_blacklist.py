@@ -11,7 +11,7 @@ class Command(AdvancedCommand):
     help = 'Generates blacklist IP for Rion'
     padding = 40
     separator = '#' * padding
-    pattern = re.compile(r'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(\/[0-9]{1,2})?')
+    pattern = re.compile(r'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(?:\/[0-9]{1,2})?')
     filepath = staticfiles_storage.path('blacklist.txt')
     urls = [
         'https://www.spamhaus.org/drop/drop.txt',
@@ -30,7 +30,7 @@ class Command(AdvancedCommand):
         return '\n'.join(map(self._center_text, [
             f'{self.random_title} IP list',
             f'Fetched {datetime.now()}',
-            f'Generated in {self.execution_time} seconds'
+            f'Generated in {self.execution_time} seconds',
             f'Next update: {datetime.now() + timedelta(days=1)}'
         ]))
 
