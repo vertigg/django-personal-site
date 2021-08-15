@@ -30,8 +30,8 @@ class Command(AdvancedCommand):
         return '\n'.join(map(self._center_text, [
             f'{self.random_title} IP list',
             f'Fetched {datetime.now()}',
+            f'Next {datetime.now() + timedelta(days=1)}',
             f'Generated in {self.execution_time} seconds',
-            f'Next update: {datetime.now() + timedelta(days=1)}'
         ]))
 
     def handle(self, *args, **options):
