@@ -237,7 +237,7 @@ class MarkovText(models.Model):
 
 
 class DiscordImage(BaseModel):
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='images')
     checksum = models.CharField(max_length=32, editable=False, null=True)
 
