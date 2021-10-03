@@ -75,8 +75,7 @@ class PseudoRandomManager(models.Manager):
         # Failsafe in case we stuck in endless loop of misery
         if retries <= 0:
             return None
-        # pid = random.choices(self.PIDS, weights=self.WEIGHTS)[0]
-        pid = 1
+        pid = random.choices(self.PIDS, weights=self.WEIGHTS)[0]
         queryset = self.get_queryset().filter(deleted=False, pid=pid)
         if queryset.exists():
             return queryset.order_by('?').first()
