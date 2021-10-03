@@ -17,7 +17,7 @@ class PseudoRandomManager(models.Manager):
         (2, 0.15, (250, 500)),
         (3, 0.13, (500, 750)),
         (4, 0.1, (750, 1000)),
-        (5, 0.9, (1000, 1500)),
+        (5, 0.09, (1000, 1500)),
     )
     PIDS = [x[0] for x in PID_WEIGHT_MAPPING]
     WEIGHTS = [x[1] for x in PID_WEIGHT_MAPPING]
