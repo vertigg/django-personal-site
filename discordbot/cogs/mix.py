@@ -29,7 +29,7 @@ class Mix(commands.Cog):
             wisdom_obj = Wisdom.objects.get_random_entry()
             pic_url = MixImage.objects.get_random_weighted_entry()
             if wisdom_obj is not None:
-                await ctx.send('{0}\n{1}'.format(wisdom_obj.text, pic_url))
+                await ctx.send('\n'.join(filter(None, [wisdom_obj.text, pic_url])))
 
     @mix.command(aliases=['add', 'фвв'])
     @mod_command

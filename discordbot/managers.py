@@ -66,10 +66,18 @@ class PseudoRandomManager(models.Manager):
         self.reset_pids()
         return self.get_random_entry()
 
-    def get_random_weighted_entry(self):
+    def get_random_weighted_entry(self, retries: int = 5):
         """
         Returns random entry based `pid` weight, which is calculated based
-        on object timestamp.
+        on object timestamp. If specific PID does not exist in database,
+        function will retry itself multiple times
         """
-        pid = random.choices(self.PIDS, weights=self.WEIGHTS)[0]
-        return self.get_queryset().filter(deleted=False, pid=pid).order_by('?').first()
+        # Failsafe in case we stuck in endless loop of misery
+        if retries <= 0:
+            return None
+        # pid = random.choices(self.PIDS, weights=self.WEIGHTS)[0]
+        pid = 1
+        queryset = self.get_queryset().filter(deleted=False, pid=pid)
+        if queryset.exists():
+            return queryset.order_by('?').first()
+        return self.get_random_weighted_entry(retries=retries - 1)
