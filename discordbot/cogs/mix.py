@@ -1,14 +1,15 @@
 import hashlib
 import logging
 import os
+from typing import AnyStr, List
 
 import aiohttp
 from discord.ext import commands
+from discordbot.models import MixImage, Wisdom
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
-
-from discordbot.models import MixImage, Wisdom
 
 from .utils.checks import is_image_mimetype, mod_command
 from .utils.formatters import extract_urls
@@ -28,8 +29,12 @@ class Mix(commands.Cog):
         if not ctx.invoked_subcommand:
             wisdom_obj = Wisdom.objects.get_random_entry()
             pic_url = MixImage.objects.get_random_weighted_entry()
-            if wisdom_obj is not None:
-                await ctx.send('\n'.join(filter(None, [wisdom_obj.text, pic_url])))
+            items: List[AnyStr] = []
+            if wisdom_obj:
+                items.append(wisdom_obj.text)
+            if pic_url:
+                items.append(str(pic_url))
+            await ctx.send('\n'.join(items))
 
     @mix.command(aliases=['add', 'фвв'])
     @mod_command
