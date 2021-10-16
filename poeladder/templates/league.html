@@ -1,7 +1,7 @@
 {% load static %}
 {% load ladder_extras %}
 
-<div class="container col-lg-10">
+<div class="container col-lg-11">
     {% if not characters %}
     <div class="form-row text-center p-5">
         <div class="col-12">
@@ -10,7 +10,7 @@
         </div>
     </div>
     {% else %}
-    <a class="ladder-link" href={% if active_league.url %}{{active_league.url}}{% else %}{% endif %}><h1 class="ladder-title">{{active_league.name}} Ladder </h1></a> 
+    <a class="ladder-link" href={% if active_league.url %}{{active_league.url}}{% else %}{% endif %}><h1 class="ladder-title">{{active_league.name}} League </h1></a> 
     <table class="LadderTable">
             <thead>
               <tr class="LadderHeader">
@@ -22,7 +22,8 @@
                 <th class="row-level text-center">Level</th>
                 <th class="row-level text-center">Progress</th>
                 <th class="row-level text-center">Experience</th>
-                <th class="row-level text-center">Skills</th>
+                <th class="row-level text-center compact-column">Skills</th>
+                <th class="row-level text-center compact-column">Last Update</th>
               </tr>
             </thead>
             <tbody>
@@ -54,8 +55,15 @@
                         </td>
                         {% endwith %}
                         
-                        <td class="text-center"><div class="text-right" style="width:75%">{{character.experience|space_separator}}</div></td>
-                        <td class="row-gems"> {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}</td>
+                        <td class="text-center "><div class="text-right" style="width:75%">{{character.experience|space_separator}}</div></td>
+                        <td class="row-gems compact-column"> 
+                            <div class="gems-container">
+                                {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
+                            </div>
+                        </td>
+                        <td class="text-center compact-column">
+                            {{ character.modified }}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

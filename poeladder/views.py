@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -7,13 +9,13 @@ from django.views.generic import RedirectView
 from django_filters.views import FilterView
 
 from poeladder.filters import PoeClassFilter, PoeSearchFilter
-from poeladder.models import PoeCharacter, PoeLeague
+from poeladder.models import Announcement, PoeCharacter, PoeLeague
 
 
 class MainLadderView(RedirectView):
     """Returns main page or current most populated league ladder"""
 
-    def get_redirect_url(self, *args, **kwargs):
+    def get_redirect_url(self):
         top_league = (
             PoeLeague.objects
             .filter(poecharacter__isnull=False)
@@ -27,11 +29,20 @@ class MainLadderView(RedirectView):
             return reverse('poeladder:ladder_url', kwargs={'slug': top_league.slug})
         return None
 
+    def get_context(self) -> Dict[str, Any]:
+        return {
+            'ladder_main': True,
+            'next_league': Announcement.get_next_announcement(),
+        }
+
     def get(self, request, *args, **kwargs):
-        url = self.get_redirect_url(*args, **kwargs)
-        if url:
-            return HttpResponseRedirect(url)
-        return render(request, 'ladder.html', {'ladder_main': True})
+        context = self.get_context()
+        # If no new league announcements - proceed to most active current league
+        if not context.get('next_league'):
+            url = self.get_redirect_url()
+            if url:
+                return HttpResponseRedirect(url)
+        return render(request, 'ladder.html', context)
 
 
 class LadderView(FilterView):

@@ -1,8 +1,9 @@
+from discordbot.models import DiscordUser
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-
-from discordbot.models import DiscordUser
+from django.utils.timezone import now
+from main.models import BaseModel
 
 
 class PoeInfo(models.Model):
@@ -54,14 +55,14 @@ class PoeActiveGem(models.Model):
         ordering = ('name',)
 
 
-class PoeCharacter(models.Model):
+class PoeCharacter(BaseModel):
     id = models.AutoField(blank=True, null=False, primary_key=True)
     name = models.TextField(unique=True)
     league = models.ForeignKey(PoeLeague, on_delete=models.CASCADE)
     class_name = models.TextField(max_length=30)
-    class_id = models.IntegerField(blank=True, null=True)
-    ascendancy_id = models.IntegerField(blank=True, null=True)
-    level = models.IntegerField(blank=True, null=True)
+    class_id = models.PositiveIntegerField(blank=True, null=True)
+    ascendancy_id = models.PositiveIntegerField(blank=True, null=True)
+    level = models.PositiveIntegerField(blank=True, null=True)
     gems = models.ManyToManyField(PoeActiveGem)
     experience = models.BigIntegerField(blank=True, null=True)
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
@@ -73,3 +74,16 @@ class PoeCharacter(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Announcement(BaseModel):
+    release_date = models.DateTimeField()
+    text = models.TextField()
+
+    @classmethod
+    def get_next_announcement(cls):
+        return cls.objects.order_by('release_date').filter(
+            release_date__gte=now()).first()
+
+    def __str__(self) -> str:
+        return str(self.release_date)

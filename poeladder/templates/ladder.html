@@ -7,7 +7,6 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script type="text/javascript" src="{% static 'poeladder/js/jquery.plugin.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'poeladder/js/jquery.countdown.min.js' %}"></script>
-<script src="{% static 'poeladder/js/ext.js' %}"></script>
 {% endblock %}
 
 {% block header %}
@@ -27,16 +26,31 @@ Path of Exile Private Ladder
 {% block content %}
 
 {% if ladder_main %}
-<div class="d-flex h-100 justify-content-center flex-column" style="margin-top:150px">
-    <div class='mx-auto' style="min-width:110px;">Next league starts in:</div>
-    <h6>
-        <div id='timer' class='mx-auto text-center'></div>
-    </h6>
-</div>
-
+    {% if next_league %}
+        <div class="d-flex h-100 justify-content-center flex-column align-items-center" style="margin-top:150px">
+            <img src="{% static 'poeladder/img/logo.png' %}" alt="Psina sutulaya" style="width: 450px;">
+            <div class='mx-auto' style="min-width:110px; font-family: 'Fontin-Regular';">Next league starts in:</div>
+            <h6>
+                <div id='timer' class='mx-auto text-center'></div>
+            </h6>
+        </div>
+    {% endif %}
 {% endif %}
 
 {% if search %}{% include "search.html"%}{% endif %}
 {% if active_league %}{% include "league.html"%}{% endif %}
 
+{% endblock %}
+
+{% block script %}
+<script>
+  {% if next_league %}
+      const releaseDate = new Date("{{ next_league.release_date.isoformat }}")
+      const leagueText= "{{ next_league.text }}"
+  {% else %}
+      const releaseDate = null
+      const leagueText= null
+  {% endif %}
+</script>
+<script src="{% static 'poeladder/js/ext.js' %}"></script>
 {% endblock %}

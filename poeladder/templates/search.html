@@ -54,9 +54,11 @@
           </td>
           <td class="text-center">{{character.level}}</td>
           <td class="row-gems">
-            {% for gem in character.gems.all %}
-            <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}" />
-            {% endfor %}
+            <div class="gems-container">
+                {% for gem in character.gems.all %}
+                <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}" />
+                {% endfor %}
+            </div>
           </td>
         </tr>
         {% endfor %}

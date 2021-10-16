@@ -4,10 +4,9 @@ import time
 from datetime import datetime
 
 import requests
+from discordbot.models import DiscordUser
 from django.conf import settings
 from django.utils import timezone
-
-from discordbot.models import DiscordUser
 from main.management.commands.utils import AdvancedCommand
 from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 
@@ -148,7 +147,8 @@ class LadderUpdateController:
 
                 p.save(update_fields=[
                     'league_id', 'class_name', 'level',
-                    'ascendancy_id', 'class_id', 'experience'])
+                    'ascendancy_id', 'class_id', 'experience', 'modified'
+                ])
 
     def _unsub_user(self, account):
         profile = DiscordUser.objects.get(poe_profile=account)

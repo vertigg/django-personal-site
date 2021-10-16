@@ -1,7 +1,9 @@
 from django.contrib import admin
 
 from discordbot.models import DiscordUser
-from poeladder.models import PoeCharacter, PoeLeague
+from poeladder.models import Announcement, PoeCharacter, PoeLeague
+
+admin.site.register(Announcement)
 
 
 class ProfileFilter(admin.SimpleListFilter):

@@ -9,8 +9,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 from django.utils.translation import gettext_lazy as _
+from main.models import BaseModel
 
-from discordbot.base.models import BaseModel
 from discordbot.managers import PseudoRandomManager
 
 
