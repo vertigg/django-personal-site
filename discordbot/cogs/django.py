@@ -6,7 +6,7 @@ import sys
 from discord.ext import commands
 
 from .utils.checks import admin_command, mod_command
-from .utils.db import update_display_names
+from .utils.db import sync_users
 
 logger = logging.getLogger('discordbot.django')
 
@@ -19,10 +19,10 @@ class DjangoDiscord(commands.Cog):
 
     @commands.command(hidden=True)
     @admin_command
-    async def users_update(self, ctx):
+    async def update_users(self, ctx):
         """Force update display names for every user in bot.servers"""
         try:
-            update_display_names(self.bot.guilds)
+            sync_users(self.bot.guilds)
         except Exception as exc:
             await ctx.send(exc)
 

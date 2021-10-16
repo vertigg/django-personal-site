@@ -40,10 +40,7 @@ class LadderView(FilterView):
     template_name = 'ladder.html'
     model = PoeCharacter
     paginate_by = 10
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.active_league = None
+    active_league = None
 
     def _get_current_user_profile(self, request):
         return request.user.discorduser.poe_profile if hasattr(
@@ -51,14 +48,16 @@ class LadderView(FilterView):
 
     def get_queryset(self):
         self.active_league = get_object_or_404(PoeLeague, slug=self.kwargs.get('slug'))
-        return (PoeCharacter.objects.all()
-                .filter(league_id=self.active_league.id)
-                .order_by('-level', '-experience')
-                .prefetch_related('gems')
-                .select_related('profile'))
+        return (
+            PoeCharacter.objects
+            .filter(league_id=self.active_league.id)
+            .order_by('-level', '-experience')
+            .prefetch_related('gems')
+            .select_related('profile')
+        )
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=None, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['active_league'] = self.active_league
         context['class_filter'] = self.filterset_class(self.request.GET, self.get_queryset())
         context['current_profile'] = self._get_current_user_profile(self.request)

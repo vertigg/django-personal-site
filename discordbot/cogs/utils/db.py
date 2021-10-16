@@ -13,7 +13,7 @@ def get_nickname_cache():
     return {x[0]: x[1] for x in query_set}
 
 
-def update_display_names(servers):
+def sync_users(servers):
     """Update display names for every user in bot.servers"""
     cache = get_nickname_cache()
     users = {m.id: m for m in list(chain(*[s.members for s in servers]))}
@@ -39,4 +39,4 @@ def update_display_names(servers):
     DiscordSettings.objects \
         .filter(key='cache_update') \
         .update(value=datetime.now())
-    logger.info('Discord users table has been updated')
+    logger.info('Discord users table synced')

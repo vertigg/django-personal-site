@@ -5,14 +5,16 @@ from poeladder.models import PoeCharacter, PoeLeague
 
 
 class ProfileFilter(admin.SimpleListFilter):
-    title = 'Profile'
     parameter_name = 'profile'
+    title = 'Profile'
 
     def lookups(self, request, model_admin):
-        profiles = (DiscordUser.objects
-                    .exclude(poe_profile__isnull=True)
-                    .exclude(poe_profile=''))
-        return [(x.id, x.poe_profile) for x in profiles]
+        return list(
+            DiscordUser.objects
+            .exclude(poe_profile__isnull=True)
+            .exclude(poe_profile='')
+            .values_list('id', 'poe_profile')
+        )
 
     def queryset(self, request, queryset):
         if self.value():

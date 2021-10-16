@@ -9,6 +9,6 @@ class SearchForm(forms.Form):
         widget=forms.TextInput(attrs={
             'class': 'form-control mr-sm-2',
             'type': 'text',
-            'placeholder': "Search by name"}
-        )
+            'placeholder': "Search by name"
+        })
     )

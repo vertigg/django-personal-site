@@ -1,5 +1,5 @@
 from django import forms
-from django_filters import ChoiceFilter, FilterSet, CharFilter
+from django_filters import CharFilter, ChoiceFilter, FilterSet
 
 from poeladder.models import PoeCharacter
 

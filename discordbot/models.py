@@ -16,8 +16,7 @@ from discordbot.managers import PseudoRandomManager
 
 class WFAlert(models.Model):
     id = models.IntegerField(primary_key=True, null=False)
-    created_at = models.DateTimeField(
-        auto_now_add=True, blank=False, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     announced = models.BooleanField(default=False)
     content = models.TextField(blank=False, null=False)
 

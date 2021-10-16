@@ -26,9 +26,9 @@ def is_youtube_link(url: str) -> bool:
 def admin_command(func: FunctionType) -> FunctionType:
     """Checks if command executed by admin or bot's owner"""
     @wraps(func)
-    async def decorated(self, ctx, **kwargs):
+    async def decorated(self, ctx, *args, **kwargs):
         if DiscordUser.is_admin(ctx.message.author.id):
-            return await func(self, ctx, **kwargs)
+            return await func(self, ctx, *args, **kwargs)
         return await ctx.send(
             f"You don't have permissions to call `{ctx.command.name}` command")
     return decorated
@@ -37,9 +37,9 @@ def admin_command(func: FunctionType) -> FunctionType:
 def mod_command(func: FunctionType) -> FunctionType:
     """Checks if command executed by mod"""
     @wraps(func)
-    async def decorated(self, ctx, **kwargs):
+    async def decorated(self, ctx, *args, **kwargs):
         if DiscordUser.is_moderator(ctx.message.author.id):
-            return await func(self, ctx, **kwargs)
+            return await func(self, ctx, *args, **kwargs)
         return await ctx.send(
             f"You don't have permissions to call `{ctx.command.name}` command")
     return decorated
