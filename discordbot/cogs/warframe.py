@@ -29,8 +29,7 @@ class Warframe(commands.Cog):
 
     @tasks.loop(seconds=60, reconnect=True)
     async def warframe_alert_watchdog(self):
-        new_alerts = WFAlert.objects.filter(announced=False)
-        for alert in new_alerts:
+        for alert in WFAlert.objects.filter(announced=False):
             matches = [key for key, value in WFSettings.alerts.items()
                        if value.lower() in alert.content.lower()]
             if matches:

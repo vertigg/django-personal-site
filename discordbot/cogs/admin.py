@@ -5,6 +5,7 @@ import logging
 import os
 import random
 import sys
+import itertools
 
 import aiohttp
 import pandas as pd
@@ -21,7 +22,6 @@ class Admin(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(loop=self.bot.loop)
         self.eu_regions = [
             region.amsterdam,
             region.eu_central,
@@ -46,13 +46,13 @@ class Admin(commands.Cog):
     async def change_avatar(self, ctx: Context, url: str):
         """Sets Bot's avatar"""
         try:
-            async with self.session.get(url) as response:
+            async with aiohttp.ClientSession(loop=self.bot.loop) as client:
+                response = await client.get(url)
                 data = await response.read()
             await self.bot.user.edit(avatar=data)
-            await ctx.send("Done.", delete_after=5)
-            logger.debug("changed avatar")
+            await ctx.send("New avatar has been set", delete_after=5)
         except Exception as exc:
-            await ctx.send("Error, check your console or logs for more information.")
+            await ctx.send("Can't change avatar now. Whoops I guess")
             logger.exception(exc)
 
     @commands.command(hidden=True)

@@ -3,7 +3,7 @@ import logging
 import os
 from typing import AnyStr, List
 
-import aiohttp
+from aiohttp import ClientSession
 from discord.ext import commands
 from discordbot.models import MixImage, Wisdom
 
@@ -21,7 +21,6 @@ class Mix(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession()
 
     @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
     async def mix(self, ctx):
@@ -54,10 +53,12 @@ class Mix(commands.Cog):
             try:
                 # Check content type by calling head for url
                 # This could fail for some types of links (e.g. Dropbox)
-                response = await self.session.head(url)
-                if not is_image_mimetype(response.content_type):
-                    errors.append(f'{url} is not a picture')
-                    continue
+                async with ClientSession(loop=self.bot.loop) as client:
+                    response = await client.head(url)
+                    if not is_image_mimetype(response.content_type):
+                        errors.append(f'{url} is not a picture')
+                        continue
+
                 if response.content_length >= settings.MIX_IMAGE_SIZE_LIMIT:
                     errors.append(
                         f'{url} exceeds allowed filesize limit of '
@@ -65,14 +66,18 @@ class Mix(commands.Cog):
                     )
                     continue
                 # If mimetype is okay - download file and check MD5 hash
-                response = await self.session.get(url)
-                content = ContentFile(await response.read())
+                async with ClientSession(loop=self.bot.loop) as client:
+                    response = await client.get(url)
+                    content = ContentFile(await response.read())
+
                 filename = os.path.basename(url)
                 md5 = hashlib.md5(content.read()).hexdigest()
+
                 if MixImage.objects.filter(checksum=md5).exists():
                     errors.append(f'{url} picture already exists in DB')
                     logger.info('%s already exists', filename)
                     continue
+
                 obj = MixImage(date=now(), author_id=ctx.author.id)
                 obj.image.save(filename, content, save=True)
                 added += 1

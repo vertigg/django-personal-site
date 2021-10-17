@@ -1,11 +1,10 @@
-
-from rest_framework.routers import APIRootView
 from rest_framework import routers
+from rest_framework.routers import APIRootView
 
 
-class LadderTestAPIView(APIRootView):
+class PrivatePoELadder(APIRootView):
     pass
 
 
 class LadderRouter(routers.DefaultRouter):
-    APIRootView = LadderTestAPIView
+    APIRootView = PrivatePoELadder
