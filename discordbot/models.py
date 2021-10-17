@@ -279,19 +279,6 @@ class MixImage(DiscordImage):
         return f'Current DiscordMixImage {self.id} does not have attached file'
 
 
-class MixPollEntry(BaseModel):
-    image = models.ForeignKey(MixImage, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    liked = models.BooleanField(default=False, null=True)
-
-    class Meta:
-        verbose_name = 'Mix Poll Entry'
-        verbose_name_plural = 'Mix Poll Entries'
-
-    def __str__(self):
-        return f'{self.user} {self.liked} {self.image}'
-
-
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'discorduser'):

@@ -4,14 +4,9 @@
   <ul class="navbar-nav mr-auto">
     {% if user.is_staff %}
     <li class="nav-item active">
-      <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>
+      <a class="nav-link" href="{% url 'admin:index' %}">Admin Panel</a>
     </li>
     {% endif %}
-    <li class="nav-item active">
-      <a class="nav-link" href="{% url 'discordbot:mix_gallery' %}"
-        >Mix Gallery</a
-      >
-    </li>
   </ul>
   <ul class="navbar-nav mr-auto"></ul>
   <span class="navbar-text">
