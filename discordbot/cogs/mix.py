@@ -27,7 +27,7 @@ class Mix(commands.Cog):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
             wisdom_obj = Wisdom.objects.get_random_entry()
-            pic_url = MixImage.objects.get_random_weighted_entry()
+            pic_url = MixImage.objects.get_random_entry()
             items: List[AnyStr] = []
             if wisdom_obj:
                 items.append(wisdom_obj.text)
@@ -95,7 +95,7 @@ class Mix(commands.Cog):
     async def hb(self, ctx):
         """Returns random picture from HB's Imgur album"""
         if not ctx.invoked_subcommand:
-            await ctx.send(MixImage.objects.get_random_weighted_entry())
+            await ctx.send(MixImage.objects.get_random_entry())
 
     @commands.group()
     async def wisdom(self, ctx):
