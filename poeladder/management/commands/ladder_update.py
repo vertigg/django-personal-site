@@ -22,11 +22,16 @@ class LadderUpdateController:
     def __init__(self, logger: logging.Logger):
         self.logger = logger
         self.session = requests_retry_session()
-        self.cookies = {'POESESSID': settings.POESESSID}
+        self.session.cookies.set('POESESSID', settings.POESESSID)
         self.leagues, self.league_names = self._get_local_leagues_info()
         self.profiles = {x[0]: x[1] for x in DiscordUser.objects
                          .exclude(poe_profile__exact='')
                          .values_list('id', 'poe_profile')}
+
+    def _get_character_league_id(self, character_data):
+        # FIXME: Ugly ass hotfix for new temp leagues (thanks GGG)
+        league = self.leagues.get(character_data['league'])
+        return league.get('league_id') if league else PoeLeague.objects.get(name='Void').id
 
     def _get_local_leagues_info(self):
         leagues = {x[0]: {'league_id': x[1], 'end_date': x[2]}
@@ -35,16 +40,14 @@ class LadderUpdateController:
         return leagues, league_names
 
     def get_main_skills(self, character, account):
-        r = self.session.get(self.POE_INFO.format(
-            character, account), cookies=self.cookies)
-        if r.headers.get('X-Rate-Limit-Ip-State'):
-            self.logger.debug(r.headers['X-Rate-Limit-Ip-State'])
-        if r.status_code == 429:
+        response = self.session.get(self.POE_INFO.format(character, account))
+        if response.headers.get('X-Rate-Limit-Ip-State'):
+            self.logger.debug(response.headers['X-Rate-Limit-Ip-State'])
+        if response.status_code == 429:
             self.logger.error('Rate limited!')
             time.sleep(65)
-            r = self.session.get(self.POE_INFO.format(
-                character, account), cookies=self.cookies)
-        data = json.loads(r.text)
+            response = self.session.get(self.POE_INFO.format(character, account))
+        data = json.loads(response.text)
         return detect_skills(data)
 
     def _parse_league_datetime(self, str_datetime: str) -> datetime:
@@ -90,12 +93,6 @@ class LadderUpdateController:
         # Update local league info
         self.leagues, self.league_names = self._get_local_leagues_info()
 
-    def _build_character_data(self, api_data):
-        data = {}
-        for entry in api_data:
-            data[entry['name']] = entry
-        return data
-
     def _delete_characters(self, characters: set):
         self.logger.info(f'Deleting characters {characters}')
         PoeCharacter.objects.filter(name__in=characters).delete()
@@ -104,11 +101,7 @@ class LadderUpdateController:
         for name in characters:
             character = data.get(name)
             self.logger.info(f'New character: {name}')
-
-            # FIXME: Ugly ass hotfix for new temp leagues (thanks GGG)
-            league = self.leagues.get(character['league'])
-            league_id = league.get('league_id') if league else PoeLeague.objects.get(name='Void').id
-
+            league_id = self._get_character_league_id(character)
             p = PoeCharacter.objects.create(
                 name=name,
                 league_id=league_id,
@@ -132,12 +125,13 @@ class LadderUpdateController:
         for name in characters:
             character = data.get(name)
             ch = saved_characters[character['name']]
+            league_id = self._get_character_league_id(character)
             if ch['league'] != character['league'] \
                     or ch['experience'] != character['experience'] \
                     or ch['ascendancy_id'] != character['ascendancyClass']:
                 self.logger.info(f'Updating {name}')
                 p = PoeCharacter.objects.get(name=name)
-                p.league_id = self.leagues[character['league']]['league_id']
+                p.league_id = league_id
                 p.class_name = character['class']
                 p.class_id = character['classId']
                 p.ascendancy_id = character['ascendancyClass']
@@ -188,7 +182,7 @@ class LadderUpdateController:
         for discord_id, poe_account in self.profiles.items():
             api_data = self._get_account_data(poe_account)
             if api_data:
-                data = self._build_character_data(api_data)
+                data = {entry['name']: entry for entry in api_data}
                 api_characters = {x.get('name') for x in api_data}
                 local_characters = {
                     x.name for x in
