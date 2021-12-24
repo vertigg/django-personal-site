@@ -104,9 +104,14 @@ class LadderUpdateController:
         for name in characters:
             character = data.get(name)
             self.logger.info(f'New character: {name}')
+
+            # FIXME: Ugly ass hotfix for new temp leagues (thanks GGG)
+            league = self.leagues.get(character['league'])
+            league_id = league.get('league_id') if league else PoeLeague.objects.get(name='Void').id
+
             p = PoeCharacter.objects.create(
                 name=name,
-                league_id=self.leagues[character['league']]['league_id'],
+                league_id=league_id,
                 profile_id=discord_id,
                 class_name=character['class'],
                 class_id=character['classId'],
