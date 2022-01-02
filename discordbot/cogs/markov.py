@@ -149,11 +149,11 @@ class Markov(commands.Cog):
         Args:
             ctx (Context): Message context
         """
-        await ctx.send('It seems that there is not text for this channel! '
+        await ctx.send('It seems that there is no text for this channel! '
                        'Building text object')
         await ctx.invoke(self.bot.get_command('markov update'))
         await ctx.send('Markov text object is ready for this channel! '
-                       'To use it - type !markov <sentences>')
+                       'To use it - type !markov <sentences count>')
 
     @commands.group(invoke_without_command=True)
     async def markov(self, ctx, *, sentences: int = 5):

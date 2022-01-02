@@ -4,6 +4,7 @@ import os
 from typing import AnyStr, List
 
 from aiohttp import ClientSession
+from discord.channel import DMChannel
 from discord.ext import commands
 from discordbot.models import MixImage, Wisdom
 
@@ -22,18 +23,25 @@ class Mix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def _generate_mix_message(self) -> str:
+        wisdom_obj = Wisdom.objects.get_random_entry()
+        picture_url = MixImage.objects.get_random_entry()
+        message_items: List[AnyStr] = list()
+        if wisdom_obj:
+            message_items.append(wisdom_obj.text)
+        if picture_url:
+            message_items.append(str(picture_url))
+        return '\n'.join(message_items)
+
     @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
-            wisdom_obj = Wisdom.objects.get_random_entry()
-            pic_url = MixImage.objects.get_random_entry()
-            items: List[AnyStr] = []
-            if wisdom_obj:
-                items.append(wisdom_obj.text)
-            if pic_url:
-                items.append(str(pic_url))
-            await ctx.send('\n'.join(items))
+            message = self._generate_mix_message()
+            if isinstance(ctx.channel, DMChannel):
+                await ctx.channel.send(message)
+            else:
+                await self.bot.get_channel(settings.DISCORD_MIX_CHANNEL).send(message)
 
     @mix.command(aliases=['add', 'фвв'])
     @mod_command
@@ -92,12 +100,6 @@ class Mix(commands.Cog):
         await ctx.send(message)
 
     @commands.group()
-    async def hb(self, ctx):
-        """Returns random picture from HB's Imgur album"""
-        if not ctx.invoked_subcommand:
-            await ctx.send(MixImage.objects.get_random_entry())
-
-    @commands.group()
     async def wisdom(self, ctx):
         """Get random wisdom"""
         if not ctx.invoked_subcommand:
@@ -105,14 +107,11 @@ class Mix(commands.Cog):
             if wisdom_obj is not None:
                 await ctx.send(wisdom_obj.text)
 
-    @wisdom.command(aliases=['add'])
+    @wisdom.command(aliases=['add', 'фвв'])
     @mod_command
     async def __wisdom_add(self, ctx, *, text: str):
         """Add new wisdom to database"""
-        Wisdom.objects.create(
-            text=text, date=now(),
-            author_id=ctx.message.author.id
-        )
+        Wisdom.objects.create(text=text, author_id=ctx.message.author.id)
         await ctx.send(f'{text} added')
 
 
