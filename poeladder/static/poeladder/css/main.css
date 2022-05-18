@@ -34,7 +34,7 @@ a.active-league {
 }
 
 html {
-  background-image: url("../img/topbg.png");
+  background-image: url("../img/topbg.jpg");
   background-color: black;
   background-repeat: no-repeat;
   background-size: cover;
@@ -250,7 +250,7 @@ a.active-league {
   height: 100%;
   width: 100%;
   z-index: 0;
-  background: url("../img/topbg.png");
+  background: url("../img/topbg.jpg");
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
