@@ -57,8 +57,8 @@ def detect_skills(request_data):
     gems_ids, active_gems = list(), list()
 
     for item in request_data.get('items', []):
-        # Ignore items in main inventory and secondary weapon (TODO: allow secondary weapon)
-        if item.get('inventoryId') in {'MainInventory'}:
+        # Ignore items in main inventory and secondary weapon
+        if item.get('inventoryId') == 'MainInventory':
             continue
 
         # Item must have at least 5 or 6 sockets
@@ -96,8 +96,8 @@ def detect_skills(request_data):
 
     time.sleep(1)
 
-    # Check if there are less than 3 active skills in link
-    if 0 < len(active_gems) <= 3:
+    # Check if there are less than 4 active skills in link
+    if 0 < len(active_gems) <= 4:
         cached_gems_qs = PoeActiveGem.objects.values_list('name', 'id')
         cached_gems = {x[0]: x[1] for x in cached_gems_qs}
 
