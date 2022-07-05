@@ -4,9 +4,9 @@ services:
     build: .
     container_name: homesite-app
     command:
-      [sh, -c, "gunicorn --bind 0.0.0.0:8000 homesite.wsgi:application"]
+      [sh, -c, "gunicorn --bind 0.0.0.0:9000 config.wsgi:application"]
     ports:
-      - 8000:8000
+      - 9000:9000
     volumes:
       - ./static:/app/static
       - ./data.db:/app/data.db

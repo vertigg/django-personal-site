@@ -103,7 +103,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
 
-ROOT_URLCONF = 'homesite.urls'
+ROOT_URLCONF = 'config.urls'
 SITE_ID = 1
 
 TEMPLATES = [
@@ -131,7 +131,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'homesite.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -290,3 +290,6 @@ LOGGING = {
         },
     },
 }
+
+# Experimental celery
+CELERY_BROKER_URL = 'amqp://user:244212@localhost/my_vhost'
