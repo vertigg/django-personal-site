@@ -11,7 +11,7 @@ BOT_PATH = os.getenv('BOT_PATH', '/home/vertigo/homesite') if os.name != 'nt' \
 def setup_django():
     os.chdir(BOT_PATH)
     sys.path.append(BOT_PATH)
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "homesite.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     django.setup()
 
 
