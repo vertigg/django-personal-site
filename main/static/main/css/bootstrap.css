@@ -56,6 +56,11 @@
   display: block;
   margin-left: auto;
   margin-right: auto;
+  padding: 0.25rem;
+  background-color: #2B3E50;
+  border: 1px solid #6c6e70;
+  border-radius: 50%;
+  max-width: 100%;
 }
 
 .signup-centered{

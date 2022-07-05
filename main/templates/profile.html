@@ -33,8 +33,14 @@
     <div class="row">
         <div class="col-md-4">
             <div><br>
-                <img src={% if user.discorduser.avatar_url %}"{{ user.discorduser.avatar_url|webp }}"{% else %}{% static 'main/image/default_avatar.png'%}{% endif %}
-                    alt="User avatar" class="discord-avatar img-thumbnail text-center ">
+                {% if not user.discorduser.avatar_url %}
+                    <img src="{% static 'main/image/default_avatar.png'%}" alt="Avatar" class="discord-avatar text-center">
+                {% else %}
+                    <picture>
+                        <source srcset="{{ user.discorduser.avatar_url }}" type="image/webp">
+                        <img src="{{ user.discorduser.avatar_url|discord_avatar_to_jpg }}" alt="Avatar" class="discord-avatar text-center">
+                    </picture>
+                {% endif %}
                 <div class="card-body text-center">
                     {% if user.discorduser %}
                     <h3>{{ user.discorduser }}</h3>

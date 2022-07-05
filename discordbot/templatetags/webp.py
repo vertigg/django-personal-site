@@ -4,6 +4,6 @@ register = template.Library()
 
 
 @register.filter
-def webp(value):
-    """Replaces webp with jpg (For firefox)"""
+def discord_avatar_to_jpg(value):
+    """Replaces webp extension with jpg (For Discord avatars)"""
     return value.replace("webp", "jpg")
