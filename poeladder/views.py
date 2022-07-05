@@ -50,7 +50,7 @@ class LadderView(FilterView):
     context_object_name = 'characters'
     template_name = 'ladder.html'
     model = PoeCharacter
-    paginate_by = 10
+    paginate_by = 150
     active_league = None
 
     def _get_current_user_profile(self, request):

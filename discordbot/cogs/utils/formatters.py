@@ -26,7 +26,7 @@ def ru_plural(value: int, quantitative: list) -> str:
 
 
 def add_punctuation(text: str) -> str:
-    if not any([text.endswith(y) for y in string.punctuation]) and len(text) > 1:
+    if not any(text.endswith(y) for y in string.punctuation) and len(text) > 1:
         return f'{text}.'
     return text
 

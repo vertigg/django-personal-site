@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'discordbot.apps.DiscordbotConfig',
     'poeladder.apps.PoeladderConfig',
+    'mail.apps.MailConfig',
     'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
@@ -71,6 +72,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.discord',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +85,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Email settings
+ANYMAIL = {
+    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
+    'WEBHOOK_SECRET': os.getenv('MAILGUN_WEBHOOK_SECRET')
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+EMAIL_DOMAIN = 'mail.epicvertigo.xyz'
+DEFAULT_FROM_EMAIL = f'donotreply@{EMAIL_DOMAIN}'
+SERVER_MAIL = f'admin@{EMAIL_DOMAIN}'
 
 REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',) ,

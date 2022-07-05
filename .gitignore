@@ -295,3 +295,4 @@ books/
 /misc/
 /logs/*
 !.gitkeep
+.env310
