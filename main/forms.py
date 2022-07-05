@@ -1,13 +1,13 @@
-import requests
+from discordbot.models import DiscordUser
 from django import forms
-from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm,
-                                       UsernameField, password_validation)
+from django.contrib.auth.forms import (
+    AuthenticationForm, UserCreationForm, UsernameField, password_validation
+)
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.utils.translation import gettext_lazy as _
-
-from discordbot.models import DiscordUser
+from poeladder.management.commands.utils import requests_retry_session
 from poeladder.models import PoeCharacter
 
 
@@ -45,7 +45,8 @@ class DiscordProfileForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        super(DiscordProfileForm, self).__init__(*args, **kwargs)
+        self.session = requests_retry_session()
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = DiscordUser
@@ -55,27 +56,27 @@ class DiscordProfileForm(ModelForm):
         }
         help_texts = {
             'poe_profile': ("'Character' tab in your profile must be public. "
-                            "Ladder updates every 24 hours")
+                            "Ladder updates every 3 hours")
         }
         labels = {'poe_profile': _("Path of Exile Profile")}
 
     def clean_poe_profile(self):
         profile = self.cleaned_data.get('poe_profile')
-        check_link = 'https://pathofexile.com/character-window/get-characters?accountName={}'
-        if profile is None or profile == '':
-            return profile
+        if not profile:
+            return str()
         if DiscordUser.objects.filter(poe_profile=profile).exists():
             if not self.user.discorduser.poe_profile == profile:
                 raise ValidationError(
                     f'"{profile}" profile is already linked to another user'
                 )
-        if requests.get(check_link.format(profile)).status_code != 200:
+        check_link = 'https://pathofexile.com/character-window/get-characters?accountName={}'
+        if self.session.get(check_link.format(profile)).status_code != 200:
             raise ValidationError(
                 f'Account name "{profile}" is incorrect or profile is private'
             )
         return profile
 
-    def save(self, commit=True, user=None):
-        if user and not self.cleaned_data.get('poe_profile'):
-            PoeCharacter.objects.filter(profile=user.discorduser.id).delete()
+    def save(self, commit=True):
+        if self.user and not self.cleaned_data.get('poe_profile'):
+            PoeCharacter.objects.filter(profile=self.user.discorduser.id).delete()
         return super().save(commit=commit)

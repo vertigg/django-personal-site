@@ -8,7 +8,7 @@ class WFSettingsForm(forms.ModelForm):
     success_message = 'Warframe alerts settings has been updated'
 
     def __init__(self, *args, **kwargs) -> None:
-        self.request = kwargs.pop('request', None)
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -20,9 +20,9 @@ class WFSettingsForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        if not self.request.user.discorduser.wf_settings:
+        if self.user.discorduser and not self.user.discorduser.wf_settings:
             obj = super().save(commit=commit)
-            self.request.user.discorduser.wf_settings = obj
-            self.request.user.discorduser.save()
+            self.user.discorduser.wf_settings = obj
+            self.user.discorduser.save()
             return obj
         return super().save(commit=commit)

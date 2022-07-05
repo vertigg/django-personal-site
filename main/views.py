@@ -75,11 +75,11 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         wf_form = WFSettingsForm(
             data=request.POST,
             instance=request.user.discorduser.wf_settings,
-            request=request
+            user=request.user
         )
         for form in (profile_form, wf_form):
             if form.has_changed() and form.is_valid():
-                form.save(user=request.user)
+                form.save()
                 messages.success(request, form.success_message)
         return self.render_to_response({
             'profile_form': profile_form,

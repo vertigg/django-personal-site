@@ -31,7 +31,7 @@ class Command(AdvancedCommand):
             f'{self.random_title} IP list',
             f'Fetched {datetime.now()}',
             f'Next {datetime.now() + timedelta(days=1)}',
-            f'Generated in {self.execution_time} seconds',
+            f'Generated in {self.execution_time} second(s)',
         ]))
 
     def handle(self, *args, **options):

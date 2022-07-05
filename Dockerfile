@@ -1,4 +1,4 @@
-FROM python:3.7.7-buster
+FROM python:3.10.5-buster
 LABEL name=homesite-project version=dev maintainer="Vertig <vertigo.spy@gmail.com>"
 ENV PYTHONUNBUFFERED 1
 RUN locale-gen C.UTF-8 || true
