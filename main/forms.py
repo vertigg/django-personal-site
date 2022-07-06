@@ -7,8 +7,8 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.utils.translation import gettext_lazy as _
-from poeladder.management.commands.utils import requests_retry_session
 from poeladder.models import PoeCharacter
+from poeladder.utils.session import requests_retry_session
 
 
 class MainAuthenticationForm(AuthenticationForm):

@@ -9,11 +9,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')
-
-
-@app.task(name="sum_two_numbers")
-def add(x, y):
-    return x + y
+def register_task(cls):
+    """Shortcut function for registering class-based celery tasks"""
+    return app.register_task(cls())
