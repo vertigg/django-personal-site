@@ -1,16 +1,16 @@
 import os
 import sys
+from pathlib import Path
 
 import django
 from django.apps import AppConfig
 
-BOT_PATH = os.getenv('BOT_PATH', '/home/vertigo/homesite') if os.name != 'nt' \
-    else "C:\\Users\\EpicWin\\Desktop\\HomeSite"
 
-
-def setup_django():
-    os.chdir(BOT_PATH)
-    sys.path.append(BOT_PATH)
+def setup_django() -> None:
+    """Helper function that allows using Django features in Discord bot"""
+    app_path = Path(__file__).resolve().parent.parent
+    os.chdir(app_path)
+    sys.path.append(str(app_path))
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     django.setup()
 

@@ -17,13 +17,13 @@ class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.update_cache_task = self.update_cache_task.start()
+        self.update_cache_task = self.update_cache.start()
 
     def cog_unload(self):
         self.update_cache_task.cancel()
 
     @tasks.loop(hours=24, reconnect=True)
-    async def update_cache_task(self):
+    async def update_cache(self):
         await self.bot.wait_until_ready()
         logger.info('Syncing Discord user with Django database')
         sync_users(self.bot.guilds)
