@@ -55,7 +55,7 @@ class Overwatch(commands.Cog):
                     user = DiscordUser.objects.get(id=discord_id)
                     if user.blizzard_id:
                         rank = await self.check_ow_rank(user.blizzard_id)
-                        await ctx.send("`{0}: {1}`".format(user.display_name, rank))
+                        await ctx.send(f"`{user.display_name}: {rank}`")
                     else:
                         await ctx.send("`You don't have blizzard tag linked to your profile`")
                 except DiscordUser.DoesNotExist:
@@ -89,7 +89,7 @@ class Overwatch(commands.Cog):
                 self.lock = False
         else:
             cooldown = 10 - round((time() - self.timeout))
-            await ctx.send("Next update will be available in {} seconds".format(cooldown))
+            await ctx.send(f"Next update will be available in {cooldown} seconds")
 
     async def check_ow_rank(self, blizzard_id):
         """OW rank checker"""
@@ -100,7 +100,8 @@ class Overwatch(commands.Cog):
                     soup = BeautifulSoup(text, 'html.parser')
                     result = soup.find(
                         "div", {"class": "competitive-rank"}).text
-                except:
+                except Exception as exc:
+                    logger.error(exc)
                     result = "Not ranked"
         return result
 

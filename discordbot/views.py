@@ -12,6 +12,7 @@ from discordbot.models import WFAlert
 
 @method_decorator(csrf_exempt, name='dispatch')
 class WarframeWebhookView(View):
+
     def get_alert_content(self, data):
         if 'api_key' in data and data['api_key'] == settings.WARFRAME_KEY:
             return data.get('content')
