@@ -48,8 +48,8 @@ LOGIN_URL = 'main:login'
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') or INTERNAL_IPS
 SOCIALACCOUNT_ADAPTER = "main.adapters.CustomSocialAccountAdapter"
-# Application definition
 
+# Application definition
 INSTALLED_APPS = [
     # Add your apps here to enable them
     'django.contrib.admin',
@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.discord',
     'anymail',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -138,8 +139,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# DB backup settings
-
+# Database backup settings
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = {'location': '/var/backups'}
 
@@ -291,5 +291,6 @@ LOGGING = {
     },
 }
 
-# Experimental celery
-CELERY_BROKER_URL = 'amqp://user:244212@localhost/my_vhost'
+# Celery settings
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/0')
