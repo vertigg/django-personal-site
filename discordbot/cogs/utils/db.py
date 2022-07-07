@@ -7,7 +7,7 @@ from discordbot.models import DiscordSettings, DiscordUser
 logger = logging.getLogger('discordbot.utils.db')
 
 
-def get_nickname_cache():
+def get_nickname_cache() -> dict[int, str]:
     """Get nickname dictionary from discord user model"""
     query_set = DiscordUser.objects.values_list('id', 'display_name')
     return {x[0]: x[1] for x in query_set}

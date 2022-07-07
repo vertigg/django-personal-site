@@ -44,6 +44,15 @@
       "request": "launch",
       "program": "${workspaceFolder}/discordbot/bot.py",
       "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Celery",
+      "type": "python",
+      "request": "launch",
+      "module": "celery",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "args": ["-A", "config.celery_app", "worker", "-l", "info", "-P", "solo"]
     }
   ]
 }

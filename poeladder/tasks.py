@@ -5,7 +5,7 @@ from datetime import datetime
 
 import requests
 from celery import Task
-from config.celery import register_task
+from config.celery import UniqueNamedTask, register_task
 from discordbot.models import DiscordUser
 from django.conf import settings
 from django.utils import timezone
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @register_task
-class LadderUpdateTask(Task):
+class LadderUpdateTask(UniqueNamedTask):
     POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
     POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
     POE_INFO = 'https://www.pathofexile.com/character-window/get-items?character={0}&accountName={1}'
