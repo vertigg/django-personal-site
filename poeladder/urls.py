@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-import poeladder.views as views
+from poeladder import views
 from poeladder.viewsets import CharacterViewSet
 from poeladder.routers import LadderRouter
 

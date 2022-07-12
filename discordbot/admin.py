@@ -1,10 +1,9 @@
 import io
+import json
 import os
-import tempfile
 import zipfile
 from datetime import datetime
 
-import pandas as pd
 from django.conf import settings
 from django.contrib import admin, messages
 from django.db import models
@@ -17,6 +16,9 @@ from discordbot.models import (
     DiscordLink, DiscordSettings, DiscordUser, Gachi, MarkovText, MixImage,
     WFAlert, Wisdom
 )
+from discordbot.serializers import MixImageSerializer
+
+admin.site.register(WFAlert)
 
 
 @admin.register(MarkovText)
@@ -108,33 +110,27 @@ class DiscordMixImageAdmin(admin.ModelAdmin):
 
     def download_backup(self, request):
         """
-        Generates zip archive with all MixImage pictures and CSV file with all
+        Generates zip archive with all MixImage objects and JSON file with all
         MixImage data from database
         """
         date = datetime.now().strftime('%y%m%d%H%M%S')
-        file_list = [os.path.join(settings.MEDIA_ROOT, x) for x in
-                     self.model.objects.all().values_list('image', flat=True)]
+        queryset = self.model.objects.all()
+        images = [os.path.join(settings.MEDIA_ROOT, x) for x in
+                  queryset.values_list('image', flat=True)]
         buffer = io.BytesIO()
-        temp_folder = 'mix_pictures'
-        zip_filename = f"{temp_folder}_{date}.zip"
-        zf = zipfile.ZipFile(buffer, 'w')
-        # Zip pictures
-        for fpath in file_list:
-            _, fname = os.path.split(fpath)
-            zip_path = os.path.join(temp_folder, fname)
-            zf.write(fpath, zip_path)
-        # Zip database data as csv file
-        with tempfile.NamedTemporaryFile(delete=False) as temp:
-            qs = self.model.objects.all().values()
-            df = pd.DataFrame.from_dict(qs)
-            filename = f'{temp.name}.csv'
-            df.to_csv(filename, index=False)
-            zip_path = os.path.join(temp_folder, filename)
-            zf.write(filename, zip_path)
-        zf.close()
+
+        with zipfile.ZipFile(buffer, 'w') as zip_file:
+            # Zip pictures
+            for fpath in images:
+                _, fname = os.path.split(fpath)
+                zip_path = os.path.join('images', fname)
+                zip_file.write(fpath, zip_path)
+
+            # Zip database data as json file
+            queryset = self.model.objects.all()
+            serializer = MixImageSerializer(queryset, many=True)
+            zip_file.writestr('data.json', json.dumps(serializer.data, indent=4))
+
         resp = HttpResponse(buffer.getvalue(), content_type="application/x-zip-compressed")
-        resp['Content-Disposition'] = f'attachment; filename={zip_filename}'
+        resp['Content-Disposition'] = f'attachment; filename=mix_{date}.zip'
         return resp
-
-
-admin.site.register(WFAlert)

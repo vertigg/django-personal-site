@@ -7,8 +7,7 @@ from main.models import BaseModel
 
 
 class PoeInfo(models.Model):
-    key = models.TextField(primary_key=True, blank=False,
-                           null=False, unique=True)
+    key = models.TextField(primary_key=True, blank=False, null=False, unique=True)
     value = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(blank=True, null=True)
 
@@ -27,7 +26,7 @@ class PoeLeague(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify(self.name)
-        super(PoeLeague, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'League'
@@ -73,7 +72,7 @@ class PoeCharacter(BaseModel):
         db_table = 'poeladder_characters'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}: {self.level} level'
 
 
 class Announcement(BaseModel):

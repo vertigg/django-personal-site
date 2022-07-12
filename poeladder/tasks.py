@@ -4,7 +4,6 @@ import time
 from datetime import datetime
 
 import requests
-from celery import Task
 from config.celery import UniqueNamedTask, register_task
 from discordbot.models import DiscordUser
 from django.conf import settings
@@ -223,4 +222,4 @@ class LadderUpdateTask(UniqueNamedTask):
 
         if settings.DEBUG:
             from django.db import connection
-            logger.info(f'Total db queries: {len(connection.queries)}')
+            logger.info('Total db queries: %s', len(connection.queries))
