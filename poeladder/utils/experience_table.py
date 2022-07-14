@@ -1,4 +1,4 @@
-experience = {
+EXPERIENCE_TABLE = {
     1: {'xp_to_gain': 525, 'total_xp': 0},
     2: {'xp_to_gain': 1235, 'total_xp': 525},
     3: {'xp_to_gain': 2021, 'total_xp': 1760},

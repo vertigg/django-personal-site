@@ -1,19 +1,22 @@
+from typing import Sequence
+
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 
 def requests_retry_session(
-        retries=5,
-        backoff_factor=1.2,
-        status_forcelist=(429, 500, 502, 504, 522),
-        session=None):
+    retries: int = 5,
+    backoff_factor: float = 1.2,
+    status_forcelist: Sequence[int] = (429, 500, 502, 504, 522),
+    session: requests.Session = None
+):
     """Create a requests Session object pre-configured for retries
 
     Args:
         retries (int): number of times to retry request
         backoff_factor (float): amount of time to wait between retries
-        status_forcelist (list): http status codes to ignore during retries
+        status_forcelist (Sequence[int]): http status codes to ignore during retries
         session (Session): optional Session object to apply retry config to
 
     Returns:

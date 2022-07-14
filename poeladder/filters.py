@@ -8,7 +8,7 @@ class PoeClassFilter(FilterSet):
 
     class_choices = (
         (0, 'Scion'),
-        (1, 'Maradeur'),
+        (1, 'Marauder'),
         (2, 'Ranger'),
         (3, 'Witch'),
         (4, 'Duelist'),

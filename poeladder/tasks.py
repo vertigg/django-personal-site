@@ -2,12 +2,14 @@ import json
 import logging
 import time
 from datetime import datetime
+from typing import Any
 
 import requests
 from config.celery import UniqueNamedTask, register_task
 from discordbot.models import DiscordUser
 from django.conf import settings
 from django.utils import timezone
+from rest_framework import status
 
 from poeladder.models import PoeCharacter, PoeInfo, PoeLeague
 from poeladder.utils.session import requests_retry_session
@@ -25,6 +27,8 @@ class LadderUpdateTask(UniqueNamedTask):
     def __init__(self):
         self.session = requests_retry_session()
         self.session.cookies.set('POESESSID', settings.POESESSID)
+
+    def _get_local_data(self) -> None:
         self.leagues, self.league_names = self._get_local_leagues_info()
         self.profiles = {x[0]: x[1] for x in DiscordUser.objects
                          .exclude(poe_profile__exact='')
@@ -41,11 +45,10 @@ class LadderUpdateTask(UniqueNamedTask):
         league_names = set(leagues.keys())
         return leagues, league_names
 
-    def get_main_skills(self, character, account):
+    def get_main_skills(self, character: str, account: str):
         response = self.session.get(self.POE_INFO.format(character, account))
-        if response.headers.get('X-Rate-Limit-Ip-State'):
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
             logger.debug(response.headers['X-Rate-Limit-Ip-State'])
-        if response.status_code == 429:
             logger.error('Rate limited!')
             time.sleep(65)
             response = self.session.get(self.POE_INFO.format(character, account))
@@ -58,7 +61,7 @@ class LadderUpdateTask(UniqueNamedTask):
         return None
 
     def update_leagues(self):
-        league_api_data = json.loads(self.session.get(self.POE_LEAGUES).text)
+        league_api_data = self.session.get(self.POE_LEAGUES).json()
         api_league_names = {x['id'] for x in league_api_data}
 
         # Remove old leagues
@@ -67,16 +70,16 @@ class LadderUpdateTask(UniqueNamedTask):
             difference.remove('Void')
 
         if difference:
-            logger.info(f'Deleting {difference}')
+            logger.info('Deleting %s', difference)
             PoeLeague.objects.filter(name__in=difference).delete()
 
         for league in league_api_data:
             league_name = league.get('id')
             if league_name not in self.league_names:
                 # Create new league
-                logger.info(f'New league: {league["id"]}')
+                logger.info('New league: %s', league_name)
                 PoeLeague.objects.create(
-                    name=league['id'],
+                    name=league_name,
                     url=league['url'],
                     start_date=league['startAt'],
                     end_date=league['endAt']
@@ -85,8 +88,9 @@ class LadderUpdateTask(UniqueNamedTask):
             elif self._parse_league_datetime(league['endAt']) != self.leagues[league_name]['end_date']:
                 PoeLeague.objects.filter(name=league_name).update(end_date=league['endAt'])
                 logger.info(
-                    f'{league_name.capitalize()} league has '
-                    f'been updated with new end date {league["endAt"]}')
+                    '%s league has been updated with new end date %s',
+                    league_name.capitalize(), league.get("endAt")
+                )
 
         if 'Void' not in self.league_names:
             logger.info('New league: Void')
@@ -96,13 +100,13 @@ class LadderUpdateTask(UniqueNamedTask):
         self.leagues, self.league_names = self._get_local_leagues_info()
 
     def _delete_characters(self, characters: set):
-        logger.info(f'Deleting characters {characters}')
+        logger.info('Deleting characters %s', characters)
         PoeCharacter.objects.filter(name__in=characters).delete()
 
     def _create_characters(self, data: dict, characters: set, discord_id: int, account: str):
         for name in characters:
             character = data.get(name)
-            logger.info(f'New character: {name}')
+            logger.info('New character: %s', name)
             league_id = self._get_character_league_id(character)
             p = PoeCharacter.objects.create(
                 name=name,
@@ -131,7 +135,7 @@ class LadderUpdateTask(UniqueNamedTask):
             if ch['league'] != character['league'] \
                     or ch['experience'] != character['experience'] \
                     or ch['ascendancy_id'] != character['ascendancyClass']:
-                logger.info(f'Updating {name}')
+                logger.info('Updating %s', name)
                 p = PoeCharacter.objects.get(name=name)
                 p.league_id = league_id
                 p.class_name = character['class']
@@ -151,33 +155,33 @@ class LadderUpdateTask(UniqueNamedTask):
                     'ascendancy_id', 'class_id', 'experience', 'modified'
                 ])
 
-    def _unsub_user(self, account):
+    def _unsub_user(self, account: str):
         profile = DiscordUser.objects.get(poe_profile=account)
         PoeCharacter.objects.filter(profile=profile).delete()
         profile.poe_profile = ''
         profile.save(update_fields=['poe_profile'])
-        logger.info(f'{account} removed from ladder')
+        logger.info('%s removed from ladder', account)
 
-    def _get_account_data(self, account):
+    def _get_account_data(self, account: str) -> dict[str, Any]:
         """Retrieves PoE Account data with all characters"""
-        r = self.session.get(self.POE_PROFILE.format(account))
-        if r.status_code == 429:
+        response = self.session.get(self.POE_PROFILE.format(account))
+        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
             logger.error('Rate limited!')
             time.sleep(65)
-            r = self.session.get(self.POE_PROFILE.format(account))
-        elif r.status_code == 403:
-            logger.error(f"Forbidden: 403. Can't access {account} profile")
+            response = self.session.get(self.POE_PROFILE.format(account))
+        elif response.status_code == status.HTTP_403_FORBIDDEN:
+            logger.error("Forbidden: 403. Can't access %s profile", account)
             self._unsub_user(account)
             return
-        elif r.status_code != 200:
-            logger.error(f'Error requesting {account} {r.status_code}: {r.text}')
+        elif not response.ok:
+            logger.error('Error requesting %s %s: %s', account, response.status_code, response.text)
             return
-        api_data = json.loads(r.text)
+        api_data = response.json()
         time.sleep(1.1)
 
         if isinstance(api_data, dict) and api_data.get('error', None):
             raise requests.RequestException(
-                f"Error requesting {account} {r.status_code}: {api_data['error']}")
+                f"Error requesting {account} {response.status_code}: {api_data['error']}")
         return api_data
 
     def update_characters(self):
@@ -215,7 +219,8 @@ class LadderUpdateTask(UniqueNamedTask):
         info.save(update_fields=['timestamp'])
 
     def run(self):
-        logger.info(datetime.now())
+        logger.info('Starting PoE ladder update')
+        self._get_local_data()
         self.update_leagues()
         self.update_characters()
         self.update_ladder_info()
