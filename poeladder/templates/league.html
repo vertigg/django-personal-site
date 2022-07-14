@@ -1,5 +1,4 @@
-{% load static %}
-{% load ladder_extras %}
+{% load static %} {% load ladder_extras %}
 
 <div class="container col-lg-11">
     {% if not characters %}
@@ -10,67 +9,70 @@
         </div>
     </div>
     {% else %}
-    <a class="ladder-link" href={% if active_league.url %}{{active_league.url}}{% else %}{% endif %}><h1 class="ladder-title">{{active_league.name}} League </h1></a> 
+    <h1 class="ladder-title">
+        <a href="{% if active_league.url %}{{active_league.url}}{% else %}{% endif %}" class="ladder-link">{{active_league.name}} League </a>
+    </h1>
     <table class="LadderTable">
-            <thead>
-              <tr class="LadderHeader">
+        <thead>
+            <tr class="LadderHeader">
                 <th class="row-rank">Rank</th>
                 <th>Character</th>
                 <th>Account</th>
-                <th>Class <form id="" method="get" style="float:right">{{class_filter.form.class_id}}</form>
+                <th>Class
+                    <form id="" method="get" style="float:right">{{class_filter.form.class_id}}</form>
                 </th>
                 <th class="row-level text-center">Level</th>
                 <th class="row-level text-center">Progress</th>
                 <th class="row-level text-center">Experience</th>
                 <th class="row-level text-center compact-column">Skills</th>
                 <th class="row-level text-center compact-column">Last Update</th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for character in characters %}
-                    <tr class= "LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}" >
-                        <td>{{forloop.counter0|add:page_obj.start_index}}</td>
-                        <td class="row-link">
-                            <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
-                                <div class="cell-link" style="height:100%; width:100%">
-                                    {{character.name}}
-                                </div>
-                            </a> 
-                        </td>
-                        <td class="row-link">
-                                <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters">
-                                    <div class="ladder-link">
-                                        {{character.profile.poe_profile}}
-                                    </div>
-                                </a>
-                            </td>
-                        <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{character.class_name}}</td>
-                        <td class="text-center">{{character.level}}</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for character in characters %}
+            <tr class="LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}">
+                <td>{{forloop.counter0|add:page_obj.start_index}}</td>
+                <td class="row-link">
+                    <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
+                        <div class="cell-link" style="height:100%; width:100%">
+                            {{character.name}}
+                        </div>
+                    </a>
+                </td>
+                <td class="row-link">
+                    <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters">
+                        <div class="ladder-link">
+                            {{character.profile.poe_profile}}
+                        </div>
+                    </a>
+                </td>
+                <td> <img id="class-icon" src="{% get_static_prefix %}poeladder/img/characters/{{character.class_name}}_avatar.png"> {{character.class_name}}</td>
+                <td class="text-center">{{character.level}}</td>
 
-                        {% with character|level_progress as level_progress %}
-                        <td style="width:50px" title="{{level_progress}}%"> 
-                            <div class="progress progress-level">
-                                <div class="progress-bar" role="progressbar" style="width: {{level_progress}}%;" aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </td>
-                        {% endwith %}
-                        
-                        <td class="text-center "><div class="text-right" style="width:75%">{{character.experience|space_separator}}</div></td>
-                        <td class="row-gems compact-column"> 
-                            <div class="gems-container">
-                                {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
-                            </div>
-                        </td>
-                        <td class="text-center compact-column">
-                            {{ character.modified }}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-          </table>
-          {% if is_paginated %}
-              {% include "paginator.html" with item=page_obj%}
-          {% endif %}
-    </div>
-    <div class="col-xs-12" style="height:50px;"></div>
+                {% with character|level_progress as level_progress %}
+                <td style="width:50px" title="{{level_progress}}%">
+                    <div class="progress progress-level">
+                        <div class="progress-bar" role="progressbar" style="width: {{level_progress}}%;" aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </td>
+                {% endwith %}
+
+                <td class="text-center ">
+                    <div class="text-right" style="width:75%">{{character.experience|space_separator}}</div>
+                </td>
+                <td class="row-gems compact-column">
+                    <div class="gems-container">
+                        {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
+                    </div>
+                </td>
+                <td class="text-center compact-column" title="{{ character.modified|date:'c' }}">
+                    {{ character.modified|date:"j F, H:i:s" }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if is_paginated %} {% include "paginator.html" with item=page_obj%} {% endif %}
+</div>
+<div class="col-xs-12" style="height:50px;"></div>
 {% endif %}

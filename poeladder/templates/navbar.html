@@ -8,16 +8,16 @@
 
     <div class="collapse navbar-collapse" id="navbarColor02">
         <ul class="navbar-nav mr-auto">
-            {% for temp_league in poe_context.temp_leagues %} 
-                {% if temp_league.name == active_league.name %}
+            {% for league in poe_context.temp_leagues %} 
+                {% if league.name == active_league.name %}
                 <li class="nav-item active">
-                    <a class="nav-link active-league" href="{% url 'poeladder:ladder_url' slug=temp_league.slug %}">{{ temp_league.name }}
+                    <a class="nav-link active-league" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
                         <span class="sr-only"></span>
                     </a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'poeladder:ladder_url' slug=temp_league.slug %}">{{ temp_league.name }}
+                    <a class="nav-link" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
                         <span class="sr-only"></span>
                     </a>
                 </li>
@@ -26,17 +26,19 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
                 <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
-                    {% for old_league in poe_context.old_leagues %}
-                    <a class="dropdown-item" href="{% url 'poeladder:ladder_url' slug=old_league.slug %}">{{ old_league.name }}
-                        <span class="sr-only"></span>
-                    </a>
+                    {% for league in poe_context.old_leagues %}
+                        <a class="dropdown-item" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
+                            <span class="sr-only"></span>
+                        </a>
                     {% endfor %}
                 </div>
             </li>
             <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
                     <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
+                      <a class="dropdown-item" href="https://www.pathofexile.com/trade">Official Trade Website</a>
                       <a class="dropdown-item" href="http://poe.trade/">poe.trade</a>
+                      <a class="dropdown-item" href="https://poe.ninja/challenge/builds">poe.ninja</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" href="https://siveran.github.io/calc.html">Vorici Calculator</a>
                       <a class="dropdown-item" href="https://poe.mikelat.com/">Aura Calculator</a>
@@ -46,6 +48,6 @@
         <form class="form-inline my-2 my-lg-0" action="{% url 'poeladder:ladder_search' %}" method="get">
             {{ poe_context.search_form.name }}
         </form>
-        <a class="float-right" > Last updated: {{ poe_context.last_update|date:"F d" }}</a>
+        <a class="float-right" title="{{ poe_context.last_update|date:'c' }}" > Last updated: {{ poe_context.last_update|date:"F d" }}</a>
     </div>
 </nav>
