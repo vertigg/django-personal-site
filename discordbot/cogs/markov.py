@@ -39,7 +39,7 @@ class Markov(commands.Cog):
         Args:
             ctx (Context|None): Current message context if available
             channel_id (int|None): Specific channel ID, if passed as None it will
-            fallback to ctx.channel.id if ctx is avaliable
+            fallback to ctx.channel.id if ctx is available
         Raises:
 
         """
@@ -117,7 +117,7 @@ class Markov(commands.Cog):
                 permissions to read that channel. Defaults to None.
             limit: Limits the number of messages we want to retrieve.
                 Defaults to None.
-            after: Optional datetime after which we want to retrive messages.
+            after: Optional datetime after which we want to retrieve messages.
                 Defaults to None.
 
         Raises:

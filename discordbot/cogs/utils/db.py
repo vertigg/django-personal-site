@@ -7,15 +7,9 @@ from discordbot.models import DiscordSettings, DiscordUser
 logger = logging.getLogger('discordbot.utils.db')
 
 
-def get_nickname_cache() -> dict[int, str]:
-    """Get nickname dictionary from discord user model"""
-    query_set = DiscordUser.objects.values_list('id', 'display_name')
-    return {x[0]: x[1] for x in query_set}
-
-
 def sync_users(servers):
     """Update display names for every user in bot.servers"""
-    cache = get_nickname_cache()
+    cache = DiscordUser.get_cached_nicknames()
     users = {m.id: m for m in list(chain(*[s.members for s in servers]))}
 
     for discord_id, member in users.items():

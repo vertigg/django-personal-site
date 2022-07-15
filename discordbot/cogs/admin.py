@@ -27,7 +27,6 @@ class Admin(commands.Cog):
             region.eu_central,
             region.frankfurt,
             region.eu_west,
-            region.russia
         ]
 
     @commands.command(hidden=True)

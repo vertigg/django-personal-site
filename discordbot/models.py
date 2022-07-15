@@ -209,6 +209,13 @@ class DiscordUser(models.Model):
     def is_moderator(cls, discord_id):
         return cls.objects.filter(id=discord_id, mod_group=True).exists()
 
+    @classmethod
+    def get_cached_nicknames(cls) -> dict[int, str]:
+        return {
+            id: display_name for id, display_name in
+            cls.objects.values_list('id', 'display_name')
+        }
+
 
 class Wisdom(BaseModel):
     id = models.IntegerField(blank=True, null=False, primary_key=True)

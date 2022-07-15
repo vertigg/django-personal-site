@@ -9,10 +9,6 @@ logger = logging.getLogger('discordbot.utils.checks')
 IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}
 
 
-def check_author_name(discord_id, cache):
-    return cache[discord_id] if discord_id in cache else discord_id
-
-
 def is_image_mimetype(content_type: str) -> bool:
     return content_type in IMAGE_TYPES
 
