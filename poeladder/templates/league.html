@@ -15,7 +15,7 @@
     <table class="LadderTable">
         <thead>
             <tr class="LadderHeader">
-                <th class="row-rank">Rank</th>
+                <th class="row-rank text-center compact-column">Rank</th>
                 <th>Character</th>
                 <th>Account</th>
                 <th>Class
@@ -31,7 +31,7 @@
         <tbody>
             {% for character in characters %}
             <tr class="LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}">
-                <td>{{forloop.counter0|add:page_obj.start_index}}</td>
+                <td class="text-center">{{forloop.counter0|add:page_obj.start_index}}</td>
                 <td class="row-link">
                     <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
                         <div class="cell-link" style="height:100%; width:100%">
@@ -52,7 +52,7 @@
                 {% with character|level_progress as level_progress %}
                 <td style="width:50px" title="{{level_progress}}%">
                     <div class="progress progress-level">
-                        <div class="progress-bar" role="progressbar" style="width: {{level_progress}}%;" aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{level_progress}}%;" aria-valuenow="{{level_progress}}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </td>
                 {% endwith %}
@@ -65,7 +65,7 @@
                         {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
                     </div>
                 </td>
-                <td class="text-center compact-column" title="{{ character.modified|date:'c' }}">
+                <td class="compact-column" title="{{ character.modified|date:'c' }}">
                     {{ character.modified|date:"j F, H:i:s" }}
                 </td>
             </tr>

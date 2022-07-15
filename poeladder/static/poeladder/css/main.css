@@ -95,7 +95,8 @@ table.LadderTable tr.LadderRows:nth-child(even) {
   height: 40px;
 }
 table.LadderTable tr.current-user {
-  border-left: 3px solid green;
+  border-left: 1px solid green;
+  background-color: #24292e !important;
 }
 
 table.LadderTable thead {
@@ -277,7 +278,7 @@ a.active-league {
 }
 
 .progress-level {
-  height: 4px;
+  height: 6px;
 }
 
 .gems-container {
