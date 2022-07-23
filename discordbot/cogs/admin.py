@@ -1,19 +1,24 @@
 """COG FOR ADMIN COMMANDS"""
 
+import asyncio
 import inspect
+import itertools
 import logging
 import os
 import random
 import sys
-import itertools
 
 import aiohttp
 import pandas as pd
+import requests
+from celery import states
 from discord import VoiceRegion as region
 from discord.errors import Forbidden
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from discordbot.cogs.utils.checks import admin_command, mod_command
+from discordbot.cogs.utils.db import sync_users
+from poeladder.tasks import LadderUpdateTask
 
 logger = logging.getLogger('discordbot.admin')
 
@@ -106,11 +111,26 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @admin_command
-    async def gitupdate(self, _):
-        """Autoupdate bot to latest commit"""
-        os.system('git pull')
-        os.system('supervisorctl restart bot')
+    async def update_users(self, ctx):
+        """Force update display names for every user in bot.servers"""
+        try:
+            sync_users(self.bot.guilds)
+        except Exception as exc:
+            await ctx.send(exc)
 
+    @commands.command(hidden=True)
+    @mod_command
+    async def ladder_update(self, ctx):
+        result = LadderUpdateTask.delay()
+        await ctx.send("`Updating ladder...`", delete_after=30)
+        logger.info('[LADDER]: Ladder Update has been started')
+        while result.state == states.PENDING:
+            await ctx.trigger_typing()
+            await asyncio.sleep(10)
+        if result.state == states.SUCCESS:
+            await ctx.send('Ladder has been updated', delete_after=30)
+        else:
+            await ctx.send('Error during ladder update operation')
 
 def setup(bot):
     bot.add_cog(Admin(bot))
