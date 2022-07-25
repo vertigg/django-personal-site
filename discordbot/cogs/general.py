@@ -47,10 +47,7 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def low(self, ctx):
-        if ctx.message.author.id == 127135903125733376:
-            await ctx.send(DiscordLink.get('low'))
-        else:
-            await ctx.send('<:bearrion:230370930600312832>')
+        await ctx.send(DiscordLink.get('low'))
 
     @commands.command()
     async def choose(self, ctx, *choices: str):
