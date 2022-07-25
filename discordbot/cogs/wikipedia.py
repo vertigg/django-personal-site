@@ -1,9 +1,12 @@
 import logging
+from typing import Union
 
-import wikipedia
 from discord import Color, Embed
 from discord.ext import commands
+from discordbot.cogs.utils.checks import admin_command
 from django.template.defaultfilters import truncatechars
+
+import wikipedia
 from wikipedia.exceptions import DisambiguationError, PageError
 
 logger = logging.getLogger('discordbot.wiki')
@@ -12,48 +15,54 @@ logger = logging.getLogger('discordbot.wiki')
 class Wikipedia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        wikipedia.set_lang('ru')
+        self.default_embed_color = Color(0x00910b)
+        wikipedia.set_lang('uk')
 
-    @commands.group()
-    async def wiki(self, ctx, *, search: str):
+    @commands.command()
+    async def wiki(self, ctx, *, term: str):
         """Википедия в Дискорде, не отходя от кассы"""
-        if not ctx.invoked_subcommand:
-            await ctx.send(embed=self.get_search_result(search))
+        await ctx.send(embed=self.get_search_result(term))
 
-    def truncate_summary(self, summary: str):
+    @commands.command(hidden=True)
+    @admin_command
+    async def set_wiki_language(self, ctx, *, language_code: str):
+        if language_code in wikipedia.languages().keys():
+            wikipedia.set_lang(language_code)
+            await ctx.send(f'Wiki language changed to {language_code}', delete_after=5)
+        else:
+            await ctx.send('Invalid language code', delete_after=5)
+
+    def truncate_summary(self, summary: str) -> str:
         return summary if len(summary) < 1000 else truncatechars(summary, 700)
 
-    def get_thumbnail_image(self, images: list):
-        if images:
-            jpeg_images = list(filter(
-                lambda image: any(x in image for x in ['jpg', 'jpeg']), images))
-            if jpeg_images:
-                return jpeg_images[0]
+    def get_thumbnail_image(self, images: list[str]) -> Union[str, None]:
+        if thumbnails := [i for i in images if i.endswith(('jpeg', 'jpg'))]:
+            return thumbnails[0]
         return None
 
-    def get_search_result(self, request):
+    def get_search_result(self, term: str) -> Embed:
         try:
-            page = wikipedia.page(request)
+            page = wikipedia.page(term)
             embed = Embed(
                 url=page.url,
                 title=page.title,
-                colour=Color(0x00910b),
-                description=self.truncate_summary(page.summary))
-            thumbnail = self.get_thumbnail_image(page.images)
-            if thumbnail:
+                colour=self.default_embed_color,
+                description=self.truncate_summary(page.summary)
+            )
+            if thumbnail := self.get_thumbnail_image(page.images):
                 embed.set_thumbnail(url=thumbnail)
             return embed
         except DisambiguationError as exc:
             return Embed(
                 title=f"Too many results for {exc.title}",
-                colour=Color(0x00910b),
+                colour=self.default_embed_color,
                 description=self.truncate_summary(', '.join(exc.options))
             )
         except PageError as exc:
             title = exc.title if hasattr(exc, 'title') else exc.pageid
             return Embed(
                 title=f"No results for {title}",
-                colour=Color(0x00910b),
+                colour=self.default_embed_color,
                 description=self.truncate_summary(exc.__unicode__())
             )
 
