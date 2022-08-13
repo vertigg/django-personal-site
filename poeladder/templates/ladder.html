@@ -26,10 +26,10 @@ Path of Exile Private Ladder
 {% block content %}
 
 {% if ladder_main %}
-    {% if next_league %}
+    {% if announcement %}
         <div class="d-flex h-100 justify-content-center flex-column align-items-center" style="margin-top:150px">
             <img src="{% static 'poeladder/img/logo.png' %}" alt="Psina sutulaya" style="width: 450px;">
-            <div class='mx-auto' style="min-width:110px; font-family: 'Fontin-Regular';">Next league starts in:</div>
+            <div class='mx-auto' style="min-width:110px; font-family: 'Fontin-Regular';">{{ announcement.text }} starts in:</div>
             <h6>
                 <div id='timer' class='mx-auto text-center'></div>
             </h6>
@@ -44,12 +44,9 @@ Path of Exile Private Ladder
 
 {% block script %}
 <script>
-  {% if next_league %}
-      const releaseDate = new Date("{{ next_league.release_date.isoformat }}");
-      const leagueText= "{{ next_league.text }}"
-  {% else %}
-      const releaseDate = null;
-      const leagueText= null
+  var releaseDate = null;
+  {% if announcement %}
+    releaseDate = new Date("{{ announcement.release_date.isoformat }}");
   {% endif %}
 </script>
 <script src="{% static 'poeladder/js/ext.js' %}"></script>

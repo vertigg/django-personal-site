@@ -32,13 +32,13 @@ class MainLadderView(RedirectView):
     def get_context(self) -> Dict[str, Any]:
         return {
             'ladder_main': True,
-            'next_league': Announcement.get_next_announcement(),
+            'announcement': Announcement.get_next_announcement(),
         }
 
     def get(self, request, *args, **kwargs):
         context = self.get_context()
         # If no new league announcements - proceed to most active current league
-        if not context.get('next_league'):
+        if not context.get('announcement'):
             url = self.get_redirect_url()
             if url:
                 return HttpResponseRedirect(url)
