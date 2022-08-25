@@ -294,3 +294,7 @@ a.active-league {
   white-space: nowrap;
   padding: 0 10px !important;
 }
+
+.strike {
+  text-decoration: line-through;
+}

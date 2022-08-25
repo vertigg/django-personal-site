@@ -51,7 +51,7 @@ class General(commands.Cog):
 
     @commands.command()
     async def choose(self, ctx, *choices: str):
-        """Chooses between two items"""
+        """Chooses between multiple items"""
         await ctx.send(random.choice(choices))
 
     @commands.command(hidden=True)

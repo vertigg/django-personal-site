@@ -53,7 +53,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not any([context.get(x) for x in ('profile_form', 'wf_settings_form')]):
+        if not any(context.get(x) for x in ('profile_form', 'wf_settings_form')):
             profile_form = DiscordProfileForm(
                 user=self.request.user,
                 instance=getattr(self.request.user, 'discorduser', None)

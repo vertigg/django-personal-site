@@ -10,7 +10,9 @@
     </div>
     {% else %}
     <h1 class="ladder-title">
-        <a href="{% if active_league.url %}{{active_league.url}}{% else %}{% endif %}" class="ladder-link">{{active_league.name}} League </a>
+        <a href="{% if active_league.url %}{{active_league.url}}{% else %}{% endif %}" class="ladder-link">
+            {% if 'kalandra' in active_league.name|lower %}<span class="strike">{{active_league.name}}</span> Heist League{% else %}{{active_league.name}} League{% endif %}
+        </a>
     </h1>
     <table class="LadderTable">
         <thead>
