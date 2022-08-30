@@ -32,7 +32,7 @@ class General(commands.Cog):
     async def avatar(self, ctx):
         """Shows user's avatar or avatars of all mentioned users"""
         users = ctx.message.mentions if ctx.message.mentions else [ctx.message.author]
-        await ctx.send('\n'.join([str(x.avatar_url) for x in users]))
+        await ctx.send('\n'.join(str(x.avatar) for x in users))
 
     @commands.command()
     @admin_command
@@ -99,5 +99,5 @@ class General(commands.Cog):
         )
 
 
-def setup(bot):
-    bot.add_cog(General(bot))
+async def setup(bot):
+    await bot.add_cog(General(bot))

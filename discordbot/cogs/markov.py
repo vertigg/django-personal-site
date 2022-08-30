@@ -2,15 +2,14 @@ import logging
 from datetime import datetime
 
 import pandas as pd
-import pytz
 from discord.errors import HTTPException
 from discord.ext import commands, tasks
 from django.db.models.functions import Length
 from markovify import Text
 
 from discordbot.models import MarkovText
-from .utils.checks import admin_command
-from .utils.exceptions import MissingContextError, UnavailableChannelError
+from .utils.checks import admin_command, text_channels_only
+from .utils.exceptions import UnavailableChannelError
 from .utils.formatters import clean_text
 
 logger = logging.getLogger('discordbot.markov')
@@ -21,7 +20,7 @@ class Markov(commands.Cog):
     max_sentences = 20
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self._excluded_ids = [223837667186442240, 345296059712405505]
         self.markov_texts = self._get_cached_texts()
         self.channel_locks = dict.fromkeys(self.markov_texts, False)
@@ -47,31 +46,26 @@ class Markov(commands.Cog):
         new_text = None
         message = None
         if channel_id in self.markov_texts.keys() and obj and obj.last_update:
-            last_update = obj.last_update.replace(tzinfo=None)
             logger.info(
                 'Updating markov text since %s for %s channel',
-                last_update, channel_id
+                obj.last_update, channel_id
             )
-            messages = await self._get_history(ctx, channel_id, after=last_update)
+            messages = await self._get_history(channel_id, ctx=ctx, after=obj.last_update)
         else:
             logger.info('Downloading full chat history for %s', channel_id)
-            messages = await self._get_history(ctx, channel_id)
+            messages = await self._get_history(channel_id, ctx=ctx)
         if messages:
             messages_df = pd.DataFrame([{
-                'message_id': x.id,
-                'author_id': x.author.id,
-                'content': x.content,
-                'created_at': x.created_at,
-            } for x in messages]).astype({'created_at': 'datetime64'})
+                'message_id': message.id,
+                'author_id': message.author.id,
+                'content': message.content,
+                'created_at': message.created_at,
+            } for message in messages])
             new_text = self._clean_up_markov_text(messages_df)
             if new_text:
                 obj, _ = MarkovText.objects.get_or_create(key=channel_id)
                 obj.text = f'{new_text} {obj.text}'
-                obj.last_update = (
-                    messages_df.created_at
-                    .dt.tz_localize(pytz.UTC)
-                    .dt.to_pydatetime().max()
-                )
+                obj.last_update = messages_df.created_at.dt.to_pydatetime().max()
                 obj.save()
                 self.markov_texts[channel_id] = Text(obj.text)
                 message = (
@@ -106,7 +100,7 @@ class Markov(commands.Cog):
         df = df[~df.content.eq('')]
         return ' '.join(df.content).strip()
 
-    async def _get_history(self, ctx=None, channel_id: int = None,
+    async def _get_history(self, channel_id: int, ctx=None,
                            limit: int = None, after: datetime = None) -> list:
         """Shortcut for history retrieval. History can be retrieved either by
         providing context (ctx) or channel ID.
@@ -121,25 +115,21 @@ class Markov(commands.Cog):
                 Defaults to None.
 
         Raises:
-            MissingContextError: If both context and channel ID are None
             UnavailableChannelError: In case of trying to get history from channel
             restricted for current bot
 
         Returns:
             list[discord.Message]: List of instances of discord.Message
         """
-        if not ctx and not channel_id:
-            raise MissingContextError
-        if channel_id:
-            try:
-                return await (self.bot.get_channel(channel_id)
-                              .history(limit=limit, after=after).flatten())
-            except AttributeError:
-                message = f'Bot does not have access to `{channel_id}` channel'
-                if ctx:
-                    await ctx.send(message)
-                raise UnavailableChannelError(message)
-        return await ctx.channel.history(limit=limit, after=after).flatten()
+
+        try:
+            history = self.bot.get_channel(channel_id).history(limit=limit, after=after)
+            return [message async for message in history]
+        except AttributeError:
+            message = f'Bot does not have access to `{channel_id}` channel'
+            if ctx:
+                await ctx.send(message)
+            raise UnavailableChannelError(message)
 
     async def _update_from_command(self, ctx):
         """Creates new MarkovText object if `markov` command was invoked and no
@@ -156,6 +146,7 @@ class Markov(commands.Cog):
                        'To use it - type !markov <sentences count>')
 
     @commands.group(invoke_without_command=True)
+    @text_channels_only
     async def markov(self, ctx, *, sentences: int = 5):
         """
         Generates sentences from current text channel using Markov chain algorithm
@@ -174,6 +165,7 @@ class Markov(commands.Cog):
 
     @markov.command()
     @admin_command
+    @text_channels_only
     async def update(self, ctx, channel_id: int = None):
         """
         Command used for updating MarkovText object for current text channel.
@@ -216,5 +208,5 @@ class Markov(commands.Cog):
                 logger.error('Can not update %d. %s', channel_id, str(exc))
 
 
-def setup(bot):
-    bot.add_cog(Markov(bot))
+async def setup(bot):
+    await bot.add_cog(Markov(bot))

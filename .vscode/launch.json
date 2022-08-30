@@ -26,7 +26,9 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
-      "args": ["runserver"]
+      "args": ["runserver"],
+      "justMyCode": false,
+      "django": true
     },
     {
       "name": "Python: Discord Test Bot",
@@ -34,6 +36,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/discordbot/bot.py",
       "console": "integratedTerminal",
+      "justMyCode": false,
       "env": {
         "DISCORD_TEST": "True"
       }
@@ -52,7 +55,8 @@
       "module": "celery",
       "console": "integratedTerminal",
       "envFile": "${workspaceFolder}/.env",
-      "args": ["-A", "config.celery_app", "worker", "-l", "info", "-P", "solo"]
+      "args": ["-A", "config.celery_app", "worker", "-l", "info", "-P", "solo"],
+      "justMyCode": false
     }
   ]
 }

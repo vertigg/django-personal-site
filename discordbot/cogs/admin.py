@@ -12,8 +12,6 @@ import aiohttp
 import pandas as pd
 import requests
 from celery import states
-from discord import VoiceRegion as region
-from discord.errors import Forbidden
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from discordbot.cogs.utils.checks import admin_command, mod_command
@@ -27,23 +25,6 @@ class Admin(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.eu_regions = [
-            region.amsterdam,
-            region.eu_central,
-            region.frankfurt,
-            region.eu_west,
-        ]
-
-    @commands.command(hidden=True)
-    @mod_command
-    async def region(self, ctx: Context):
-        new_region = random.choice(
-            [x for x in self.eu_regions if x != ctx.guild.region])
-        try:
-            await ctx.guild.edit(region=new_region, reason="Lag Change")
-            await ctx.send(f'Changed to {new_region} region', delete_after=5)
-        except Forbidden:
-            await ctx.send(f'Missing permissions for editing {ctx.guild}')
 
     @commands.command(hidden=True)
     @admin_command
@@ -78,7 +59,7 @@ class Admin(commands.Cog):
         try:
             if "cogs." not in extension_name:
                 extension_name = "cogs." + extension_name
-            self.bot.load_extension(extension_name)
+            await self.bot.load_extension(extension_name)
         except (AttributeError, ImportError) as ex:
             await ctx.send("```py\n{}: {}\n```".format(type(ex).__name__, str(ex)))
             return
@@ -90,7 +71,7 @@ class Admin(commands.Cog):
         """Unloads an extension."""
         if "cogs." not in extension_name:
             extension_name = "cogs." + extension_name
-        self.bot.unload_extension(extension_name)
+        await self.bot.unload_extension(extension_name)
         await ctx.send(f"{extension_name} unloaded.")
 
     @commands.command(hidden=True)
@@ -132,5 +113,6 @@ class Admin(commands.Cog):
         else:
             await ctx.send('Error during ladder update operation')
 
-def setup(bot):
-    bot.add_cog(Admin(bot))
+
+async def setup(bot):
+    await bot.add_cog(Admin(bot))

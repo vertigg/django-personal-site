@@ -2,6 +2,7 @@ import logging
 from functools import wraps
 from re import match
 from types import FunctionType
+from discord.enums import ChannelType
 
 from discordbot.models import DiscordUser
 
@@ -38,4 +39,14 @@ def mod_command(func: FunctionType) -> FunctionType:
             return await func(self, ctx, *args, **kwargs)
         return await ctx.send(
             f"You don't have permissions to call `{ctx.command.name}` command")
+    return decorated
+
+
+def text_channels_only(func: FunctionType) -> FunctionType:
+    """Prevents using command outside text channels"""
+    @wraps(func)
+    async def decorated(self, ctx, *args, **kwargs):
+        if ctx.channel and ctx.channel.type == ChannelType.text:
+            return await func(self, ctx, *args, **kwargs)
+        return await ctx.send("You can't use this command here")
     return decorated

@@ -17,16 +17,16 @@ def sync_users(servers):
             DiscordUser.objects.create(
                 id=discord_id,
                 display_name=member.display_name,
-                avatar_url=member.avatar_url
+                avatar_url=member.avatar
             )
         elif member.display_name != cache[discord_id]:
             (DiscordUser.objects
              .filter(id=discord_id)
              .update(display_name=member.display_name))
-        if member.avatar_url:
+        if member.avatar:
             (DiscordUser.objects
              .filter(id=discord_id)
-             .update(avatar_url=member.avatar_url))
+             .update(avatar_url=member.avatar))
         else:
             DiscordUser.objects.filter(id=discord_id).update(avatar_url=None)
 

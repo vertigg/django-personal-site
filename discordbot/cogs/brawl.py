@@ -134,5 +134,5 @@ class GoogleBrawl(commands.Cog):
         return '`Something wrong with brawl lists. Please check logs for more info`'
 
 
-def setup(bot):
-    bot.add_cog(GoogleBrawl(bot))
+async def setup(bot):
+    await bot.add_cog(GoogleBrawl(bot))

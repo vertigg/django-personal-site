@@ -1,20 +1,20 @@
+import asyncio
 import logging
 import os
-import sys
 
 import discord
-from discord.ext import commands
+from discord.ext.commands import Bot
 
 from apps import setup_django
 
-setup_django()
 logger = logging.getLogger('discordbot')
 
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 
 
-bot = commands.Bot(
+bot = Bot(
     command_prefix='!',
     description='Super duper halal bot for clowans. List of commands below',
     intents=intents
@@ -36,24 +36,25 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-def load_cogs():
+async def load_cogs():
     cogs = ['admin', 'general', 'markov', 'mix', 'wikipedia']
-    logger.info("Loading cogs...")
+    logger.info("Loading extensions...")
     for cog in cogs:
         try:
-            if "cogs." not in cog:
-                cog = "cogs." + cog
-                bot.load_extension(cog)
-                logger.info("%s loaded", cog)
+            await bot.load_extension("cogs." + cog)
+            logger.info("'%s' extension loaded", cog)
         except (AttributeError, ImportError) as ex:
             logger.error("%s", ex)
 
 
-if __name__ == '__main__':
+async def main():
     from django.conf import settings
     logger.info('Script started')
+    setup_django()
     token = settings.DISCORD_TEST_TOKEN if os.getenv('DISCORD_TEST', None) \
         else settings.DISCORD_BOT_TOKEN
-    load_cogs()
-    logger.info(sys.version)
-    bot.run(token, reconnect=True)
+    async with bot:
+        await load_cogs()
+        await bot.start(token, reconnect=True)
+
+asyncio.run(main())

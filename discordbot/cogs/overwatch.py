@@ -121,5 +121,5 @@ class Overwatch(commands.Cog):
             logger.error(ex)
 
 
-def setup(bot):
-    bot.add_cog(Overwatch(bot))
+async def setup(bot):
+    await bot.add_cog(Overwatch(bot))
