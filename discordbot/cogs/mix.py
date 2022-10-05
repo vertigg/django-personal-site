@@ -33,7 +33,7 @@ class Mix(commands.Cog):
             message_items.append(str(picture_url))
         return '\n'.join(message_items)
 
-    @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч'])
+    @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч', 'мікс', 'міх', 'хіх'])
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
