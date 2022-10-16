@@ -11,6 +11,7 @@ logger = logging.getLogger('discordbot')
 
 intents = discord.Intents.default()
 intents.members = True
+intents.messages = True
 intents.message_content = True
 
 
@@ -34,6 +35,16 @@ async def on_message(message):
     if message.author == bot.user:
         return
     await bot.process_commands(message)
+
+
+@bot.event
+async def on_message_delete(message):
+    logger.info(
+        'Message deleted: Author %s, Content "%s", Attachments: %s',
+        message.author.id, message.content, len(message.attachments)
+    )
+    if message.attachments:
+        logger.info(', '.join([att.url for att in message.attachments]))
 
 
 async def load_cogs():
