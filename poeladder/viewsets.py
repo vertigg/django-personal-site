@@ -2,8 +2,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 
-from poeladder.models import PoeCharacter
-from poeladder.serializers import CharacterSerializer
+from poeladder.models import PoeCharacter, PoeLeague
+from poeladder.serializers import CharacterSerializer, LeagueSerializer
 
 
 class CharacterViewSet(viewsets.ReadOnlyModelViewSet):
@@ -14,3 +14,8 @@ class CharacterViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('class_id', 'league')
     search_fields = ('name',)
     ordering_fields = ('level',)
+
+
+class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PoeLeague.objects.all()
+    serializer_class = LeagueSerializer
