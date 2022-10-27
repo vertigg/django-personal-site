@@ -1,22 +1,30 @@
-<nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
-  <a class="navbar-brand" href="{% url 'main:home' %}">Vertig's hideout</a>
-  {% if user.is_authenticated %}
-  <ul class="navbar-nav mr-auto">
-    {% if user.is_staff %}
-    <li class="nav-item active">
-      <a class="nav-link" href="{% url 'admin:index' %}">Admin Panel</a>
-    </li>
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark">
+  <a class="navbar-brand" href="{% url 'main:home' %}">Vertig's Hideout</a>
+
+  {% block header_extras %} {% endblock %}
+
+  <div class="ml-auto nav-right">
+    {% if user.is_authenticated %} {% if user.is_staff %}
+    <span class="navbar-text">
+      <a class="nav-link" href="{% url 'admin:index' %}">
+        <i class="fa-solid fa-toolbox"></i>
+        <span>Admin Panel</span>
+      </a>
+    </span>
     {% endif %}
-  </ul>
-  <ul class="navbar-nav mr-auto"></ul>
-  <span class="navbar-text">
-    <a href="{% url 'main:profile' %}"> {{ user }} </a>(<a
-      href="{% url 'main:logout' %}"
-      >logout</a
-    >)
-  </span>
-  {% else %}
-  <ul class="navbar-nav mr-auto"></ul>
-  <a href="{% url 'main:login' %}" class="btn btn-primary">Login</a>
-  {% endif %}
+    <span class="navbar-text mr-auto">
+      <a class="nav-link" href="{% url 'main:profile' %}">
+        <i class="fa-solid fa-user"></i>
+        <span>{{ user }}</span>
+      </a>
+    </span>
+    <span class="navbar-text mr-auto">
+      <a class="btn btn-primary btn-sm" href="{% url 'main:logout' %}">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </a>
+    </span>
+    {% else %}
+    <a href="{% url 'main:login' %}" class="btn btn-primary">Login</a>
+    {% endif %}
+  </div>
 </nav>

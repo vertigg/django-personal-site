@@ -50,6 +50,12 @@
           box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'Gotham-Book';
+  src: url('../fonts/Gotham-Book.woff') format('woff'), /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+       url('../fonts/Gotham-Book.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+}  
+
 .discord-avatar {
   height: 50%;
   width: 50%;
@@ -2764,7 +2770,7 @@ textarea.form-control {
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   line-height: 1.5;
-  border-radius: 0px;
+  border-radius: 6px;
   -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -3408,14 +3414,14 @@ fieldset:disabled a.btn {
   padding: 0.5rem 1rem;
   font-size: 1.25rem;
   line-height: 1.5;
-  border-radius: 0px;
+  border-radius: 6px;
 }
 
 .btn-sm, .btn-group-sm > .btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   line-height: 1.5;
-  border-radius: 0px;
+  border-radius: 6px;
 }
 
 .btn-block {
@@ -4550,7 +4556,7 @@ input[type="button"].btn-block {
 
 .nav-link {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
 }
 
 .nav-link:hover, .nav-link:focus {
@@ -4648,6 +4654,7 @@ input[type="button"].btn-block {
       -ms-flex-pack: justify;
           justify-content: space-between;
   padding: 0.25rem 1rem;
+  font-family: 'Gotham-Book';
 }
 
 .navbar .container,
@@ -4669,7 +4676,6 @@ input[type="button"].btn-block {
   display: inline-block;
   padding-top: 0.3125rem;
   padding-bottom: 0.3125rem;
-  margin-right: 1rem;
   font-size: 1.25rem;
   line-height: inherit;
   white-space: nowrap;
@@ -4690,6 +4696,7 @@ input[type="button"].btn-block {
   padding-left: 0;
   margin-bottom: 0;
   list-style: none;
+  align-items: center;
 }
 
 .navbar-nav .nav-link {
@@ -4704,8 +4711,8 @@ input[type="button"].btn-block {
 
 .navbar-text {
   display: inline-block;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  /* padding-top: 0.5rem; */
+  /* padding-bottom: 0.5rem; */
 }
 
 .navbar-collapse {
@@ -11032,4 +11039,11 @@ label,
 
 .modal-header, .modal-footer {
   background-color: rgba(255, 255, 255, 0.075);
+}
+
+.nav-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }

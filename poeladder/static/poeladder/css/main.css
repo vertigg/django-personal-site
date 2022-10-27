@@ -298,3 +298,11 @@ a.active-league {
 .strike {
   text-decoration: line-through;
 }
+
+.poe-search-form {
+  border-radius: 6px;
+}
+
+.poe-search-form::placeholder {
+  font-size: 0.75rem;
+}

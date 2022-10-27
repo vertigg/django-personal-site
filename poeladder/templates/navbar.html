@@ -1,28 +1,18 @@
+{% extends "header.html" %}
 {% load ladder_extras %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-ladder topnav">
-    <a class="navbar-brand navbar-home" href="{% url 'main:home' %}">Home</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02"
-        aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarColor02">
-        <ul class="navbar-nav mr-auto">
+{% block header_extras %}
+<div class="collapse navbar-collapse">
+    <div class="navbar-nav mr-auto pl-2">
+        <div class="navbar-nav">
             {% for league in poe_context.temp_leagues %} 
-                {% if league.name == active_league.name %}
-                <li class="nav-item active">
-                    <a class="nav-link active-league" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
+                <li class="nav-item{% if league.name == active_league.name %} active{% endif %}">
+                    <a class="nav-link{% if league.name == active_league.name %} active-league{% endif %}" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
                         <span class="sr-only"></span>
                     </a>
                 </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
-                        <span class="sr-only"></span>
-                    </a>
-                </li>
-                {% endif %} 
             {% endfor %}
+        </div>
+        <ul class="navbar-nav">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
                 <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
@@ -33,21 +23,22 @@
                     {% endfor %}
                 </div>
             </li>
-            <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
-                    <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
-                      <a class="dropdown-item" href="https://www.pathofexile.com/trade">Official Trade Website</a>
-                      <a class="dropdown-item" href="http://poe.trade/">poe.trade</a>
-                      <a class="dropdown-item" href="https://poe.ninja/challenge/builds">poe.ninja</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="https://siveran.github.io/calc.html">Vorici Calculator</a>
-                      <a class="dropdown-item" href="https://poe.mikelat.com/">Aura Calculator</a>
-                    </div>
-                  </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0" action="{% url 'poeladder:ladder_search' %}" method="get">
-            {{ poe_context.search_form.name }}
-        </form>
-        <a class="float-right" title="{{ poe_context.last_update|date:'c' }}" > Last updated: {{ poe_context.last_update|date:"F d" }}</a>
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+                <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
+                <a class="dropdown-item" href="https://www.pathofexile.com/trade">Official Trade Website</a>
+                <a class="dropdown-item" href="https://poe.ninja/challenge/builds">poe.ninja</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="https://siveran.github.io/calc.html">Vorici Calculator</a>
+                <a class="dropdown-item" href="https://poe.mikelat.com/">Aura Calculator</a>
+                </div>
+            </li>
+        </ul>
     </div>
-</nav>
+    <form class="form-inline my-2 my-lg-0" action="{% url 'poeladder:ladder_search' %}" method="get">
+        {{ poe_context.search_form.name }}
+    </form>
+</div>
+{% endblock %}

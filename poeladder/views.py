@@ -38,9 +38,10 @@ class MainLadderView(RedirectView):
     def get(self, request, *args, **kwargs):
         context = self.get_context()
         # If no new league announcements - proceed to most active current league
-        if context.get('announcement'):
+        url = self.get_redirect_url()
+        if context.get('announcement') or not url:
             return render(request, 'ladder.html', context)
-        return HttpResponseRedirect(self.get_redirect_url())
+        return HttpResponseRedirect(url)
 
 
 class LadderView(FilterView):
