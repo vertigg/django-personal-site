@@ -19,15 +19,6 @@ a.active-league {
   background-color: #0066cc;
 }
 
-.result-link:link,
-.result-link:visited {
-  color: wheat;
-  text-decoration: none;
-}
-.result-link:hover {
-  color: white;
-}
-
 .cell-link {
   height: 100%;
   width: 100%;
@@ -42,10 +33,6 @@ html {
   margin: 0;
 }
 
-.header-top {
-  background-color: #333333;
-}
-
 h1.ladder-title {
   color: white;
   font-family: "Fontin-Regular", "Segoe UI", "Tahoma", "Verdana", "sans-serif";
@@ -56,11 +43,6 @@ h2 {
   color: white;
   font-family: "Segoe UI", "Tahoma", "Verdana", "sans-serif";
   margin: 10px 0 10px 0;
-}
-
-div.ladder-main {
-  margin: auto;
-  width: 55%;
 }
 
 table.LadderTable {
@@ -112,58 +94,9 @@ table.LadderTable thead {
   padding: 0px !important;
 }
 
-img#header-icon {
-  max-height: 14px;
-  vertical-align: middle;
-}
-
 img#class-icon {
   max-height: 25px;
   vertical-align: middle;
-}
-
-.flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  margin: auto;
-}
-
-.search-result {
-  background-image: url("../img/search-bg.png");
-  background-repeat: repeat-x;
-  font-family: "Segoe UI", "Tahoma", "Verdana", "sans-serif";
-  color: wheat;
-  height: 80px;
-  min-width: 320px;
-  max-width: 320px;
-}
-
-.search-icon {
-  position: absolute;
-  max-width: 103px;
-  max-height: 80px;
-}
-
-.info-line1 {
-  font-size: 16px;
-  padding: 16px 120px;
-}
-
-.info-line2 {
-  font-size: 14px;
-  position: relative;
-  top: -6px;
-  padding: 0px 120px;
-}
-
-.info-line3 {
-  font-size: 12px;
-  position: relative;
-  text-align: right;
-  left: -10px;
-  top: -26px;
-  line-height: 95%;
-  padding: 0px 5px;
 }
 
 .ladder-select {
@@ -184,78 +117,9 @@ a.active-league {
   background-color: #0066cc;
 }
 
-.is-countdown {
-  font-family: "Fontin-Regular", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  width: 350px;
-  font-size: 1.5em;
-}
-.countdown-rtl {
-  direction: rtl;
-}
-.countdown-holding span {
-  color: #888;
-}
-.countdown-row {
-  clear: both;
-  width: 100%;
-  padding: 0px 2px;
-  text-align: center;
-}
-.countdown-show1 .countdown-section {
-  width: 98%;
-}
-.countdown-show2 .countdown-section {
-  width: 48%;
-}
-.countdown-show3 .countdown-section {
-  width: 32.5%;
-}
-.countdown-show4 .countdown-section {
-  width: 24.5%;
-}
-.countdown-show5 .countdown-section {
-  width: 19.5%;
-}
-.countdown-show6 .countdown-section {
-  width: 16.25%;
-}
-.countdown-show7 .countdown-section {
-  width: 14%;
-}
-.countdown-section {
-  display: block;
-  float: left;
-  font-size: 75%;
-  text-align: center;
-}
-.countdown-amount {
-  font-size: 200%;
-}
-.countdown-period {
-  display: block;
-}
-.countdown-descr {
-  display: block;
-  width: 100%;
-}
-
 .active-skill {
   width: 30px;
   height: 30px;
-}
-
-.absolute-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 0;
-  background: url("../img/topbg.png");
-  background-position: 50%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  overflow: hidden;
 }
 
 .title {
