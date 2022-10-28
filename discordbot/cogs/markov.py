@@ -2,12 +2,14 @@ import logging
 from datetime import datetime
 
 import pandas as pd
+from discord import app_commands
 from discord.errors import HTTPException
 from discord.ext import commands, tasks
+from discord.interactions import Interaction
+from discordbot.models import MarkovText
 from django.db.models.functions import Length
 from markovify import Text
 
-from discordbot.models import MarkovText
 from .utils.checks import admin_command, text_channels_only
 from .utils.exceptions import UnavailableChannelError
 from .utils.formatters import clean_text
@@ -162,6 +164,17 @@ class Markov(commands.Cog):
                 await ctx.send(text)
         else:
             await ctx.send('Chat update in progress')
+
+    @app_commands.command(name='markov', description='Generate markov text for current chat room')
+    async def markov_interaction(self, interaction: Interaction, sentences: int = 5):
+        if not self.channel_locks.get(interaction.channel_id, False):
+            await interaction.response.defer(thinking=True)
+            text = self.markov_texts.get(interaction.channel_id)
+            sentences_count = sentences if sentences <= self.max_sentences else self.max_sentences
+            result = ' '.join([text.make_short_sentence(250, tries=100) for _ in range(sentences_count)])
+            await interaction.followup.send(result)
+        else:
+            await interaction.response.send_message('Update in progress, please try later', ephemeral=True)
 
     @markov.command()
     @admin_command

@@ -4,8 +4,10 @@ import os
 from typing import AnyStr, List
 
 from aiohttp import ClientSession
+from discord import app_commands
 from discord.channel import DMChannel, VoiceChannel
 from discord.ext import commands
+from discord.interactions import Interaction
 from discord.threads import Thread
 from discordbot.models import MixImage, Wisdom
 from django.conf import settings
@@ -113,6 +115,10 @@ class Mix(commands.Cog):
         """Add new wisdom to database"""
         Wisdom.objects.create(text=text, author_id=ctx.message.author.id)
         await ctx.send(f'{text} added')
+
+    @app_commands.command(name='mix', description='Generate mix image with some text')
+    async def mix_interaction(self, interaction: Interaction, is_private: bool = False):
+        await interaction.response.send_message(self._generate_mix_message(), ephemeral=is_private)
 
 
 async def setup(bot):

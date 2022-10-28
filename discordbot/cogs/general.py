@@ -3,12 +3,13 @@ import random
 from datetime import datetime
 
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
+from discord.interactions import Interaction
 from discordbot.models import DiscordLink, DiscordSettings, Gachi
 
 from .utils.checks import admin_command, is_youtube_link, mod_command
 from .utils.db import sync_users
-from .utils.formatters import ru_plural
 
 logger = logging.getLogger('discordbot.general')
 
@@ -16,7 +17,7 @@ logger = logging.getLogger('discordbot.general')
 class General(commands.Cog):
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.update_cache_task = self.update_cache.start()
 
     def cog_unload(self):
@@ -28,40 +29,33 @@ class General(commands.Cog):
         logger.info('Syncing Discord user with Django database')
         sync_users(self.bot.guilds)
 
-    @commands.command()
-    async def avatar(self, ctx):
-        """Shows user's avatar or avatars of all mentioned users"""
-        users = ctx.message.mentions if ctx.message.mentions else [ctx.message.author]
-        await ctx.send('\n'.join(str(x.avatar) for x in users))
+    @app_commands.command(name='avatar', description="Shows mentioned user's avatar")
+    async def avatar(self, interaction: Interaction, user: discord.Member):
+        await interaction.response.send_message(user.avatar.url)
 
-    @commands.command()
+    @app_commands.command(name='game', description='Change bots current game status')
     @admin_command
-    async def game(self, ctx, *, name: str = None):
+    async def game(self, interaction: Interaction, name: str):
         """Change bot's status"""
-        if not name:
-            await ctx.send('How to use: `!game "Name"`', delete_after=10)
-            return
         DiscordSettings.objects.filter(key='game').update(value=name)
         await self.bot.change_presence(activity=discord.Game(name=name))
-        await ctx.send('Status changed', delete_after=15)
+        await interaction.response.send_message('Status changed', ephemeral=True)
 
-    @commands.command(hidden=True)
-    async def low(self, ctx):
+    @commands.hybrid_command(name='low')
+    async def low(self, ctx: commands.Context) -> None:
         await ctx.send(DiscordLink.get('low'))
 
-    @commands.command()
-    async def choose(self, ctx, *choices: str):
-        """Chooses between multiple items"""
-        await ctx.send(random.choice(choices))
+    @app_commands.command(name='choose', description='Chooses between multiple items')
+    async def choose(self, interaction: Interaction, item_1: str, item_2: str):
+        await interaction.response.send_message(random.choice([item_1, item_2]))
 
-    @commands.command(hidden=True)
-    async def friday(self, ctx):
-        await ctx.send(DiscordLink.get('friday'))
+    @app_commands.command(name='friday', description="It's morbin time")
+    async def friday(self, interaction: Interaction):
+        await interaction.response.send_message(DiscordLink.get('friday'))
 
-    @commands.command()
-    async def roll(self, ctx):
-        """Rolls from 1 to 100"""
-        await ctx.send(random.randint(1, 101))
+    @app_commands.command(name='roll', description='Rolls a number in 1-100 range')
+    async def roll(self, interaction: Interaction):
+        await interaction.response.send_message(random.randint(1, 101))
 
     @commands.command(hidden=True)
     async def vb(self, ctx):
@@ -82,21 +76,6 @@ class General(commands.Cog):
             return
         Gachi.objects.create(url=url)
         await ctx.send(f'{url} has been added')
-
-    @commands.command(aliases=['perediwka'])
-    async def peredishka(self, ctx):
-        if ctx.message.author.id in [138275152415817728]:
-            await ctx.send('Передышки не будет')
-            return
-        current_weekday = datetime.now().weekday()
-        if current_weekday in [5, 6]:
-            await ctx.send('Ахаха передишка')
-            return
-        difference = 5 - current_weekday
-        await ctx.send(
-            f'Осталось {difference} '
-            f'{ru_plural(difference, ["день", "дня", "дней"])} до передишки'
-        )
 
 
 async def setup(bot):

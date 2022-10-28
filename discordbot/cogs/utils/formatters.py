@@ -15,16 +15,6 @@ MARKOV_REGEXES = [
 ]
 
 
-def ru_plural(value: int, quantitative: list) -> str:
-    if value % 100 in (11, 12, 13, 14):
-        return quantitative[2]
-    if value % 10 == 1:
-        return quantitative[0]
-    if value % 10 in (2, 3, 4):
-        return quantitative[1]
-    return quantitative[2]
-
-
 def add_punctuation(text: str) -> str:
     if not any(text.endswith(y) for y in string.punctuation) and len(text) > 1:
         return f'{text}.'

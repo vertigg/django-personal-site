@@ -2,8 +2,9 @@ import logging
 from functools import wraps
 from re import match
 from types import FunctionType
-from discord.enums import ChannelType
 
+from discord.enums import ChannelType
+from discord.interactions import Interaction
 from discordbot.models import DiscordUser
 
 logger = logging.getLogger('discordbot.utils.checks')
@@ -20,14 +21,23 @@ def is_youtube_link(url: str) -> bool:
     return bool(match(pattern, url))
 
 
+async def send_warning_message(context, message):
+    if isinstance(context, Interaction):
+        return await context.response.send_message(message, ephemeral=True)
+    else:
+        return await context.send(message)
+
+
 def admin_command(func: FunctionType) -> FunctionType:
     """Checks if command executed by admin or bot's owner"""
     @wraps(func)
     async def decorated(self, ctx, *args, **kwargs):
-        if DiscordUser.is_admin(ctx.message.author.id):
+        user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.message.author.id
+        if DiscordUser.is_admin(user_id):
             return await func(self, ctx, *args, **kwargs)
-        return await ctx.send(
-            f"You don't have permissions to call `{ctx.command.name}` command")
+        return await send_warning_message(
+            ctx, f"You don't have permissions to call `{ctx.command.name}` command"
+        )
     return decorated
 
 
@@ -35,10 +45,12 @@ def mod_command(func: FunctionType) -> FunctionType:
     """Checks if command executed by mod"""
     @wraps(func)
     async def decorated(self, ctx, *args, **kwargs):
-        if DiscordUser.is_moderator(ctx.message.author.id):
+        user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.message.author.id
+        if DiscordUser.is_moderator(user_id):
             return await func(self, ctx, *args, **kwargs)
-        return await ctx.send(
-            f"You don't have permissions to call `{ctx.command.name}` command")
+        return await send_warning_message(
+            ctx, f"You don't have permissions to call `{ctx.command.name}` command"
+        )
     return decorated
 
 
