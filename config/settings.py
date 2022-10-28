@@ -47,7 +47,7 @@ LOGIN_REDIRECT_URL = 'main:home'
 LOGIN_URL = 'main:login'
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') or INTERNAL_IPS
-SOCIALACCOUNT_ADAPTER = "main.adapters.CustomSocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "main.adapters.CustomDiscordAccountAdapter"
 
 # Application definition
 INSTALLED_APPS = [

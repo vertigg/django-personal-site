@@ -43,32 +43,34 @@
                 {% endif %}
                 <div class="card-body text-center">
                     {% if user.discorduser %}
-                    <h3>{{ user.discorduser }}</h3>
+                    <h3>{{ user.discorduser }}{% if accounts.discord.0 %}#{{ accounts.discord.0.extra_data.discriminator }}{% endif %}</h3>
                     <small class="text-muted">{{ user.discorduser.id }}</small>
                     <div id="badges">
                         {% if user.discorduser.admin %}<span class="badge badge-primary">Admin</span>{% endif %}
-                        {% if user.discorduser.mod_group %}<span class="badge badge-warning">Moderator</span>{% endif %}
+                        {% if user.discorduser.mod_group %}<span class="badge badge-info">Moderator</span>{% endif %}
                     </div>
                     {% else %}
                     <small class="text-muted">It seems that our Discord bot couldn't parse your information or you don't
                         share any servers with our bot.</small>
                     {% endif %}
                 </div>
+                <div class="card-body text-center">
 
-                <!-- <h4>Connections</h4>
-                {% if accounts.discord.0 %}
-                <a class="btn btn-secondary w-100 disabled" href="{% provider_login_url "discord" %}">Discord
-                    connected</a>
-                {% else %}
-                <a class="btn btn-secondary w-100" href="{% provider_login_url "discord" %}">Connect Discord account</a>
-                {% endif %} -->
+                    {% if accounts.discord.0 %}
+                    <form style="display: flex; justify-content: center;" action="{% url 'main:discord_disconnect' %}" method="post">
+                        {% csrf_token %}
+                        <a class="btn btn-secondary disabled btn-discord-connected" href="{% provider_login_url 'discord' %}">Discord account connected</a>
+                        <button class="btn btn-danger btn-discord-disconnect" title="Disconnect account" type="submit"><i class="fa-solid fa-user-slash"></i></button>
+                        </form>
+                        {% else %}
+                        <a class="btn btn-secondary w-100" href="{% provider_login_url "discord" process="connect" %}">Connect Discord account</a>
+                        {% endif %}
+                    </div>
+
             </div>
         </div>
         <div class="col-md-6">
-            <h3>General information</h3>
-            Local account username: {{user.username}}
             {% if user.discorduser %}
-            <hr>
             <h4>Additional Profile Info</h4>
             <form action="{% url 'main:profile' %}" method="post">
                 {% csrf_token %}

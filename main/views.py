@@ -1,13 +1,16 @@
+from discordbot.forms import WFSettingsForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import (FormView, LoginView, LogoutView,
-                                       TemplateView)
+from django.contrib.auth.views import (
+    FormView, LoginView, LogoutView, TemplateView
+)
 from django.urls import reverse_lazy
+from django.views.generic.base import RedirectView
 
-from discordbot.forms import WFSettingsForm
-from main.forms import (DiscordProfileForm, MainAuthenticationForm,
-                        MainUserCreationForm)
+from main.forms import (
+    DiscordProfileForm, MainAuthenticationForm, MainUserCreationForm
+)
 
 
 class HomeView(TemplateView):
@@ -85,3 +88,16 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             'profile_form': profile_form,
             'wf_settings_form': wf_form,
         })
+
+
+class DisconnectDiscordAccountView(RedirectView):
+    pattern_name = 'main:profile'
+
+    def post(self, request, *args, **kwargs):
+        request.user.socialaccount_set.filter(provider='discord').delete()
+        if hasattr(request.user, 'discorduser'):
+            discorduser = request.user.discorduser
+            discorduser.user = None
+            discorduser.save()
+        messages.success(request, 'Discord account disconnected')
+        return super().post(request, *args, **kwargs)

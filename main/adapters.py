@@ -1,43 +1,54 @@
-from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from django.contrib.auth import get_user_model
-from django.shortcuts import redirect
-
+from allauth.socialaccount.models import SocialLogin
 from discordbot.models import DiscordUser
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 
-class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
-    def pre_social_login(self, request, sociallogin):
+class CustomDiscordAccountAdapter(DefaultSocialAccountAdapter):
+    def pre_social_login(self, request, sociallogin: SocialLogin):
         """
-        Connects socialaccount to existing user if email exists in the system
+        Connects social account to existing user if email exists in the system
         """
-        user = sociallogin.user
-        if user.id:
+        if sociallogin.account.provider != 'discord':
             return
-        # If user have an email in the system - connect to this account
-        if user.email:
-            try:
-                User = get_user_model()
-                existing_user = User.objects.get(email=user.email)
-                sociallogin.connect(request, existing_user)
-                raise ImmediateHttpResponse(redirect('main:profile'))
-            except User.DoesNotExist:
-                pass
+
         # If user already logged in - connect to current account
         if request.user.id:
             sociallogin.connect(request, request.user)
+            self.connect_existing_discord_account(request.user, sociallogin)
+            return
+
+        # If user already exists and doesn't have discordbot user connected
+        if sociallogin.user.id and not hasattr(sociallogin.user, 'discorduser'):
+            self.connect_existing_discord_account(sociallogin.user, sociallogin)
+            return
+
+        # Attempt to find existing account with same email
+        if sociallogin.user.email:
+            try:
+                User = get_user_model()
+                existing_user = User.objects.get(email=sociallogin.user.email)
+                sociallogin.user = existing_user
+                if not sociallogin.is_existing:
+                    sociallogin.connect(request, existing_user)
+                self.connect_existing_discord_account(existing_user, sociallogin)
+            except User.DoesNotExist:
+                pass
+
+    def connect_existing_discord_account(self, user, sociallogin):
+        uid = int(sociallogin.account.uid)
+        try:
+            existing_discord_user = DiscordUser.objects.get(id=uid)
+            user.discorduser = existing_discord_user
+            user.save()
+        except DiscordUser.DoesNotExist:
+            pass
 
     def save_user(self, request, sociallogin, form):
         user = super().save_user(request, sociallogin, form)
-        # Try to connect existing DiscordUser instance if available
-        # Otherwise user will be promted to connect with DiscordUser manually
-        # via profile
-        if sociallogin.account.provider == 'discord':
-            uid = int(sociallogin.account.uid)
-            try:
-                existing_discord_user = DiscordUser.objects.get(id=uid)
-                user.discorduser = existing_discord_user
-                user.save()
-            except DiscordUser.DoesNotExist:
-                pass
+        self.connect_existing_discord_account(user, sociallogin)
         return user
+
+    def get_connect_redirect_url(self, *args):
+        return reverse('main:profile')

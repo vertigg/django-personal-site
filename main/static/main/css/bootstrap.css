@@ -74,7 +74,9 @@
 }
 
 .login-centered{
-  margin-top: 15%;
+  display: flex;
+  height: 100vh;
+  align-items: center;
 }
 
 html {
@@ -1745,6 +1747,11 @@ a.badge-primary:focus, a.badge-primary.focus {
   background-color: #f0ad4e;
 }
 
+.badge-info {
+  color: #fff;
+  background-color: var(--info);
+}
+
 a.badge-warning:hover, a.badge-warning:focus {
   color: #fff;
   background-color: #ec971f;
@@ -2503,6 +2510,10 @@ a.text-danger:hover, a.text-danger:focus {
   background-color: #5bc0de;
 }
 
+.btn-danger {
+  background-color: var(--danger);
+}
+
 .dropdown-menu {
   font-size: 0.875rem;
 }
@@ -2565,4 +2576,38 @@ label,
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.text-divider {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  --text-divider-gap: 1rem;
+  font-family: 'Gotham-Book';
+}
+
+.text-divider::before,
+.text-divider::after {
+  content: '';
+  height: 1px;
+  background-color: silver;
+  flex-grow: 1; 
+}
+
+.text-divider::before {
+  margin-right: var(--text-divider-gap);
+}
+
+.text-divider::after {
+  margin-left: var(--text-divider-gap);
+}
+
+.btn-discord-disconnect {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-discord-connected {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
