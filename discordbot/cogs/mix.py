@@ -21,6 +21,7 @@ logger = logging.getLogger('discordbot.mix')
 
 
 class Mix(commands.Cog):
+    wisdom_group = app_commands.Group(name='wisdom', description='Shows deep random wisdoms')
 
     def __init__(self, bot):
         self.bot = bot
@@ -101,24 +102,24 @@ class Mix(commands.Cog):
             message = f'{message}\n```{error_messages}```'
         await ctx.send(message)
 
-    @commands.group()
-    async def wisdom(self, ctx):
-        """Get random wisdom"""
-        if not ctx.invoked_subcommand:
-            wisdom_obj = Wisdom.objects.get_random_entry()
-            if wisdom_obj is not None:
-                await ctx.send(wisdom_obj.text)
-
-    @wisdom.command(aliases=['add', 'фвв'])
-    @mod_command
-    async def __wisdom_add(self, ctx, *, text: str):
-        """Add new wisdom to database"""
-        Wisdom.objects.create(text=text, author_id=ctx.message.author.id)
-        await ctx.send(f'{text} added')
-
     @app_commands.command(name='mix', description='Generate mix image with some text')
     async def mix_interaction(self, interaction: Interaction, is_private: bool = False):
         await interaction.response.send_message(self._generate_mix_message(), ephemeral=is_private)
+
+    @wisdom_group.command(name='generate', description='Generate random wisdom')
+    async def _wisdom_generate(self, interaction: Interaction):
+        await interaction.response.send_message(Wisdom.objects.get_random_entry().text)
+
+    @wisdom_group.command(name='add', description='Adds new wisdom to database')
+    @mod_command
+    async def _wisdom_add(self, interaction: Interaction, text: str):
+        obj, created = Wisdom.objects.update_or_create(text=text)
+        if created:
+            obj.author_id = interaction.user.id
+            obj.save(update_fields=['author_id'])
+            await interaction.response.send_message(f'{text} added', ephemeral=True)
+        else:
+            await interaction.response.send_message('Wisdom already exists in db', ephemeral=True)
 
 
 async def setup(bot):
