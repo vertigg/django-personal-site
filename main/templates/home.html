@@ -8,9 +8,9 @@
 {% include "header.html" %}
 <div class="container col-sm-10">
     <br>
-    <h1 class="display-4 p-2">Le projects</h1>
-    <div class="d-flex row justify-content-center">
-            <div class="col-sm-3 d-flex align-items-stretch">
+    <h1 class="display-4 p-2">Personal projects</h1>
+    <div class="d-flex row justify-content-center" style="gap: 2rem">
+            <div class="col-sm-4 d-flex align-items-stretch">
             <div class="card" style="width: 18rem;">
                 <img class="card-img-top" src="{% static 'main/image/bot.png' %}" alt="Tony Tornado">
                 <div class="card-body d-flex flex-column">
@@ -20,7 +20,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-3 d-flex align-items-stretch">
+        <div class="col-sm-4 d-flex align-items-stretch">
             <div class="card" style="width: 18rem;">
                 <img class="card-img-top" src="{% static 'main/image/ladder.png' %}" alt="Mr. Minotaur">
                 <div class="card-body d-flex flex-column">
@@ -34,13 +34,26 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-3 d-flex align-items-stretch">
+        <div class="col-sm-4 d-flex align-items-stretch">
             <div class="card" style="width: 18rem;">
                 <img class="card-img-top" src="{% static 'main/image/asteroids.png' %}" alt="Asteroids">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Asteroids Game</h5>
                     <p class="card-text">Small game made with Unity.</p>
                     <a href="{% url 'asteroids' %}" class="mt-auto align-self-start btn btn-primary">Play</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4 d-flex align-items-stretch">
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="{% static 'main/image/heist.png' %}" alt="Asteroids">
+                <div class="card-body d-flex flex-column" style="justify-content: space-between;">
+                    <h5 class="card-title">Heist Gems Price Checker </h5>
+                    <p class="card-text">OCR solution for price checking gems in PoE Heists</p>
+                    <div class="float-right">
+                        <a href="https://github.com/EpicVertigo/HeistGemPriceChecker" class="mt-auto align-self-start btn btn-primary">Github</a>
+                        <a href="https://github.com/EpicVertigo/HeistGemPriceChecker/releases" class="mt-auto align-self-start btn btn-primary">Releases</a>
+                    </div>
                 </div>
             </div>
         </div>
