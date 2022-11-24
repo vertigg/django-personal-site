@@ -3,21 +3,18 @@
 {% block header_extras %}
 <div class="collapse navbar-collapse">
     <div class="navbar-nav mr-auto pl-2">
-        <div class="navbar-nav">
-            {% for league in poe_context.temp_leagues %} 
-                <li class="nav-item{% if league.name == active_league.name %} active{% endif %}">
-                    <a class="nav-link{% if league.name == active_league.name %} active-league{% endif %}" href="{% url 'poe:ladder_url' slug=league.slug %}">{{ league.name }}
-                        <span class="sr-only"></span>
-                    </a>
-                </li>
-            {% endfor %}
-        </div>
         <ul class="navbar-nav">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{% firstof active_league.name "Leagues" %}</a>
                 <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
+                    {% for league in poe_context.temp_leagues %} 
+                        <a class="dropdown-item{% if league.name == active_league.name %} active{% endif %}" href="{% url 'poe:ladder_url' slug=league.slug %}">{{ league.name }}
+                            <span class="sr-only"></span>
+                        </a>
+                    {% endfor %}
+                    {% if poe_context.temp_leagues %}<div class="dropdown-divider"></div>{% endif %}
                     {% for league in poe_context.old_leagues %}
-                        <a class="dropdown-item" href="{% url 'poe:ladder_url' slug=league.slug %}">{{ league.name }}
+                        <a class="dropdown-item{% if league.name == active_league.name %} active{% endif %}" href="{% url 'poe:ladder_url' slug=league.slug %}">{{ league.name }}
                             <span class="sr-only"></span>
                         </a>
                     {% endfor %}
@@ -31,11 +28,17 @@
                 <a class="dropdown-item" href="https://www.pathofexile.com/trade">Official Trade Website</a>
                 <a class="dropdown-item" href="https://poe.ninja/challenge/builds">poe.ninja</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="https://siveran.github.io/calc.html">Vorici Calculator</a>
+                <a class="dropdown-item" href="https://hashbr.github.io/betrayal-cs">Betrayal Cheat Sheet</a>
+                <a class="dropdown-item" href="https://siveran.github.io/calc.html">Vorici Chromatic Calculator</a>
                 <a class="dropdown-item" href="https://poe.mikelat.com/">Aura Calculator</a>
                 </div>
             </li>
         </ul>
+        <li class="nav-item">
+            <a class="nav-link{% if league.name == active_league.name %} active-league{% endif %}" href="{% url 'poe:stash' %}">Guild Stash
+                <span class="sr-only"></span>
+            </a>
+        </li>
     </div>
     <form class="form-inline my-2 my-lg-0" action="{% url 'poe:ladder_search' %}" method="get">
         {{ poe_context.search_form.name }}
