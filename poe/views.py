@@ -18,10 +18,10 @@ class MainLadderView(RedirectView):
     def get_redirect_url(self):
         top_league = (
             League.objects
-            .filter(poecharacter__isnull=False)
+            .filter(character__isnull=False)
             .distinct()
             .filter(end_date__gt=timezone.localtime())
-            .annotate(players=Count('poecharacter'))
+            .annotate(players=Count('character'))
             .order_by('-players')
             .first()
         )
