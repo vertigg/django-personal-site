@@ -154,3 +154,27 @@ img#class-icon {
 .poe-search-form::placeholder {
   font-size: 0.75rem;
 }
+
+.stash-container {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10em;
+}
+
+.stash-search-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 250px;
+  gap: 5px
+}
+
+.stash-search-controls input {
+  width: 100%;
+  text-align: center;
+}
+
+.stash-results-container {
+  flex-grow: 3;
+  padding: 0 15px;
+}

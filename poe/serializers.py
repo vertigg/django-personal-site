@@ -17,5 +17,5 @@ class LeagueSerializer(serializers.ModelSerializer):
 
 
 class StashHistoryRange(serializers.Serializer):
-    from_date = serializers.DateTimeField()
-    to_date = serializers.DateTimeField()
+    from_date = serializers.IntegerField()
+    end_date = serializers.IntegerField()

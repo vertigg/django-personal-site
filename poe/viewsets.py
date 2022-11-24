@@ -1,11 +1,15 @@
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from poe.models import Character, League
-from poe.serializers import CharacterSerializer, LeagueSerializer
+from poe.serializers import (
+    CharacterSerializer, LeagueSerializer, StashHistoryRange
+)
 from poe.utils.session import requests_retry_session
 
 
@@ -26,9 +30,29 @@ class LeagueViewSet(viewsets.ReadOnlyModelViewSet):
 
 class StashHistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    url = "https://www.pathofexile.com/api/guild/2932/stash/history"
 
-    def _get_stash_history(self, from_date, to_dote):
-        pass
+    def _get_stash_history(self, data):
+        entries = list()
+        params = {'from': data['from_date'], 'end': data['end_date']}
 
-    def post(self, request, *args, **kwargs):
-        pass
+        with requests_retry_session() as session:
+            session.cookies.set('POESESSID', settings.POESESSID)
+            while True:
+                data = session.get(self.url, params=params).json()
+                entries.extend(data.get('entries', []))
+
+                if not data.get('truncated') or data.get('error'):
+                    break
+
+                last_entry = entries[-1]
+                params['from'] = last_entry.get('time')
+                params['fromid'] = last_entry.get('from_id')
+
+        return entries
+
+    def post(self, request):
+        serializer = StashHistoryRange(data=request.data)
+        if serializer.is_valid():
+            return Response(data=self._get_stash_history(serializer.data))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

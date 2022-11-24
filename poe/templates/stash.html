@@ -3,7 +3,8 @@
 
 {% block css %}
 {% include "bootstrap4.html" %}
-<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poe.min.css' %}" />
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poe.css' %}" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
 {% block title %}Guild Stash{% endblock %}
@@ -13,7 +14,48 @@
 {% endblock %}
 
 {% block content %}
-<div class="container w-100 d-flex" style="min-height: 25vh; justify-content: center;align-items: center;">
-    <h1 class="ladder-title">Coming Soon&#8482;</h1>
+
+<div class="stash-container">
+    <h1 class="ladder-title ladder-link">Guild Stash History</h1>
+    <div v-scope style="display: flex; flex: 0 0 25em; min-width: 80vh;">
+        <div id="picker" class="stash-search-controls" style="flex-direction: column; align-items: center">
+            <input type="text" name="pckr-input">
+            <div>
+                <button :disabled="isLoading" class="btn btn-primary" @click="checkDateRange">Check stash history</button>
+                <button class="btn btn-primary">Reset</button>
+            </div>
+        </div>
+        <div v-show="entries.length" class="stash-results-container" >
+            <table class="LadderTable">
+                <thead>
+                    <tr class="LadderHeader">
+                        <th>Time</th>
+                        <th>Account</th>
+                        <th>Action</th>
+                        <th>League</th>
+                        <th>Stash</th>
+                        <th>Item</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="entry in entries" :key="entry.id" class="LadderRows">
+                        <td>[[ new Date(entry.time * 1000).toLocaleString() ]]</td>
+                        <td>[[ entry.account.name ]]</td>
+                        <td>[[ entry.action ]]</td>
+                        <td>[[ entry.league ]]</td>
+                        <td>[[ entry.stash ]]</td>
+                        <td>[[ entry.item ]]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block script %}
+    <script>var csrf = "{{ csrf_token }}"</script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{% static 'poe/js/petite-vue.iife.js' %}"></script>
+    <script src="{% static 'poe/js/stash.js' %}"></script>
 {% endblock %}
