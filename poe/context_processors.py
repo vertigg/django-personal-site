@@ -8,7 +8,7 @@ from poe.models import PoeInfo, League
 def poe_info(request):
     def get_poe_context():
         leagues_with_players = League.objects.filter(
-            poecharacter__isnull=False).distinct()
+            character__isnull=False).distinct()
         temp_leagues = leagues_with_players.filter(
             end_date__gt=timezone.localtime())
         old_leagues = leagues_with_players.exclude(id__in=temp_leagues)

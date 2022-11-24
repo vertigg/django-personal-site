@@ -6,7 +6,7 @@
         <div class="navbar-nav">
             {% for league in poe_context.temp_leagues %} 
                 <li class="nav-item{% if league.name == active_league.name %} active{% endif %}">
-                    <a class="nav-link{% if league.name == active_league.name %} active-league{% endif %}" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
+                    <a class="nav-link{% if league.name == active_league.name %} active-league{% endif %}" href="{% url 'poe:ladder_url' slug=league.slug %}">{{ league.name }}
                         <span class="sr-only"></span>
                     </a>
                 </li>
@@ -17,7 +17,7 @@
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Old leagues</a>
                 <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
                     {% for league in poe_context.old_leagues %}
-                        <a class="dropdown-item" href="{% url 'poeladder:ladder_url' slug=league.slug %}">{{ league.name }}
+                        <a class="dropdown-item" href="{% url 'poe:ladder_url' slug=league.slug %}">{{ league.name }}
                             <span class="sr-only"></span>
                         </a>
                     {% endfor %}
@@ -37,7 +37,7 @@
             </li>
         </ul>
     </div>
-    <form class="form-inline my-2 my-lg-0" action="{% url 'poeladder:ladder_search' %}" method="get">
+    <form class="form-inline my-2 my-lg-0" action="{% url 'poe:ladder_search' %}" method="get">
         {{ poe_context.search_form.name }}
     </form>
 </div>

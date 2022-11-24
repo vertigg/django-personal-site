@@ -5,7 +5,7 @@
     <div class="form-row text-center p-5">
         <div class="col-12">
             <h3 class="p-3 text-center">Can't find any {{class_filter.class_name}} in this ladder</h3>
-            <a class="btn btn-primary" href={% url 'poeladder:ladder_url' slug=active_league.slug %} role="button">Back to ladder</a>
+            <a class="btn btn-primary" href={% url 'poe:ladder_url' slug=active_league.slug %} role="button">Back to ladder</a>
         </div>
     </div>
     {% else %}

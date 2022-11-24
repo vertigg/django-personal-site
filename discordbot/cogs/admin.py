@@ -16,7 +16,7 @@ from discord.ext import commands
 from discord.ext.commands.context import Context
 from discordbot.cogs.utils.checks import admin_command, mod_command
 from discordbot.cogs.utils.db import sync_users
-from poeladder.tasks import LadderUpdateTask
+from poe.tasks import LadderUpdateTask
 
 logger = logging.getLogger('discordbot.admin')
 
