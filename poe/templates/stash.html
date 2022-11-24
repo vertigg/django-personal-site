@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% load static %}
+
+
+{% block css %}
+{% include "bootstrap4.html" %}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poeladder.min.css' %}" />
+{% endblock %}
+
+{% block title %}Guild Stash{% endblock %}
+
+{% block header %}
+{% include "navbar.html" %}
+{% endblock %}
+
+{% block content %}
+    Guild stash shit here
+{% endblock %}

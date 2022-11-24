@@ -7,8 +7,8 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, TextInput
 from django.utils.translation import gettext_lazy as _
-from poeladder.models import PoeCharacter
-from poeladder.utils.session import requests_retry_session
+from poe.models import Character
+from poe.utils.session import requests_retry_session
 
 
 class MainAuthenticationForm(AuthenticationForm):
@@ -78,5 +78,5 @@ class DiscordProfileForm(ModelForm):
 
     def save(self, commit=True):
         if self.user and not self.cleaned_data.get('poe_profile'):
-            PoeCharacter.objects.filter(profile=self.user.discorduser.id).delete()
+            Character.objects.filter(profile=self.user.discorduser.id).delete()
         return super().save(commit=commit)
