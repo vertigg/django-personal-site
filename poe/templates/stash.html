@@ -22,7 +22,7 @@
             <input type="text" name="pckr-input">
             <div>
                 <button :disabled="isLoading" class="btn btn-primary" @click="checkDateRange">Check stash history</button>
-                <button class="btn btn-primary">Reset</button>
+                <button class="btn btn-primary" @click="reset">Reset</button>
             </div>
         </div>
         <div v-show="entries.length" class="stash-results-container" >

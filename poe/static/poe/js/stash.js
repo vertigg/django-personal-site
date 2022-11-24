@@ -16,6 +16,10 @@ app = PetiteVue.createApp({
   isLoading: false,
   pickerInstance: flatpickr("#picker input", { mode: 'range' }),
   entries: [],
+  reset() {
+    this.entries = [];
+    this.pickerInstance.clear();
+  },
   async checkDateRange() {
     if (!this.pickerInstance || !this.pickerInstance.selectedDates.length) {
       return;
