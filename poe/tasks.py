@@ -52,8 +52,10 @@ class LadderUpdateTask(UniqueNamedTask):
             logger.error('Rate limited!')
             time.sleep(65)
             response = self.session.get(self.POE_INFO.format(character, account))
-        data = json.loads(response.text)
-        return detect_skills(data)
+        if response.ok:
+            data = json.loads(response.text)
+            return detect_skills(data)
+        return list()
 
     def _parse_league_datetime(self, str_datetime: str) -> datetime:
         if isinstance(str_datetime, str):
