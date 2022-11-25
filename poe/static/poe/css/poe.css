@@ -165,7 +165,7 @@ img#class-icon {
 .stash-container-wrapper {
   display: flex; 
   flex: 0 0 25em; 
-  min-width: 80vh;
+  min-width: 80vw;
   flex-wrap: wrap;
 }
 
@@ -203,19 +203,25 @@ img#class-icon {
   text-align: center;
 }
 
-@media screen and (width <= 575px) {
+@media screen and (width <= 1152px) {
   .stash-container {
     padding: 0 1em;
     align-items: center;
     flex-wrap: wrap;
     flex-direction: row;
+    justify-content: space-around;
   }
   .stash-container-wrapper{
     flex-direction: column;
+    align-content: stretch;
+    min-width: 90vw;
     max-width: 90vw;
     gap: 5px
   }
   .stash-search-controls{
     max-width: 90vw;
+  }
+  .stash-results-container{
+    padding: 0;
   }
 }
