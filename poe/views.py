@@ -1,5 +1,7 @@
 from typing import Any, Dict
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import TemplateView
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -82,3 +84,7 @@ class LadderSearchView(FilterView):
     model = Character
     paginate_by = 10
     ordering = 'name'
+
+
+class StashHistoryView(LoginRequiredMixin, TemplateView):
+    template_name = 'stash.html'

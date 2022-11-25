@@ -1,4 +1,3 @@
-from django.contrib.auth.views import TemplateView
 from django.urls import include, path
 
 from poe import views
@@ -17,5 +16,5 @@ urlpatterns = [
     path('api/stash', StashHistoryAPIView.as_view()),
     path('search/', views.LadderSearchView.as_view(), name="ladder_search"),
     path('ladder/<slug>/', views.LadderView.as_view(), name='ladder_url'),
-    path('stash/', TemplateView.as_view(template_name='stash.html'), name='stash'),
+    path('stash/', views.StashHistoryView.as_view(), name='stash'),
 ]

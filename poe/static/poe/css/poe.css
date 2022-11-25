@@ -159,6 +159,14 @@ img#class-icon {
   display: flex;
   flex-direction: column;
   padding: 0 10em;
+  flex-wrap: wrap;
+}
+
+.stash-container-wrapper {
+  display: flex; 
+  flex: 0 0 25em; 
+  min-width: 80vh;
+  flex-wrap: wrap;
 }
 
 .stash-search-controls {
@@ -172,9 +180,42 @@ img#class-icon {
 .stash-search-controls input {
   width: 100%;
   text-align: center;
+  border-radius: 6px;
+  font-family: 'Fontin-Regular';
+  border: none;
+  box-shadow: 1px -1px 10px 6px rgba(0,0,0,0.78);
+  -webkit-box-shadow: 1px -1px 10px 6px rgba(0,0,0,0.78);
+  -moz-box-shadow: 1px -1px 10px 6px rgba(0,0,0,0.78);
+}
+
+.stash-search-controls input:focus {
+  border: none;
+  outline: none;
 }
 
 .stash-results-container {
   flex-grow: 3;
   padding: 0 15px;
+}
+
+.stash-results-container h1 {
+  font-family: 'Fontin-Regular';
+  text-align: center;
+}
+
+@media screen and (width <= 575px) {
+  .stash-container {
+    padding: 0 1em;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+  .stash-container-wrapper{
+    flex-direction: column;
+    max-width: 90vw;
+    gap: 5px
+  }
+  .stash-search-controls{
+    max-width: 90vw;
+  }
 }

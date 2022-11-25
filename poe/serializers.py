@@ -16,6 +16,22 @@ class LeagueSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'url', 'start_date', 'end_date')
 
 
-class StashHistoryRange(serializers.Serializer):
-    from_date = serializers.IntegerField()
-    end_date = serializers.IntegerField()
+class DatetimeToUnixtimeField(serializers.DateTimeField):
+
+    def to_internal_value(self, value):
+        return int(super().to_internal_value(value).timestamp())
+
+    def to_representation(self, value):
+        return value
+
+
+class StashHistoryRangeSerializer(serializers.Serializer):
+    dates = serializers.ListField(
+        child=DatetimeToUnixtimeField(),
+        min_length=2, max_length=2, allow_empty=False
+    )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        attrs['dates'] = sorted(attrs.get('dates'), reverse=True)
+        return attrs
