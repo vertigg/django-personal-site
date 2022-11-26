@@ -162,6 +162,10 @@ img#class-icon {
   flex-wrap: wrap;
 }
 
+.stash-container h1 {
+  text-shadow: 0px 0px 6px #000000;
+}
+
 .stash-container-wrapper {
   display: flex; 
   flex: 0 0 25em; 
@@ -173,7 +177,8 @@ img#class-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 250px;
+  min-width: 200px;
+  max-width: 250px;
   gap: 5px
 }
 
@@ -198,7 +203,7 @@ img#class-icon {
   padding: 0 15px;
 }
 
-.stash-results-container h1 {
+.stash-results-container h3 {
   font-family: 'Fontin-Regular';
   text-align: center;
 }

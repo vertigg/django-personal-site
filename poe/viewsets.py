@@ -35,7 +35,7 @@ class StashHistoryAPIView(APIView):
     def _get_stash_history(self, data: dict[str, int]) -> list[dict]:
         entries = []
         params = {'from': data.get('dates')[0], 'end': data.get('dates')[1]}
-        with requests_retry_session() as session:
+        with requests_retry_session(retries=2) as session:
             session.cookies.set('POESESSID', settings.POESESSID)
             while True:
                 data = session.get(self.url, params=params).json()

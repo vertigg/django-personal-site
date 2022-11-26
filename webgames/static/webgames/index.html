@@ -1,6 +1,7 @@
 {%extends "base.html"%}
 {% block css %}
 {% load staticfiles%}
+{% include "bootstrap4.html" %}
 <link rel="stylesheet" type="text/css" media="screen" href="{% static 'webgames/TemplateData/style.css' %}" />
 <link rel="shortcut icon" href="{% static 'webgames/TemplateData/favicon.ico' %}">
 <link rel="stylesheet" href="{% static 'webgames/TemplateData/style.css' %}">
@@ -12,6 +13,7 @@
 {% endblock %}
 {% block title%}Unity WebGL Player | asteroids{% endblock %}
 {% block content%}
+{% include "header.html" %}
 <div class="webgl-content">
   <div id="gameContainer" style="width: 960px; height: 600px"></div>
   <div class="footer">

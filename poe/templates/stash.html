@@ -3,7 +3,7 @@
 
 {% block css %}
 {% include "bootstrap4.html" %}
-<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poe.css' %}" />
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poe.min.css' %}" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
@@ -14,7 +14,6 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="stash-container">
     <h1 class="ladder-title ladder-link">Guild Stash History</h1>
     <div v-scope class="stash-container-wrapper">
@@ -24,10 +23,10 @@
                 <button :disabled="isLoading" class="btn btn-sm btn-primary" @click="checkDateRange">Search</button>
                 <button class="btn btn-sm btn-primary" @click="reset">Reset</button>
             </div>
-            <span v-show="errorMessage">[[ errorMessage ]]</span>
+            <span v-show="errorMessage" class="text-danger">[[ errorMessage ]]</span>
         </div>
         <div class="stash-results-container">
-            <h1 v-if="isReceivedEmptyResponse">No results found</h1>
+            <h3 v-if="isReceivedEmptyResponse">No results found</h3>
             <div v-show="entries.length"  >
                 <table class="LadderTable">
                     <thead>

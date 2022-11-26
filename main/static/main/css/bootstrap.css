@@ -1089,7 +1089,7 @@ fieldset:disabled a.btn {
   z-index: 1000;
   display: none;
   float: left;
-  min-width: 10rem;
+  min-width: 8rem;
   padding: 0.5rem 0;
   margin: 0.125rem 0 0;
   font-size: 1rem;
@@ -1115,9 +1115,12 @@ fieldset:disabled a.btn {
 }
 
 .dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.25rem 1.5rem;
+  padding: 0.25rem 1rem;
   clear: both;
   font-weight: 400;
   color: #EBEBEB;
@@ -2610,4 +2613,16 @@ label,
 .btn-discord-connected {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.nav-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 2px
+}
+
+@media screen and (width > 992px) {
+  .navbar-toggler {
+    display: none;
+  }
 }
