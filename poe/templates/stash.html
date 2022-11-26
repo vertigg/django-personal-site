@@ -27,26 +27,27 @@
         </div>
         <div class="stash-results-container">
             <h3 v-if="isReceivedEmptyResponse">No results found</h3>
-            <div v-show="entries.length"  >
+            <div v-show="entries.length" >
                 <table class="LadderTable">
-                    <thead>
-                        <tr class="LadderHeader">
-                            <th>Time</th>
-                            <th>Account</th>
-                            <th>Action</th>
-                            <th>League</th>
-                            <th>Stash</th>
-                            <th>Item</th>
-                        </tr>
-                    </thead>
                     <tbody>
                         <tr v-for="entry in entries" :key="entry.id" class="LadderRows">
-                            <td>[[ new Date(entry.time * 1000).toLocaleString() ]]</td>
-                            <td>[[ entry.account.name ]]</td>
-                            <td>[[ entry.action ]]</td>
-                            <td>[[ entry.league ]]</td>
-                            <td>[[ entry.stash ]]</td>
-                            <td>[[ entry.item ]]</td>
+                            <td class="stash-row">
+                                <div class="stash-entry-container">
+                                    <div class="stash-action-icon" v-bind:class="getActionClass(entry.action)"></div>
+                                    <div>
+                                        <div class="stash-entry-text">[[ entry.account.name ]] [[ entry.action ]] [[ entry.item ]]</div>
+                                        <div class="stash-info-text">
+                                            <span class="small"><i class="fa-solid fa-flag"></i> [[ entry.league ]] League</span>
+                                            <span class="small"><i class="fa-sharp fa-solid fa-box"></i> Stash [[ entry.stash ]]</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="stash-entry-timestamp ">
+                                    <span class="small">
+                                        <i class="fa-solid fa-stopwatch"></i> [[ getRelativeDate(entry.time) ]]
+                                    </span>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

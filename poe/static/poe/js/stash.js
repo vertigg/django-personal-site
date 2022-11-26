@@ -15,14 +15,48 @@ function arraysEqual(a1, a2) {
   return a1.length === a2.length && a1.every((v, i) => { return v === a2[i] })
 }
 
+const DIVISIONS = [
+  { amount: 60, name: 'seconds' },
+  { amount: 60, name: 'minutes' },
+  { amount: 24, name: 'hours' },
+  { amount: 7, name: 'days' },
+  { amount: 4.34524, name: 'weeks' },
+  { amount: 12, name: 'months' },
+  { amount: Number.POSITIVE_INFINITY, name: 'years' }
+]
+
 app = PetiteVue.createApp({
   $delimiters: ["[[", "]]"],
   datePicker: flatpickr("#picker input", { mode: 'range' }),
+  timeFormatter: new Intl.RelativeTimeFormat("en", { localeMatcher: "lookup" }),
   isLoading: false,
   isReceivedEmptyResponse: false,
   errorMessage: '',
   previousDates: [],
   entries: [],
+  getActionClass(action) {
+    switch (action) {
+      case 'added':
+        return 'stash-action-added'
+      case 'removed':
+        return 'stash-action-removed'
+      case 'modified':
+        return 'stash-action-modified'
+      default:
+        break;
+    }
+  },
+  getRelativeDate(date) {
+    let duration = (new Date(date * 1000) - new Date()) / 1000
+
+    for (let i = 0; i <= DIVISIONS.length; i++) {
+      const division = DIVISIONS[i]
+      if (Math.abs(duration) < division.amount) {
+        return this.timeFormatter.format(Math.round(duration), division.name)
+      }
+      duration /= division.amount
+    }
+  },
   reset() {
     this.entries = [];
     this.datePicker.clear();

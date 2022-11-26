@@ -230,3 +230,59 @@ img#class-icon {
     padding: 0;
   }
 }
+
+.stash-row {
+  display: flex;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.stash-action-icon {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  min-width: 25px;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900; 
+}
+
+.stash-action-added::before {
+  color: var(--success);
+  content: "\f2f6";
+}
+
+.stash-action-removed::before {
+  color: var(--danger);
+  content: "\f2f5";
+}
+
+.stash-action-modified::before {
+  color: var(--info);
+  content: "\f044";
+}
+
+.stash-action-timestamp::before {
+  content: "\f2f2";
+}
+
+.stash-entry-timestamp {
+  display: flex;
+  gap: 15px;
+  margin-left: 35px;
+}
+
+.stash-entry-container {
+  display: flex;
+  gap: 10px;
+  align-content: center;
+}
+
+.stash-entry-text {
+  font-size: larger;
+  font-family: 'Fontin-Regular';
+}
+
+.stash-info-text {
+  color: var(--gray);
+}
