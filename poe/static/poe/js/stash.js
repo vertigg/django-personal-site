@@ -46,9 +46,11 @@ app = PetiteVue.createApp({
         break;
     }
   },
+  dateFromTimestamp(timestamp) {
+    return new Date(timestamp * 1000)
+  },
   getRelativeDate(date) {
-    let duration = (new Date(date * 1000) - new Date()) / 1000
-
+    let duration = (this.dateFromTimestamp(date) - new Date()) / 1000
     for (let i = 0; i <= DIVISIONS.length; i++) {
       const division = DIVISIONS[i]
       if (Math.abs(duration) < division.amount) {

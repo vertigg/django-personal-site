@@ -33,7 +33,7 @@
                         <tr v-for="entry in entries" :key="entry.id" class="LadderRows">
                             <td class="stash-row">
                                 <div class="stash-entry-container">
-                                    <div class="stash-action-icon" v-bind:class="getActionClass(entry.action)"></div>
+                                    <div class="stash-action-icon" v-bind:class="getActionClass(entry.action)" v-bind:title="entry.action"></div>
                                     <div>
                                         <div class="stash-entry-text">[[ entry.account.name ]] [[ entry.action ]] [[ entry.item ]]</div>
                                         <div class="stash-info-text">
@@ -43,7 +43,7 @@
                                     </div>
                                 </div>
                                 <div class="stash-entry-timestamp ">
-                                    <span class="small">
+                                    <span class="small" v-bind:title="dateFromTimestamp(entry.time)">
                                         <i class="fa-solid fa-stopwatch"></i> [[ getRelativeDate(entry.time) ]]
                                     </span>
                                 </div>
