@@ -34,21 +34,8 @@ app = PetiteVue.createApp({
   errorMessage: '',
   previousDates: [],
   entries: [],
-  getActionClass(action) {
-    switch (action) {
-      case 'added':
-        return 'stash-action-added'
-      case 'removed':
-        return 'stash-action-removed'
-      case 'modified':
-        return 'stash-action-modified'
-      default:
-        break;
-    }
-  },
-  dateFromTimestamp(timestamp) {
-    return new Date(timestamp * 1000)
-  },
+  getActionClass: (action) => `stash-action-${action}`,
+  dateFromTimestamp: (timestamp) => new Date(timestamp * 1000),
   getRelativeDate(date) {
     let duration = (this.dateFromTimestamp(date) - new Date()) / 1000
     for (let i = 0; i <= DIVISIONS.length; i++) {
