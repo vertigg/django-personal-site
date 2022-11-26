@@ -27,7 +27,7 @@ const DIVISIONS = [
 
 app = PetiteVue.createApp({
   $delimiters: ["[[", "]]"],
-  datePicker: flatpickr("#picker input", { mode: 'range', enableTime: true, time_24hr: true }),
+  datePicker: flatpickr("#picker input", { mode: 'range', enableTime: true, time_24hr: true, defaultHour: 0 }),
   timeFormatter: new Intl.RelativeTimeFormat("en", { localeMatcher: "lookup" }),
   isLoading: false,
   isReceivedEmptyResponse: false,
