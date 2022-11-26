@@ -177,8 +177,8 @@ img#class-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 200px;
-  max-width: 250px;
+  min-width: 300px;
+  max-width: 300px;
   gap: 5px
 }
 
