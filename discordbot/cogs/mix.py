@@ -103,23 +103,21 @@ class Mix(commands.Cog):
         await ctx.send(message)
 
     @app_commands.command(name='mix', description='Generate mix image with some text')
-    async def mix_interaction(self, interaction: Interaction, is_private: bool = False):
+    async def mix_generate(self, interaction: Interaction, is_private: bool = False):
         await interaction.response.send_message(self._generate_mix_message(), ephemeral=is_private)
 
     @wisdom_group.command(name='generate', description='Generate random wisdom')
-    async def _wisdom_generate(self, interaction: Interaction):
+    async def wisdom_generate(self, interaction: Interaction):
         await interaction.response.send_message(Wisdom.objects.get_random_entry().text)
 
     @wisdom_group.command(name='add', description='Adds new wisdom to database')
     @mod_command
-    async def _wisdom_add(self, interaction: Interaction, text: str):
-        obj, created = Wisdom.objects.update_or_create(text=text)
-        if created:
-            obj.author_id = interaction.user.id
-            obj.save(update_fields=['author_id'])
-            await interaction.response.send_message(f'{text} added', ephemeral=True)
-        else:
+    async def wisdom_add(self, interaction: Interaction, text: str):
+        if Wisdom.objects.filter(text=text).exists():
             await interaction.response.send_message('Wisdom already exists in db', ephemeral=True)
+            return
+        Wisdom.objects.create(text=text, author_id=interaction.user.id)
+        await interaction.response.send_message(f'{text} added', ephemeral=True)
 
 
 async def setup(bot):
