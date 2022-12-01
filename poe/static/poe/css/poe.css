@@ -25,6 +25,10 @@ html {
   margin: 0;
 }
 
+html:has(body div.stash-container) {
+  background-image: url("../img/stash.jpg");
+}
+
 h1.ladder-title {
   color: white;
   font-family: "Fontin-Regular", "Segoe UI", "Tahoma", "Verdana", "sans-serif";
@@ -284,4 +288,28 @@ img#class-icon {
 
 .stash-info-text {
   color: var(--gray);
+}
+
+.countdown-row {
+  display: flex;
+  font-family: 'Fontin-Regular';
+  justify-content: space-evenly;
+}
+
+.countdown-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.countdown-amount {
+  font-size: xx-large;
+}
+
+.countdown-period {
+  font-size: small;
+}
+
+#timer {
+  min-width: 300px;
+  text-shadow: 0px 0px 12px #000000;
 }
