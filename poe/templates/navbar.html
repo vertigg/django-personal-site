@@ -42,7 +42,12 @@
             </li>
         </ul>
         <li class="nav-item">
-            <a class="nav-link{% if league.name == active_league.name %} active-league{% endif %}" href="{% url 'poe:stash' %}">Guild Stash
+            <a class="nav-link" href="{% url 'poe:stash' %}">Guild Stash
+                <span class="sr-only"></span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'poe:chat-monitor' %}">Chat Monitor (Beta)
                 <span class="sr-only"></span>
             </a>
         </li>

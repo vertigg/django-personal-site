@@ -1,0 +1,73 @@
+{% extends "base.html" %} {% load static %}
+
+{% block css %}
+{% include "bootstrap4.html" %}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poe.min.css' %}" />
+{% endblock %}
+
+{% block title %}Chat Monitor{% endblock %}
+
+{% block header %}
+{% include "navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container w-100" style="min-width: 90vw !important;">
+    <h1 class="ladder-title ladder-link">Chat Monitor</h1>
+    <div v-scope class="" style="display: flex; flex-direction: row;">
+        <div class="chat-monitor-leftbar">
+          <div class="chat-monitor-leftbar-block">
+            <h5><i class="fa-solid fa-file"></i> Client File</h5>
+            <div class="chat-client-file-form">
+              <span class="small">[[ selected ? selected.file.name : 'No file selected'  ]]</span>
+              <button @click="selectClientFile" class="btn btn-sm btn-sm btn-primary">Select</button>
+            </div>
+          </div>
+          <div class="chat-monitor-leftbar-block chat-filters-block">
+            <h5><i class="fa-solid fa-filter"></i> Filters</h5>
+              <span class="chat-filter-badges">
+                <span v-if="!filterWords.length">
+                  No filters available
+                </span>
+                <span class="badge badge-primary" v-for="(word, index) in filterWords" :key="index">
+                  [[ word.toString() ]] <i @click="removeWord(index)" class="fa-solid fa-circle-xmark"></i>
+                </span>
+              </span>
+              <form @submit.prevent="addFilter" id="filterForm">
+                <input type="text" name="word" autocomplete="off">
+              </form>
+              <div class="filter-controls">
+                <button class="btn btn-sm btn-sm btn-secondary" form="filterForm" type="submit">Add word</button>
+                <button @click="clearWords" class="btn btn-sm btn-sm btn-secondary">Clear Filters</button>
+              </div>
+          </div>
+          <div class="chat-monitor-leftbar-block">
+            <h5><i class="fa-solid fa-gear"></i> Settings</h5>
+            <span class="small">Polling Rate</span>
+            <input class="form-input" :disabled="isMonitoring" type="number" id="pollingRate" name="quantity" min="1" max="60" step="1" v-model="pollingRate">
+            <span class="small"> second(s)</span>
+          </div>
+          <button @click="startWatching" :disabled="isMonitoring || !selected" class="btn btn-sm btn-sm btn-primary">Start monitoring</button>
+          <button @click="stopWatching" :disabled="!isMonitoring" class="btn btn-sm btn-sm btn-primary">Stop monitoring</button>
+        </div>
+        <div class="chat-monitor-rightbar">
+          <div>
+            <h6 v-if="!chatMatches.length">
+              Matched messages will be displayed here
+            </h6>
+            <h6 v-for="chatMatch in chatMatches">
+              <i class="fa-solid fa-ban"></i>
+              <i class="fa-solid fa-copy"></i>
+              <span title="Guild" style="color: yellow;">[ [[ chatMatch.guild ]] ]</span> <span style="color: lightblue;">[[ chatMatch.name ]]</span>: [[ chatMatch.text ]]
+              <hr>
+            </h6>
+          </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+    <script defer src="{% static 'poe/js/petite-vue.iife.js' %}"></script>
+    <script defer src="{% static 'poe/js/chatMonitor.js' %}"></script>
+{% endblock %}

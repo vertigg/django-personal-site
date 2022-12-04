@@ -17,4 +17,5 @@ urlpatterns = [
     path('search/', views.LadderSearchView.as_view(), name="ladder_search"),
     path('ladder/<slug>/', views.LadderView.as_view(), name='ladder_url'),
     path('stash/', views.StashHistoryView.as_view(), name='stash'),
+    path('chat/', views.TestView.as_view(), name='chat-monitor'),
 ]

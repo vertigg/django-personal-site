@@ -88,3 +88,7 @@ class LadderSearchView(FilterView):
 
 class StashHistoryView(LoginRequiredMixin, TemplateView):
     template_name = 'stash.html'
+
+
+class TestView(LoginRequiredMixin, TemplateView):
+    template_name = 'chat.html'
