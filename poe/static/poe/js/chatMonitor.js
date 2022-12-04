@@ -116,6 +116,7 @@ app = PetiteVue.createApp({
     },
     addFilter(submitEvent) {
         let value = submitEvent.target.elements.word.value.trim();
+        submitEvent.target.elements.word.value = '';
         if (!value) { return };
         let currentFilterSet = new Set(this.filterWords);
         if (!currentFilterSet.has(value)) {

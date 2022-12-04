@@ -34,7 +34,7 @@
                 </span>
               </span>
               <form @submit.prevent="addFilter" id="filterForm">
-                <input type="text" name="word" autocomplete="off">
+                <input type="text" name="word" autocomplete="off" @keyup.enter="$el.value = ''">
               </form>
               <div class="filter-controls">
                 <button class="btn btn-sm btn-sm btn-secondary" form="filterForm" type="submit">Add word</button>
