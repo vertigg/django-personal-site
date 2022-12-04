@@ -21,16 +21,38 @@ function showNotification(text) {
     }
 }
 
+const storeFactory = (key, defaultValue) => {
+    return {
+        fetch: () => {
+            let savedData = localStorage.getItem(key);
+            if (!savedData) {return defaultValue};
+            return JSON.parse(savedData);
+        },
+        clear: () => localStorage.removeItem(key),
+        save: (data) => localStorage.setItem(key, JSON.stringify(data)),
+    }
+}
+
+const filterStore = storeFactory('savedFilters', defaultValue = []);
+const optionsStore = storeFactory('settings', defaultValue = {pollingRate: 10, blacklistedUsers: []});
+
+
 app = PetiteVue.createApp({
     $delimiters: ["[[", "]]"],
     personChatPattern: /(?<guild><.*?>?)\s(?<name>[^<]\w*)(?:\:\s)(?<text>.*)/gm,
     chatMatches: [],
-    blacklistedUsers: [], // FIXME: Implement and make persistent
-    filterWords: [], // FIXME: Make persistent
+    filterWords: filterStore.fetch(),
+    options: optionsStore.fetch(),
     isMonitoring: false,
     selected: null,
     monitoringInterval: null,
-    pollingRate: 10,
+    get pollingRate() {
+        return this.options.pollingRate;
+    },
+    set pollingRate(value) {
+        this.options.pollingRate = value;
+        optionsStore.save(this.options);
+    },
     async selectClientFile() {
         this.stopWatching();
         let [fileHandle] = await window.showOpenFilePicker();
@@ -55,7 +77,7 @@ app = PetiteVue.createApp({
         this.monitoringInterval = setInterval(async ts => {
             if (!this.selected) { return; }
             this.checkFile();
-        }, this.pollingRate * 1000);
+        }, this.settings.pollingRate * 1000);
         this.isMonitoring = true;
     },
     async checkFile() {
@@ -71,7 +93,7 @@ app = PetiteVue.createApp({
         }
     },
     async readFile(f, offset) {
-        let reader = new FileReader();
+        let reader = new FileReader(); // FIXME: Maybe it's better to create one reader?
         reader.addEventListener('load', event => {
             let lines = event.target.result.split(/\r?\n/);
             for (const line of lines) {
@@ -89,12 +111,8 @@ app = PetiteVue.createApp({
             console.log(event.target.result);
         });
 
-        if (offset) {
-            let blob = f.slice(-offset);
-            reader.readAsText(blob);
-        } else {
-            reader.readAsText(f);
-        }
+        let blob = f.slice(-offset);
+        reader.readAsText(blob);
     },
     addFilter(submitEvent) {
         let value = submitEvent.target.elements.word.value.trim();
@@ -103,13 +121,15 @@ app = PetiteVue.createApp({
         if (!currentFilterSet.has(value)) {
             currentFilterSet.add(value);
             this.filterWords = Array.from(currentFilterSet);
-            localStorage.setItem('filterWords', JSON.stringify(this.filterWords))
+            filterStore.save(this.filterWords);
         }
     },
     removeWord(idx) {
         this.filterWords.splice(idx, 1);
+        filterStore.save(this.filterWords)
     },
     clearWords() {
         this.filterWords = [];
+        filterStore.clear();
     },
 }).mount()
