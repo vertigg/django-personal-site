@@ -25,7 +25,7 @@ const storeFactory = (key, defaultValue) => {
     return {
         fetch: () => {
             let savedData = localStorage.getItem(key);
-            if (!savedData) {return defaultValue};
+            if (!savedData) { return defaultValue };
             return JSON.parse(savedData);
         },
         clear: () => localStorage.removeItem(key),
@@ -34,33 +34,59 @@ const storeFactory = (key, defaultValue) => {
 }
 
 const filterStore = storeFactory('savedFilters', defaultValue = []);
-const optionsStore = storeFactory('settings', defaultValue = {pollingRate: 10, blacklistedUsers: []});
+const optionsStore = storeFactory('settings', defaultValue = { pollingRate: 10, blacklistedUsers: [] });
 
 
 app = PetiteVue.createApp({
     $delimiters: ["[[", "]]"],
-    personChatPattern: /(?<guild><.*?>?)\s(?<name>[^<]\w*)(?:\:\s)(?<text>.*)/gm,
-    chatMatches: [],
-    filterWords: filterStore.fetch(),
+    $reader: null,
+    messagePattern: /(?<guild><.*?>?)\s(?<name>[^<]\w*)(?:\:\s)(?<text>.*)/gm,
+    truncateString: str => str.length <= 20 ? str : `${str.substring(0, Math.min(15, str.length))}...`,
+    matchedChatMessages: [],
+    textFilters: filterStore.fetch(),
     options: optionsStore.fetch(),
     isMonitoring: false,
     selected: null,
     monitoringInterval: null,
-    get pollingRate() {
-        return this.options.pollingRate;
+    get reader() {
+        if (!this.$reader) {
+            this.$reader = new FileReader();
+            this.$reader.addEventListener('load', (event) => this.detectMessages(this, event))
+        }
+        return this.$reader;
     },
+    detectMessages(app, event) {
+        let lines = event.target.result.split(/\r?\n/);
+        for (const line of lines) {
+            for (const match of line.matchAll(app.messagePattern)) {
+                app.textFilters.forEach(word => {
+                    // FIXME: Can be multiple matches in one string
+                    interestWord = match.groups.text.match(new RegExp(word, 'i'));
+                    if (interestWord) {
+                        app.matchedChatMessages.push(match.groups)
+                        showNotification(`Match for ${word} found in PoE Chat`);
+                        app.autoscrollChat();
+                    }
+                })
+            }
+        }
+    },
+    get pollingRate() { return this.options.pollingRate; },
     set pollingRate(value) {
         this.options.pollingRate = value;
-        optionsStore.save(this.options);
+        optionsStore.save({ ...this.options, pollingRate: value });
+    },
+    get chatMessages() {
+        // Apply blacklist filters here
+        return this.matchedChatMessages
     },
     async selectClientFile() {
         this.stopWatching();
         let [fileHandle] = await window.showOpenFilePicker();
         if (fileHandle) {
             let f = await fileHandle.getFile();
-            if (!f) { console.log('failed accessing file'); return; }
+            if (!f) { console.error('failed accessing file'); return; }
             this.selected = { handle: fileHandle, file: f };
-            console.log('selected', f.name);
         }
     },
     stopWatching() {
@@ -71,66 +97,51 @@ app = PetiteVue.createApp({
     startWatching() {
         if (this.monitoringInterval) { this.stopWatching(); }
         if (!this.selected) { return; }
-
         checkNotificationPermissions();
-
         this.monitoringInterval = setInterval(async ts => {
             if (!this.selected) { return; }
             this.checkFile();
-        }, this.settings.pollingRate * 1000);
+        }, this.pollingRate * 1000);
         this.isMonitoring = true;
     },
     async checkFile() {
         if (!this.selectClientFile) { return; }
         let f = await this.selected.handle.getFile();
         if (f.lastModified > this.selected.file.lastModified && f.size > this.selected.file.size) {
-            let offset = f.size - this.selected.file.size
-            console.log(this.selected.file.name, 'was updated');
+            console.debug(this.selected.file.name, 'was updated');
+            const offset = f.size - this.selected.file.size
             this.selected.file = f;
-            this.readFile(f, offset);
+            this.$reader.readAsText(f.slice(-offset));
         } else {
-            console.log(this.selected.file.name, 'had no changes');
+            console.debug(this.selected.file.name, 'had no changes');
         }
     },
-    async readFile(f, offset) {
-        let reader = new FileReader(); // FIXME: Maybe it's better to create one reader?
-        reader.addEventListener('load', event => {
-            let lines = event.target.result.split(/\r?\n/);
-            for (const line of lines) {
-                for (const match of line.matchAll(this.personChatPattern)) {
-                    this.filterWords.forEach(word => {
-                        // FIXME: Can be multiple matches in one string
-                        interestWord = match.groups.text.match(new RegExp(word, 'i'));
-                        if (interestWord) {
-                            this.chatMatches.push(match.groups)
-                            showNotification(`Match for ${word} found in PoE Chat`);
-                        }
-                    })
-                }
-            }
-            console.log(event.target.result);
-        });
-
-        let blob = f.slice(-offset);
-        reader.readAsText(blob);
-    },
-    addFilter(submitEvent) {
+    addTextFilter(submitEvent) {
         let value = submitEvent.target.elements.word.value.trim();
         submitEvent.target.elements.word.value = '';
         if (!value) { return };
-        let currentFilterSet = new Set(this.filterWords);
+        let currentFilterSet = new Set(this.textFilters);
         if (!currentFilterSet.has(value)) {
             currentFilterSet.add(value);
-            this.filterWords = Array.from(currentFilterSet);
-            filterStore.save(this.filterWords);
+            this.textFilters = Array.from(currentFilterSet);
+            filterStore.save(this.textFilters);
         }
     },
-    removeWord(idx) {
-        this.filterWords.splice(idx, 1);
-        filterStore.save(this.filterWords)
+    removeTextFilter(index) {
+        this.textFilters.splice(index, 1);
+        filterStore.save(this.textFilters)
     },
-    clearWords() {
-        this.filterWords = [];
+    clearTextFilters() {
+        this.textFilters = [];
         filterStore.clear();
+    },
+    copyUsernameToClipboard(name) {
+        navigator.clipboard.writeText(`@${name}`);
+        //FIXME: Show drawer 
+    },
+    autoscrollChat() {
+        lastMessageIndex = this.chatMessages.length - 1;
+        const el = document.getElementsByClassName(`chat-entry-${lastMessageIndex}`)[0];
+        if (el) { el.scrollIntoView({ behavior: 'smooth' }) };
     },
 }).mount()

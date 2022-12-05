@@ -14,34 +14,34 @@
 {% block content %}
 <div class="container w-100" style="min-width: 90vw !important;">
     <h1 class="ladder-title ladder-link">Chat Monitor</h1>
-    <div v-scope class="" style="display: flex; flex-direction: row;">
-        <div class="chat-monitor-leftbar">
-          <div class="chat-monitor-leftbar-block">
+    <div v-scope class="chat-monitor-container">
+        <div class="chat-monitor-sidebar">
+          <div class="chat-monitor-sidebar-block">
             <h5><i class="fa-solid fa-file"></i> Client File</h5>
             <div class="chat-client-file-form">
               <span class="small">[[ selected ? selected.file.name : 'No file selected'  ]]</span>
               <button @click="selectClientFile" class="btn btn-sm btn-sm btn-primary">Select</button>
             </div>
           </div>
-          <div class="chat-monitor-leftbar-block chat-filters-block">
+          <div class="chat-monitor-sidebar-block chat-filters-block">
             <h5><i class="fa-solid fa-filter"></i> Filters</h5>
               <span class="chat-filter-badges">
-                <span v-if="!filterWords.length">
+                <span v-if="!textFilters.length">
                   No filters available
                 </span>
-                <span class="badge badge-primary" v-for="(word, index) in filterWords" :key="index">
-                  [[ word.toString() ]] <i @click="removeWord(index)" class="fa-solid fa-circle-xmark"></i>
+                <span class="badge badge-primary" v-for="(word, index) in textFilters" :key="index" :title="word">
+                  [[ truncateString(word) ]] <i @click="removeTextFilter(index)" class="fa-solid fa-circle-xmark"></i>
                 </span>
               </span>
-              <form @submit.prevent="addFilter" id="filterForm">
+              <form @submit.prevent="addTextFilter" id="filterForm">
                 <input type="text" name="word" autocomplete="off" @keyup.enter="$el.value = ''">
               </form>
               <div class="filter-controls">
                 <button class="btn btn-sm btn-sm btn-secondary" form="filterForm" type="submit">Add word</button>
-                <button @click="clearWords" class="btn btn-sm btn-sm btn-secondary">Clear Filters</button>
+                <button @click="clearTextFilters" class="btn btn-sm btn-sm btn-secondary">Clear Filters</button>
               </div>
           </div>
-          <div class="chat-monitor-leftbar-block">
+          <div class="chat-monitor-sidebar-block">
             <h5><i class="fa-solid fa-gear"></i> Settings</h5>
             <span class="small">Polling Rate</span>
             <input class="form-input" :disabled="isMonitoring" type="number" id="pollingRate" name="quantity" min="1" max="60" step="1" v-model="pollingRate">
@@ -50,15 +50,15 @@
           <button @click="startWatching" :disabled="isMonitoring || !selected" class="btn btn-sm btn-sm btn-primary">Start monitoring</button>
           <button @click="stopWatching" :disabled="!isMonitoring" class="btn btn-sm btn-sm btn-primary">Stop monitoring</button>
         </div>
-        <div class="chat-monitor-rightbar">
+        <div class="chat-monitor-messages">
           <div>
-            <h6 v-if="!chatMatches.length">
+            <h6 v-if="!chatMessages.length">
               Matched messages will be displayed here
             </h6>
-            <h6 v-for="chatMatch in chatMatches">
+            <h6 @vue:mounted="autoscrollChat()" v-for="(message, index) in chatMessages" :class="`chat-entry-${index}`">
               <i class="fa-solid fa-ban"></i>
-              <i class="fa-solid fa-copy"></i>
-              <span title="Guild" style="color: yellow;">[ [[ chatMatch.guild ]] ]</span> <span style="color: lightblue;">[[ chatMatch.name ]]</span>: [[ chatMatch.text ]]
+              <i class="fa-solid fa-copy" @click="copyUsernameToClipboard(message.name)"></i>
+              <span title="Guild" style="color: yellow;">[ [[ message.guild ]] ]</span> <span style="color: lightblue;">[[ message.name ]]</span>: [[ message.text ]]
               <hr>
             </h6>
           </div>
