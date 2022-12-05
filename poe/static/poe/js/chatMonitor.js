@@ -40,8 +40,10 @@ const optionsStore = storeFactory('settings', defaultValue = { pollingRate: 10, 
 app = PetiteVue.createApp({
     $delimiters: ["[[", "]]"],
     $reader: null,
-    messagePattern: /(?<guild><.*?>?)\s(?<name>[^<]\w*)(?:\:\s)(?<text>.*)/gm,
+    messagePattern: /(?<prefix>@From|\&|\$|\%|\#)(?:\s?)(?<guild>\<.*>)?(\s?)(?<name>[^:]*)(?:\:\s)(?<text>.*?)$/gmi,
     truncateString: str => str.length <= 20 ? str : `${str.substring(0, Math.min(15, str.length))}...`,
+    pluralize: (count, noun, suffix = 's') => `${noun}${count !== 1 ? suffix : ''}`,
+    copyUsernameToClipboard: name => navigator.clipboard.writeText(`@${name}`),
     matchedChatMessages: [],
     textFilters: filterStore.fetch(),
     options: optionsStore.fetch(),
@@ -59,15 +61,16 @@ app = PetiteVue.createApp({
         let lines = event.target.result.split(/\r?\n/);
         for (const line of lines) {
             for (const match of line.matchAll(app.messagePattern)) {
-                app.textFilters.forEach(word => {
-                    // FIXME: Can be multiple matches in one string
-                    interestWord = match.groups.text.match(new RegExp(word, 'i'));
-                    if (interestWord) {
+                if (app.options.blacklistedUsers.includes(match.groups.name)) { return };
+                for (const phrase of app.textFilters) {
+                    matchedPhrase = match.groups.text.match(new RegExp(phrase, 'i'));
+                    if (matchedPhrase) {
                         app.matchedChatMessages.push(match.groups)
-                        showNotification(`Match for ${word} found in PoE Chat`);
+                        showNotification(`Match for ${phrase} found in PoE Chat`);
                         app.autoscrollChat();
+                        break;
                     }
-                })
+                }
             }
         }
     },
@@ -77,7 +80,6 @@ app = PetiteVue.createApp({
         optionsStore.save({ ...this.options, pollingRate: value });
     },
     get chatMessages() {
-        // Apply blacklist filters here
         return this.matchedChatMessages
     },
     async selectClientFile() {
@@ -117,8 +119,8 @@ app = PetiteVue.createApp({
         }
     },
     addTextFilter(submitEvent) {
-        let value = submitEvent.target.elements.word.value.trim();
-        submitEvent.target.elements.word.value = '';
+        let value = submitEvent.target.elements.phrase.value.trim();
+        submitEvent.target.elements.phrase.value = '';
         if (!value) { return };
         let currentFilterSet = new Set(this.textFilters);
         if (!currentFilterSet.has(value)) {
@@ -135,13 +137,19 @@ app = PetiteVue.createApp({
         this.textFilters = [];
         filterStore.clear();
     },
-    copyUsernameToClipboard(name) {
-        navigator.clipboard.writeText(`@${name}`);
-        //FIXME: Show drawer 
-    },
+
     autoscrollChat() {
         lastMessageIndex = this.chatMessages.length - 1;
         const el = document.getElementsByClassName(`chat-entry-${lastMessageIndex}`)[0];
         if (el) { el.scrollIntoView({ behavior: 'smooth' }) };
     },
+    blacklistUser(username) {
+        this.options.blacklistedUsers.push(username);
+        this.matchedChatMessages = [...this.matchedChatMessages.filter(item => !this.options.blacklistedUsers.includes(item.name))];
+        optionsStore.save({ ...this.options, blacklistedUsers: this.options.blacklistedUsers });
+    },
+    clearBlacklist() {
+        this.options.blacklistedUsers = [];
+        optionsStore.save({ ...this.options, blacklistedUsers: this.options.blacklistedUsers });
+    }
 }).mount()

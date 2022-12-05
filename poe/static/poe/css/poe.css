@@ -356,15 +356,25 @@ img#class-icon {
   background-color: rgba(128, 128, 128, 0.281);
   border-radius: 6px;
   min-inline-size: 50%;
-  max-height: 50vh;
+  max-height: 60vh;
   overflow-y: scroll;
   flex-basis: 0;
   flex-grow: 999;
-  padding: 10px;
 }
 
 .chat-monitor-messages hr {
   margin: 0;
+}
+
+.chat-monitor-messages h6 {
+  transition: 250ms;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin: 0;
+}
+
+.chat-monitor-messages h6:hover {
+  background: #9c4f1b3d;
 }
 
 .chat-monitor-sidebar-block {
@@ -383,4 +393,42 @@ img#class-icon {
   display: flex;
   justify-content: flex-start;
   gap: 0.5rem;
+}
+
+.chat-monitor-title {
+  font-family: 'Fontin-Regular';
+  margin: 15px 0;
+}
+
+.icon-copy-nickname,
+.icon-block-user {
+  transition: 250ms;
+}
+
+.icon-block-user:hover {
+  color: red;
+}
+
+.icon-copy-nickname:hover {
+  color: gray;
+}
+
+.settings-group {
+  display: flex;
+  row-gap: 0.5rem;
+  flex-direction: column;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.guild {
+  color: var(--primary);
+}
+
+.player-name {
+  color: yellow;
 }
