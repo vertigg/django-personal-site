@@ -41,16 +41,8 @@
                 </div>
             </li>
         </ul>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'poe:stash' %}">Guild Stash
-                <span class="sr-only"></span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'poe:chat-monitor' %}">Chat Monitor (Beta)
-                <span class="sr-only"></span>
-            </a>
-        </li>
+        <a class="nav-item nav-link" href="{% url 'poe:stash' %}">Guild Stash</a>
+        <a class="nav-item nav-link" href="{% url 'poe:chat-monitor' %}">Chat Monitor</a>
     </div>
     <form class="form-inline my-2 my-lg-0" action="{% url 'poe:ladder_search' %}" method="get">
         {{ poe_context.search_form.name }}
