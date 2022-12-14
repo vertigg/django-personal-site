@@ -26,7 +26,6 @@ class LadderUpdateTask(UniqueNamedTask):
 
     def __init__(self):
         self.session = requests_retry_session()
-        self.session.cookies.set('POESESSID', settings.POESESSID)
 
     def _get_local_data(self) -> None:
         self.leagues, self.league_names = self._get_local_leagues_info()

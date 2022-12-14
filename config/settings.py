@@ -22,7 +22,6 @@ DEFAULT_DOMAIN = os.getenv('DEFAULT_DOMAIN', 'https://epicvertigo.xyz')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 WARFRAME_KEY = os.getenv('WARFRAME_KEY')
-POESESSID = os.getenv('POESESSID')
 
 # Discord bot settings
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
