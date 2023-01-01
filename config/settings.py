@@ -17,7 +17,7 @@ load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
-DEFAULT_DOMAIN = os.getenv('DEFAULT_DOMAIN', 'https://epicvertigo.xyz')
+DEFAULT_DOMAIN = os.getenv('DEFAULT_DOMAIN', 'https://verti.gg')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')

@@ -3,7 +3,7 @@
 Django application that gathers and sorts information about every game character.
 
 ## How to use
-- Register at https://epicvertigo.xyz/profile
+- Register at https://verti.gg/profile
 - Get your token from discord bot and activate your profile
 - Put your account in the field below and press "Update":
 
