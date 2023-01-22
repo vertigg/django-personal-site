@@ -6,9 +6,11 @@ from discord import app_commands
 from discord.errors import HTTPException
 from discord.ext import commands, tasks
 from discord.interactions import Interaction
-from discordbot.models import MarkovText
+from django.conf import settings
 from django.db.models.functions import Length
 from markovify import Text
+
+from discordbot.models import MarkovText
 
 from .utils.checks import admin_command, text_channels_only
 from .utils.exceptions import UnavailableChannelError
@@ -127,11 +129,11 @@ class Markov(commands.Cog):
         try:
             history = self.bot.get_channel(channel_id).history(limit=limit, after=after)
             return [message async for message in history]
-        except AttributeError:
+        except AttributeError as exc:
             message = f'Bot does not have access to `{channel_id}` channel'
             if ctx:
                 await ctx.send(message)
-            raise UnavailableChannelError(message)
+            raise UnavailableChannelError(message) from exc
 
     async def _update_from_command(self, ctx):
         """Creates new MarkovText object if `markov` command was invoked and no
@@ -167,6 +169,8 @@ class Markov(commands.Cog):
 
     @app_commands.command(name='markov', description='Generate markov text for current chat room')
     async def markov_interaction(self, interaction: Interaction, sentences: int = 5):
+        if interaction.channel.id not in settings.DISCORD_MARKOV_ALLOWED_CHANNELS:
+            return await interaction.response.send_message('Markov command can be used only in general channel')
         if not self.channel_locks.get(interaction.channel_id, False):
             await interaction.response.defer(thinking=True)
             text = self.markov_texts.get(interaction.channel_id)
