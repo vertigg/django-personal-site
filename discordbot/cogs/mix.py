@@ -1,7 +1,7 @@
 import hashlib
 import logging
 import os
-from typing import AnyStr, List
+from typing import AnyStr
 
 from aiohttp import ClientSession
 from discord import app_commands
@@ -27,10 +27,12 @@ class Mix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def _generate_mix_message(self) -> str:
+    def _generate_mix_message(self, additional_message: str = None) -> str:
         wisdom_obj = Wisdom.objects.get_random_entry()
         picture_url = MixImage.objects.get_random_entry()
-        message_items: List[AnyStr] = list()
+        message_items: list[AnyStr] = []
+        if additional_message:
+            message_items.append(additional_message)
         if wisdom_obj:
             message_items.append(wisdom_obj.text)
         if picture_url:
@@ -38,10 +40,10 @@ class Mix(commands.Cog):
         return '\n'.join(message_items)
 
     @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч', 'мікс', 'міх', 'хіх'])
-    async def mix(self, ctx):
+    async def mix(self, ctx, *, additional_message: str = None):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
-            message = self._generate_mix_message()
+            message = self._generate_mix_message(additional_message)
             if isinstance(ctx.channel, (DMChannel, VoiceChannel, Thread)):
                 await ctx.channel.send(message)
             else:
@@ -104,8 +106,8 @@ class Mix(commands.Cog):
         await ctx.send(message)
 
     @app_commands.command(name='mix', description='Generate mix image with some text')
-    async def mix_generate(self, interaction: Interaction, is_private: bool = False):
-        await interaction.response.send_message(self._generate_mix_message(), ephemeral=is_private)
+    async def mix_generate(self, interaction: Interaction, message: str = None, is_private: bool = False):
+        await interaction.response.send_message(self._generate_mix_message(message), ephemeral=is_private)
 
     @wisdom_group.command(name='generate', description='Generate random wisdom')
     async def wisdom_generate(self, interaction: Interaction):
