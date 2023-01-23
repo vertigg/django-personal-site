@@ -1,11 +1,11 @@
 import logging
 import random
-from datetime import datetime
 
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 from discord.interactions import Interaction
+
 from discordbot.models import DiscordLink, DiscordSettings, Gachi
 
 from .utils.checks import admin_command, is_youtube_link, mod_command
@@ -30,14 +30,14 @@ class General(commands.Cog):
         sync_users(self.bot.guilds)
 
     @app_commands.command(name='avatar', description="Shows mentioned user's avatar")
-    async def avatar(self, interaction: Interaction, user: discord.Member):
+    async def avatar(self, interaction: Interaction, user: discord.User):
         await interaction.response.send_message(user.avatar.url)
 
     @app_commands.command(name='game', description='Change bots current game status')
     @admin_command
     async def game(self, interaction: Interaction, name: str):
         """Change bot's status"""
-        DiscordSettings.objects.filter(key='game').update(value=name)
+        DiscordSettings.set('game', name)
         await self.bot.change_presence(activity=discord.Game(name=name))
         await interaction.response.send_message('Status changed', ephemeral=True)
 
@@ -59,7 +59,7 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def vb(self, ctx):
-        await ctx.send(DiscordLink.get('vb'))
+        await ctx.send(DiscordLink.get('vb', "Can't find saved link for that command"))
 
     @commands.group(invoke_without_command=True)
     async def gachi(self, ctx):
@@ -72,8 +72,7 @@ class General(commands.Cog):
     @mod_command
     async def add(self, ctx, url: str):
         if not is_youtube_link(url):
-            await ctx.send('Wrong youtube link format')
-            return
+            return await ctx.send('Wrong youtube link format')
         Gachi.objects.create(url=url)
         await ctx.send(f'{url} has been added')
 

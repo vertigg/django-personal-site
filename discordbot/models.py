@@ -16,6 +16,45 @@ from discordbot.managers import PseudoRandomManager
 User = get_user_model()
 
 
+class KeyValueModelMeta(models.base.ModelBase):
+
+    def __getitem__(cls, key, default=None):
+        try:
+            return cls.objects.get(key=key).value
+        except cls.DoesNotExist as exc:
+            if default:
+                return default
+            raise KeyError(f'There is no such setting with key {key}') from exc
+
+    def __setitem__(cls, key: str, value: str):
+        return cls.objects.update_or_create(key=key, defaults={'value': value})
+
+    def __delitem__(cls, key):
+        return cls.objects.filter(key=key).delete()
+
+    def get(cls, key: str, default: str = None):
+        return cls.__getitem__(key, default)
+
+    def set(cls, key: str, value: str):
+        item, _ = cls.__setitem__(key, value)
+        return item
+
+
+class KeyValueModel(models.Model, metaclass=KeyValueModelMeta):
+    """
+    Model with key and value char fields and dictionary like interface for 
+    setting, getting and deleting values.
+    """
+    key = models.CharField(unique=True, blank=False, null=True, max_length=20)
+    value = models.CharField(blank=False, null=True, max_length=50)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self) -> str:
+        return self.value
+
+
 class WFAlert(models.Model):
     id = models.IntegerField(primary_key=True, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -97,49 +136,19 @@ class Gachi(BaseModel):
         return self.url
 
 
-class DiscordLink(models.Model):
-    key = models.CharField(unique=True, blank=False, null=True, max_length=20)
-    url = models.URLField()
+class DiscordLink(KeyValueModel):
+    value = models.URLField()
 
     class Meta:
         verbose_name_plural = 'Discord Links'
         db_table = 'discord_links'
 
-    def __str__(self):
-        return self.url
 
-    @classmethod
-    def get(cls, key, default=None):
-        """Helper class method that returns url by given key"""
-        try:
-            obj = cls.objects.get(key=key)
-            return obj.url
-        except cls.DoesNotExist:
-            if default:
-                return default
-            return f'Link with key `{key}` does not exist in database'
-
-
-class DiscordSettings(models.Model):
-    key = models.CharField(unique=True, blank=False, null=True, max_length=20)
-    value = models.CharField(blank=False, null=True, max_length=50)
+class DiscordSettings(KeyValueModel):
 
     class Meta:
         verbose_name_plural = 'Discord Settings'
         db_table = 'discord_settings'
-
-    def __str__(self):
-        return self.value
-
-    @classmethod
-    def get_setting(cls, key, default=None):
-        try:
-            obj = cls.objects.get(key=key)
-            return obj.value
-        except cls.DoesNotExist:
-            if default:
-                return default
-            raise cls.DoesNotExist(f'There is no such setting with key {key}')
 
 
 class DiscordUser(models.Model):

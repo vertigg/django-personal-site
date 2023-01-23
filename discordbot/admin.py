@@ -49,7 +49,7 @@ class MarkovTextAdmin(admin.ModelAdmin):
 
 @admin.register(DiscordLink)
 class DiscordLinkAdmin(admin.ModelAdmin):
-    list_display = ('key', 'url')
+    list_display = ('key', 'value')
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': 20})},
     }

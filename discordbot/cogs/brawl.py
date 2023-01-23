@@ -36,9 +36,9 @@ class GoogleBrawl(commands.Cog):
         await ctx.send(DiscordLink.objects.get(key='brawl_sheet'))
 
     def check_for_updates(self):
-        json_file = DiscordSettings.get_setting('json')
-        token = DiscordSettings.get_setting('token')
-        spreadsheet = DiscordSettings.get_setting('spreadsheet')
+        json_file = DiscordSettings.get('json')
+        token = DiscordSettings.get('token')
+        spreadsheet = DiscordSettings.get('spreadsheet')
         gcredentials, response = self.authorize_google(json_file, token)
         if response is not None and 'newStartPageToken' in response:
             response_token = response.get('newStartPageToken')
