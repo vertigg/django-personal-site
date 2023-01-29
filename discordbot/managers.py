@@ -30,7 +30,7 @@ class PseudoRandomManager(models.Manager):
         return isinstance(field, models.IntegerField) and field.attname == 'pid'
 
     def _check_columns(self, model):
-        if not any([self._is_pid_field(field) for field in model._meta.fields]):
+        if not any(self._is_pid_field(field) for field in model._meta.fields):
             raise ImproperlyConfigured(
                 f'Model {model} is missing `pid` integer field and can '
                 'not be used with PseudoRandomManager'

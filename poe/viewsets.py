@@ -1,4 +1,3 @@
-from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -20,7 +19,7 @@ class CharacterViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filter_fields = ('class_id', 'league')
     search_fields = ('name',)
-    ordering_fields = ('level',)
+    ordering_fields = ('level', 'experience')
 
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):

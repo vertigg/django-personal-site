@@ -1,4 +1,3 @@
-from discordbot.forms import WFSettingsForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,6 +7,7 @@ from django.contrib.auth.views import (
 from django.urls import reverse_lazy
 from django.views.generic.base import RedirectView
 
+from discordbot.forms import WFSettingsForm
 from main.forms import (
     DiscordProfileForm, MainAuthenticationForm, MainUserCreationForm
 )
