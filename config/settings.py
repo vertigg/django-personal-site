@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'discordbot.apps.DiscordbotConfig',
     'poe.apps.PoeConfig',
-    'mail.apps.MailConfig',
     'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
