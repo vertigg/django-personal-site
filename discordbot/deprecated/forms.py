@@ -1,7 +1,7 @@
 from django import forms
 from django.db.models.fields import BooleanField
 
-from discordbot.models import WFSettings
+from discordbot.deprecated.models import WFSettings
 
 
 class WFSettingsForm(forms.ModelForm):

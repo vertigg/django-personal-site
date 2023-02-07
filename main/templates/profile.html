@@ -74,7 +74,7 @@
             <h4>Additional Profile Info</h4>
             <form action="{% url 'main:profile' %}" method="post">
                 {% csrf_token %}
-                {% for field in profile_form  %}
+                {% for field in form %}
                 {{ field.label }}<br>
                 {{ field }}
                 {% if field.help_text %}
@@ -88,32 +88,9 @@
                 </div>
                 {% endfor %}
                 {% endfor %}
-                {% if user.discorduser.wf_settings %}
                 <hr>
                 <h4>Warframe Alerts</h4>
-                <small class='form-text text-danger'>Succeeded by
-                    <a href='https://warframe.fandom.com/wiki/Nightwave'>Nightwave</a> since
-                    <a href="https://warframe.fandom.com/wiki/Update_24#Update_24.3">Update 24.3</a></small>
-                <table class="form-group w-100">
-                    {% for field in wf_settings_form %}
-                    {% cycle 'row' ''  as row silent %}
-                    {% if row %}<tr>{% endif %}
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                {{ field }}
-                                <label class="custom-control-label" for="{{field.id_for_label}}">{{field.label}}</label>
-                            </div>
-                        </td>
-                        {% if not row %}</tr>{% endif %}
-                    {% endfor %}
-                </table>
-                {% else %}
-                <hr>
-                <p class="form-text text-muted small">Warframe alert settings are deprecated. If you want to be notified
-                    by Discord bot about Warframe -
-                    ask administrator to add
-                    Warframe settings to your account</p>
-                {% endif %}
+                <p class="form-text text-muted small">Warframe alert settings are deprecated and no longer supported by current Discord bot.</p>
                 <input class="btn btn-primary float-right" type="submit" value="Update" />
             </form>
             {% endif %}

@@ -13,12 +13,9 @@ from django.template.defaultfilters import truncatechars
 from django.urls import path
 
 from discordbot.models import (
-    DiscordLink, DiscordSettings, DiscordUser, Gachi, MarkovText, MixImage,
-    WFAlert, Wisdom
+    DiscordLink, DiscordSettings, DiscordUser, MarkovText, MixImage, Wisdom
 )
 from discordbot.serializers import MixImageSerializer
-
-admin.site.register(WFAlert)
 
 
 @admin.register(MarkovText)
@@ -93,11 +90,6 @@ class DiscordUserAdmin(admin.ModelAdmin):
         models.TextField: {'widget': TextInput(attrs={'size': 20})},
         models.CharField: {'widget': TextInput(attrs={'size': 20})},
     }
-
-
-@admin.register(Gachi)
-class GachiAdmin(admin.ModelAdmin):
-    fields = ('url',)
 
 
 @admin.register(MixImage)

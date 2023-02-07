@@ -7,7 +7,6 @@ from django.contrib.auth.views import (
 from django.urls import reverse_lazy
 from django.views.generic.base import RedirectView
 
-from discordbot.forms import WFSettingsForm
 from main.forms import (
     DiscordProfileForm, MainAuthenticationForm, MainUserCreationForm
 )
@@ -45,7 +44,7 @@ class SignupView(FormView):
         return super().form_valid(form)
 
 
-class ProfileView(LoginRequiredMixin, TemplateView):
+class ProfileView(LoginRequiredMixin, FormView):
     """
     General profile view with two forms - general settings for DiscordUser and
     Warframe settings. For now it requires User to be linked with DiscordUser
@@ -53,41 +52,14 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     """
     login_url = '/login/'
     template_name = 'profile.html'
+    form_class = DiscordProfileForm
+    success_url = reverse_lazy('main:profile')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if not any(context.get(x) for x in ('profile_form', 'wf_settings_form')):
-            profile_form = DiscordProfileForm(
-                user=self.request.user,
-                instance=getattr(self.request.user, 'discorduser', None)
-            )
-            context.update({'profile_form': profile_form})
-            if profile_form.instance and profile_form.instance.id:
-                context.update({
-                    'wf_settings_form': WFSettingsForm(
-                        instance=self.request.user.discorduser.wf_settings or None
-                    ),
-                })
-        return context
-
-    def post(self, request):
-        profile_form = DiscordProfileForm(
-            data=request.POST, user=request.user,
-            instance=request.user.discorduser
-        )
-        wf_form = WFSettingsForm(
-            data=request.POST,
-            instance=request.user.discorduser.wf_settings,
-            user=request.user
-        )
-        for form in (profile_form, wf_form):
-            if form.has_changed() and form.is_valid():
-                form.save()
-                messages.success(request, form.success_message)
-        return self.render_to_response({
-            'profile_form': profile_form,
-            'wf_settings_form': wf_form,
-        })
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['instance'] = getattr(self.request.user, 'discorduser', None)
+        return kwargs
 
 
 class DisconnectDiscordAccountView(RedirectView):

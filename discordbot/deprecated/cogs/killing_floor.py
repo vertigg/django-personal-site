@@ -44,5 +44,5 @@ class KillingFloor(commands.Cog):
             self.lock = False
 
 
-def setup(bot):
-    bot.add_cog(KillingFloor(bot))
+async def setup(bot):
+    await bot.add_cog(KillingFloor(bot))

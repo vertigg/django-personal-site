@@ -4,15 +4,12 @@ Crappy cog for checking overwatch rank
 
 import asyncio
 import logging
-import re
 from time import time
 
 import aiohttp
 from bs4 import BeautifulSoup
 from discord.ext import commands
-
 from discordbot.models import DiscordUser
-from .utils.db import update_display_names
 
 logger = logging.getLogger('discordbot.ow')
 
@@ -21,7 +18,7 @@ HEADERS = {
     'user-agent': ('Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1'), }
 
 
-class Overwatch(commands.Cog):
+class Overwatch2(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -41,26 +38,23 @@ class Overwatch(commands.Cog):
     @commands.group()
     async def ow(self, ctx):
         if not ctx.invoked_subcommand:
-            if ctx.message.content == '!ow':
-                discord_id = ctx.message.author.id
+            players = []
+            if not ctx.message.mentions:
+                players.append(ctx.message.author.id)
             else:
-                mention_pattern = r"\!ow\s\<\@(?P<id>\d+)\>"
-                match = re.match(mention_pattern, ctx.message.content)
-                if not match:
-                    await ctx.send('`How to use - !ow @User`')
-                    return
-                discord_id = match.group(1)
-            if discord_id:
-                try:
-                    user = DiscordUser.objects.get(id=discord_id)
-                    if user.blizzard_id:
-                        rank = await self.check_ow_rank(user.blizzard_id)
-                        await ctx.send(f"`{user.display_name}: {rank}`")
-                    else:
-                        await ctx.send("`You don't have blizzard tag linked to your profile`")
-                except DiscordUser.DoesNotExist:
-                    await ctx.send("`Can't find player in database`")
-                    update_display_names(self.bot.servers)
+                players.extend([user.id for user in ctx.message.mentions])
+            rank_results = list()
+            users = DiscordUser.objects.filter(blizard_id__isnull=False).filter(id__in=players)
+            if users:
+                for user in users:
+                    rank = await self.check_ow_rank(user.blizzard_id)
+                    rank_results.append(f'{user.display_name} {rank}')
+
+                if len(players) != len(users):
+                    rank_results.append("Some players don't have associated Blizzard ID linked")
+                await ctx.send('\n'.join(rank_results))
+            else:
+                pass
 
     @ow.command()
     async def ladder(self, ctx):
@@ -122,4 +116,4 @@ class Overwatch(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Overwatch(bot))
+    await bot.add_cog(Overwatch2(bot))

@@ -6,6 +6,6 @@ with Django Web-administration
 ## Key features
 - Integrated with Django for easy user-management
 - Personal settings for each discord user
-- Personal notifications for Warframe in-game alerts
-- Integration with Google Drive for collecting and analyzing Steam achievements
+- Personal notifications for Warframe in-game alerts (Deprecated)
+- Integration with Google Drive for collecting and analyzing Steam achievements (Deprecated)
 - Classic boring commands

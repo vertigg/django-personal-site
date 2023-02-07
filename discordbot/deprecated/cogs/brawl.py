@@ -4,7 +4,8 @@ from random import choice
 import gspread
 from apiclient import discovery
 from discord.ext import commands
-from discordbot.models import Brawl, DiscordLink, DiscordSettings
+from discordbot.deprecated.models import Brawl
+from discordbot.models import DiscordLink, DiscordSettings
 from oauth2client.service_account import ServiceAccountCredentials
 
 logger = logging.getLogger('discordbot.brawl')

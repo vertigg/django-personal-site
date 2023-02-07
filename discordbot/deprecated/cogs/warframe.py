@@ -7,13 +7,13 @@ from functools import reduce
 from operator import or_
 
 import discord
-from discord.errors import InvalidArgument
 from discord.ext import commands, tasks
 from discord.utils import get as get_user
 from django.conf import settings
 from django.db.models import Q
 
-from discordbot.models import DiscordUser, WFAlert, WFSettings
+from discordbot.models import DiscordUser
+from discordbot.deprecated.models import WFAlert, WFSettings
 
 logger = logging.getLogger('discordbot.warframe')
 
@@ -45,8 +45,8 @@ class Warframe(commands.Cog):
                             logger.error(
                                 "Can't find %s in get_all_members(). User unsubbed", sub)
                             sub.wf_settings.reset_settings()
-                    except InvalidArgument:
-                        pass
+                    except Exception as exc:
+                        logger.error(exc)
             alert.announced = True
             alert.save()
 
@@ -65,5 +65,5 @@ class Warframe(commands.Cog):
         return embed
 
 
-def setup(bot):
-    bot.add_cog(Warframe(bot))
+async def setup(bot):
+    await bot.add_cog(Warframe(bot))

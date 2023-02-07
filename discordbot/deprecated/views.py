@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from discordbot.models import WFAlert
+from discordbot.deprecated.models import WFAlert
 
 
 @method_decorator(csrf_exempt, name='dispatch')

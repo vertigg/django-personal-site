@@ -6,9 +6,9 @@ from discord import app_commands
 from discord.ext import commands, tasks
 from discord.interactions import Interaction
 
-from discordbot.models import DiscordLink, DiscordSettings, Gachi
+from discordbot.models import DiscordLink, DiscordSettings
 
-from .utils.checks import admin_command, is_youtube_link, mod_command
+from .utils.checks import admin_command
 from .utils.db import sync_users
 
 logger = logging.getLogger('discordbot.general')
@@ -60,21 +60,6 @@ class General(commands.Cog):
     @commands.command(hidden=True)
     async def vb(self, ctx):
         await ctx.send(DiscordLink.get('vb', "Can't find saved link for that command"))
-
-    @commands.group(invoke_without_command=True)
-    async def gachi(self, ctx):
-        """Take it boy"""
-        gachi_obj = Gachi.objects.get_random_entry()
-        if gachi_obj is not None:
-            await ctx.send(gachi_obj)
-
-    @gachi.command()
-    @mod_command
-    async def add(self, ctx, url: str):
-        if not is_youtube_link(url):
-            return await ctx.send('Wrong youtube link format')
-        Gachi.objects.create(url=url)
-        await ctx.send(f'{url} has been added')
 
 
 async def setup(bot):
