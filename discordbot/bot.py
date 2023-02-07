@@ -1,10 +1,10 @@
 import logging
 import os
+from functools import cached_property
 
 import discord
 from discord.ext.commands import Bot
-
-from apps import setup_django
+from django.conf import settings
 
 logger = logging.getLogger('discordbot')
 
@@ -13,7 +13,6 @@ class TonyBot(Bot):
     cog_names: list[str] = ['admin', 'general', 'markov', 'mix', 'wikipedia']
 
     def __init__(self):
-        setup_django()
         self._token = None
         super().__init__(
             command_prefix='!',
@@ -21,13 +20,11 @@ class TonyBot(Bot):
             intents=self.get_bot_intents()
         )
 
-    @property
+    @cached_property
     def token(self):
-        if not self._token:
-            from django.conf import settings
-            self._token = settings.DISCORD_TEST_TOKEN if os.getenv('DISCORD_TEST', None) \
-                else settings.DISCORD_BOT_TOKEN
-        return self._token
+        if os.getenv('DISCORD_TEST', None):
+            return settings.DISCORD_TEST_TOKEN
+        return settings.DISCORD_BOT_TOKEN
 
     def get_bot_intents(self) -> discord.Intents:
         intents = discord.Intents.default()
@@ -40,7 +37,7 @@ class TonyBot(Bot):
         logger.info("Loading extensions...")
         for cog in self.cog_names:
             try:
-                await bot.load_extension("cogs." + cog)
+                await bot.load_extension("discordbot.cogs." + cog)
                 logger.info("'%s' extension loaded", cog)
             except (AttributeError, ImportError) as ex:
                 logger.error("%s", ex)
@@ -68,4 +65,3 @@ class TonyBot(Bot):
 
 
 bot = TonyBot()
-bot.run(bot.token, reconnect=True)
