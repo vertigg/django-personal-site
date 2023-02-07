@@ -72,27 +72,15 @@
         <div class="col-md-6">
             {% if user.discorduser %}
             <h4>Additional Profile Info</h4>
-            <form action="{% url 'main:profile' %}" method="post">
-                {% csrf_token %}
-                {% for field in form %}
-                {{ field.label }}<br>
-                {{ field }}
-                {% if field.help_text %}
-                {% autoescape off %}
-                <small class="form-text text-muted">{{ field.help_text }}</small>
-                {% endautoescape %}
-                {% endif %}
-                {% for error in field.errors  %}
-                <div class="form-group has-errors text-danger small">
-                    {{ error }}
-                </div>
-                {% endfor %}
-                {% endfor %}
-                <hr>
-                <h4>Warframe Alerts</h4>
-                <p class="form-text text-muted small">Warframe alert settings are deprecated and no longer supported by current Discord bot.</p>
-                <input class="btn btn-primary float-right" type="submit" value="Update" />
-            </form>
+            <br>
+            <h4>PoE Profile</h4>
+            {{ user.discorduser.poe_profile|default_if_none:"No profile attached" }}
+            <small class="form-text text-muted">This form is disabled, please use <code class="text-primary">/poe account</code> bot command to update your PoE profile directrly</small>
+
+            <hr>
+            <h4>Warframe Alerts</h4>
+            <p class="form-text text-muted small">Warframe alert settings are deprecated and no longer supported by current Discord bot.</p>
+            <input class="btn btn-primary float-right" type="submit" value="Update" />
             {% endif %}
         </div>
     </div>

@@ -93,8 +93,8 @@ class DiscordUser(models.Model):
     poe_profile = models.TextField(
         "PoE Account",
         blank=True,
-        null=False,
-        default=''
+        null=True,
+        default=None
     )
     admin = models.BooleanField(
         default=False,

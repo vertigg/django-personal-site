@@ -184,8 +184,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'webgames', 'dots', 'static'),
     os.path.join(BASE_DIR, 'webgames', 'dots')
 ]
-MIX_IMAGE_SIZE_LIMIT_MB = 8
-MIX_IMAGE_SIZE_LIMIT = MIX_IMAGE_SIZE_LIMIT_MB * 1024 * 1024  # 8 Megabytes
 # For production - Enable STATIC_ROOT, remove STATIC_ROOT from STATIFILES_DIRS
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 

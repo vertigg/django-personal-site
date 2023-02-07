@@ -1,2 +1,10 @@
 class UnavailableChannelError(Exception):
-    pass
+    ...
+
+
+class DuplicatedProfileException(Exception):
+    ...
+
+
+class PrivateProfileException(Exception):
+    ...

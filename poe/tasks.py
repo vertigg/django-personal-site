@@ -5,13 +5,13 @@ from datetime import datetime
 from typing import Any
 
 import requests
-from config.celery import UniqueNamedTask, register_task
-from discordbot.models import DiscordUser
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import status
 
-from poe.models import Character, PoeInfo, League
+from config.celery import UniqueNamedTask, app, register_task
+from discordbot.models import DiscordUser
+from poe.models import Character, League, PoeInfo
 from poe.utils.session import requests_retry_session
 from poe.utils.skills import detect_skills
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class LadderUpdateTask(UniqueNamedTask):
     POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
     POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
-    POE_INFO = 'https://www.pathofexile.com/character-window/get-items?character={0}&accountName={1}'
+    POE_INFO = 'https://pathofexile.com/character-window/get-items?character={0}&accountName={1}'
 
     def __init__(self):
         self.session = requests_retry_session()
@@ -30,7 +30,7 @@ class LadderUpdateTask(UniqueNamedTask):
     def _get_local_data(self) -> None:
         self.leagues, self.league_names = self._get_local_leagues_info()
         self.profiles = {x[0]: x[1] for x in DiscordUser.objects
-                         .exclude(poe_profile__exact='')
+                         .exclude(poe_profile__isnull=True)
                          .values_list('id', 'poe_profile')}
 
     def _get_character_league_id(self, character_data):
@@ -229,3 +229,9 @@ class LadderUpdateTask(UniqueNamedTask):
         if settings.DEBUG:
             from django.db import connection
             logger.info('Total db queries: %s', len(connection.queries))
+
+
+@app.task()
+def remove_related_characters(discord_id: int):
+    """Removes all characters assosicated with DiscordUser"""
+    Character.objects.filter(profile=discord_id).delete()

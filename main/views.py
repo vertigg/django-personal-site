@@ -7,9 +7,7 @@ from django.contrib.auth.views import (
 from django.urls import reverse_lazy
 from django.views.generic.base import RedirectView
 
-from main.forms import (
-    DiscordProfileForm, MainAuthenticationForm, MainUserCreationForm
-)
+from main.forms import MainAuthenticationForm, MainUserCreationForm
 
 
 class HomeView(TemplateView):
@@ -44,22 +42,10 @@ class SignupView(FormView):
         return super().form_valid(form)
 
 
-class ProfileView(LoginRequiredMixin, FormView):
-    """
-    General profile view with two forms - general settings for DiscordUser and
-    Warframe settings. For now it requires User to be linked with DiscordUser
-    instance.
-    """
+class ProfileView(LoginRequiredMixin, TemplateView):
+    """Simple profile view"""
     login_url = '/login/'
     template_name = 'profile.html'
-    form_class = DiscordProfileForm
-    success_url = reverse_lazy('main:profile')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['instance'] = getattr(self.request.user, 'discorduser', None)
-        return kwargs
 
 
 class DisconnectDiscordAccountView(RedirectView):

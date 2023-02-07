@@ -3,12 +3,24 @@ from functools import wraps
 from re import match
 from types import FunctionType
 
+import aiohttp
 from discord.enums import ChannelType
 from discord.interactions import Interaction
+
+from discordbot.cogs.utils.exceptions import (
+    DuplicatedProfileException, PrivateProfileException
+)
 from discordbot.models import DiscordUser
 
 logger = logging.getLogger('discordbot.utils.checks')
 IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}
+POE_PROFILE_URL = 'https://pathofexile.com/character-window/get-characters?accountName={}'
+DEFAULT_HEADERS = {
+    'User-Agent': (
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
+    )
+}
 
 
 def is_image_mimetype(content_type: str) -> bool:
@@ -61,3 +73,18 @@ def text_channels_only(func: FunctionType) -> FunctionType:
             return await func(self, ctx, *args, **kwargs)
         return await ctx.send("You can't use this command here")
     return decorated
+
+
+async def validate_poe_profile(profile_name: str) -> str | None:
+    if not profile_name:
+        return None
+    if DiscordUser.objects.filter(poe_profile=profile_name).exists():
+        raise DuplicatedProfileException('Account is already in the system')
+
+    async with aiohttp.ClientSession(headers=DEFAULT_HEADERS) as client:
+        response = await client.options(POE_PROFILE_URL.format(profile_name))
+        print(response.status)
+        if response.status != 200:
+            raise PrivateProfileException(f'"{profile_name}" account is private or does not exist')
+
+    return profile_name

@@ -13,7 +13,7 @@
       "justMyCode": false
     },
     {
-      "name": "Python: Ladder Update",
+      "name": "Django: Ladder Update",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
@@ -41,7 +41,7 @@
       "justMyCode": false
     },
     {
-      "name": "Python: Test Bot",
+      "name": "Discord.py: Test Bot",
       "type": "python",
       "request": "launch",
       "module": "discordbot",
@@ -51,7 +51,7 @@
       }
     },
     {
-      "name": "Python: Main Bot",
+      "name": "Discord.py: Main Bot",
       "type": "python",
       "request": "launch",
       "module": "discordbot",
