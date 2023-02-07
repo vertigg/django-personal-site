@@ -24,8 +24,7 @@ def is_youtube_link(url: str) -> bool:
 async def send_warning_message(context, message):
     if isinstance(context, Interaction):
         return await context.response.send_message(message, ephemeral=True)
-    else:
-        return await context.send(message)
+    return await context.send(message)
 
 
 def admin_command(func: FunctionType) -> FunctionType:

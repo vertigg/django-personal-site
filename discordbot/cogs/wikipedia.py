@@ -1,13 +1,13 @@
 import logging
 from typing import Union
 
+import wikipedia
 from discord import Color, Embed
 from discord.ext import commands
-from discordbot.cogs.utils.checks import admin_command
 from django.template.defaultfilters import truncatechars
-
-import wikipedia
 from wikipedia.exceptions import DisambiguationError, PageError
+
+from discordbot.cogs.utils.checks import admin_command
 
 logger = logging.getLogger('discordbot.wiki')
 

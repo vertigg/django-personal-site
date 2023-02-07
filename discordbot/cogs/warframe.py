@@ -10,10 +10,10 @@ import discord
 from discord.errors import InvalidArgument
 from discord.ext import commands, tasks
 from discord.utils import get as get_user
-from discordbot.models import DiscordUser, WFAlert, WFSettings
-
 from django.conf import settings
 from django.db.models import Q
+
+from discordbot.models import DiscordUser, WFAlert, WFSettings
 
 logger = logging.getLogger('discordbot.warframe')
 
@@ -58,7 +58,8 @@ class Warframe(commands.Cog):
         embed = discord.Embed(
             title="**Warframe Alert**",
             colour=discord.Colour(0xff0074),
-            description=f"{alert.content}\n\n[Unsubscribe]({settings.DEFAULT_DOMAIN}/profile)")
+            description=f"{alert.content}\n\n[Unsubscribe]({settings.DEFAULT_DOMAIN}/profile)"
+        )
         embed.set_thumbnail(url="https://i.imgur.com/ZvDNumd.png")
         embed.set_footer(text=f"WFAlert ID: {alert.id}")
         return embed
