@@ -31,24 +31,6 @@
       "django": true
     },
     {
-      "name": "Python: Discord Test Bot",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}/discordbot/bot.py",
-      "console": "integratedTerminal",
-      "justMyCode": false,
-      "env": {
-        "DISCORD_TEST": "True"
-      }
-    },
-    {
-      "name": "Python: Discord Main Bot",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}/discordbot/bot.py",
-      "console": "integratedTerminal"
-    },
-    {
       "name": "Python: Celery",
       "type": "python",
       "request": "launch",
@@ -57,6 +39,26 @@
       "envFile": "${workspaceFolder}/.env",
       "args": ["-A", "config.celery_app", "worker", "-l", "info", "-P", "solo"],
       "justMyCode": false
+    },
+    {
+      "name": "Python: Test Bot",
+      "type": "python",
+      "request": "launch",
+      "module": "discordbot",
+      "justMyCode": false,
+      "env": {
+        "DISCORD_TEST": "True"
+      }
+    },
+    {
+      "name": "Python: Main Bot",
+      "type": "python",
+      "request": "launch",
+      "module": "discordbot",
+      "justMyCode": false,
+      "env": {
+        "DISCORD_TEST": "False"
+      }
     }
   ]
 }

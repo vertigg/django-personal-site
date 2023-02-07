@@ -1,10 +1,9 @@
 import logging
-import os
 from functools import cached_property
 
 import discord
 from discord.ext.commands import Bot
-from django.conf import settings
+from discordbot.config import settings
 
 logger = logging.getLogger('discordbot')
 
@@ -22,9 +21,9 @@ class TonyBot(Bot):
 
     @cached_property
     def token(self):
-        if os.getenv('DISCORD_TEST', None):
-            return settings.DISCORD_TEST_TOKEN
-        return settings.DISCORD_BOT_TOKEN
+        if settings.TEST:
+            return settings.TEST_TOKEN
+        return settings.BOT_TOKEN
 
     def get_bot_intents(self) -> discord.Intents:
         intents = discord.Intents.default()

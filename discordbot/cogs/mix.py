@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
 
+from discordbot.config import settings
 from discordbot.models import MixImage, Wisdom
 
 from .utils.checks import is_image_mimetype, mod_command
@@ -47,7 +48,7 @@ class Mix(commands.Cog):
             if isinstance(ctx.channel, (DMChannel, VoiceChannel, Thread)):
                 await ctx.channel.send(message)
             else:
-                await self.bot.get_channel(settings.DISCORD_MIX_CHANNEL).send(message)
+                await self.bot.get_channel(settings.MIX_CHANNEL).send(message)
 
     @mix.command(aliases=['add', 'фвв'])
     @mod_command

@@ -6,10 +6,10 @@ from discord import app_commands
 from discord.errors import HTTPException
 from discord.ext import commands, tasks
 from discord.interactions import Interaction
-from django.conf import settings
 from django.db.models.functions import Length
 from markovify import Text
 
+from discordbot.config import settings
 from discordbot.models import MarkovText
 
 from .utils.checks import admin_command, text_channels_only
@@ -169,7 +169,7 @@ class Markov(commands.Cog):
 
     @app_commands.command(name='markov', description='Generate markov text for current chat room')
     async def markov_interaction(self, interaction: Interaction, sentences: int = 5):
-        if interaction.channel.id not in settings.DISCORD_MARKOV_ALLOWED_CHANNELS:
+        if interaction.channel.id not in settings.MARKOV_ALLOWED_CHANNELS:
             return await interaction.response.send_message('Markov command can be used only in general channel')
         if not self.channel_locks.get(interaction.channel_id, False):
             await interaction.response.defer(thinking=True)

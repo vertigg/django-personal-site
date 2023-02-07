@@ -1,6 +1,6 @@
 import json
+import os
 
-from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import Http404
 from django.utils.decorators import method_decorator
@@ -12,9 +12,10 @@ from discordbot.deprecated.models import WFAlert
 
 @method_decorator(csrf_exempt, name='dispatch')
 class WarframeWebhookView(View):
+    WARFRAME_KEY = os.getenv('WARFRAME_KEY')
 
     def get_alert_content(self, data):
-        if 'api_key' in data and data['api_key'] == settings.WARFRAME_KEY:
+        if 'api_key' in data and data['api_key'] == self.WARFRAME_KEY:
             return data.get('content')
         raise Http404
 

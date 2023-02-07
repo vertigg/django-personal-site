@@ -21,15 +21,6 @@ DEFAULT_DOMAIN = os.getenv('DEFAULT_DOMAIN', 'https://verti.gg')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-WARFRAME_KEY = os.getenv('WARFRAME_KEY')
-
-# Discord bot settings
-DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-DISCORD_TEST_TOKEN = os.getenv('DISCORD_TEST_TOKEN')
-DISCORD_IGNORED_USERS = [767168686858698793]
-DISCORD_MIX_CHANNEL = int(os.getenv('DISCORD_MIX_CHANNEL', 927203296685477888))
-DISCORD_MARKOV_ALLOWED_CHANNELS = [178976406288465920, 469130152882733061]
-STEAM_API_KEY = os.getenv('STEAM_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv('DJANGO_DEBUG', None))
