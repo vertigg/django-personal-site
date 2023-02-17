@@ -60,6 +60,7 @@ class Character(BaseModel):
     gems = models.ManyToManyField(ActiveGem)
     experience = models.BigIntegerField(blank=True, null=True)
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
+    expired = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Character'

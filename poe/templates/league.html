@@ -32,7 +32,7 @@
         </thead>
         <tbody>
             {% for character in characters %}
-            <tr class="LadderRows {% if current_profile == character.profile.poe_profile %}current-user{% endif %}">
+            <tr class="LadderRows{% if current_profile == character.profile.poe_profile %} current-user{% endif %}{% if character.expired %} character-expired{% endif %}">
                 <td class="text-center">{{forloop.counter0|add:page_obj.start_index}}</td>
                 <td class="row-link">
                     <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">

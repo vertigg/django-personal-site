@@ -72,9 +72,17 @@ table.LadderTable tr.LadderRows:nth-child(even) {
   background: #121212;
   height: 40px;
 }
+
 table.LadderTable tr.current-user {
   border-left: 1px solid green;
+}
+
+table.LadderTable tr.current-user:nth-child(odd) {
   background-color: #24292e !important;
+}
+
+table.LadderTable tr.current-user:nth-child(even) {
+  background-color: #282d31 !important;
 }
 
 table.LadderTable thead {
@@ -431,4 +439,8 @@ img#class-icon {
 
 .player-name {
   color: yellow;
+}
+
+.character-expired > td{
+  opacity: 40%;
 }
