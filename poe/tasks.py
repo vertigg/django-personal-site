@@ -1,4 +1,3 @@
-import json
 import logging
 import time
 from datetime import datetime
@@ -19,16 +18,16 @@ logger = logging.getLogger(__name__)
 
 @register_task
 class LadderUpdateTask(UniqueNamedTask):
-    POE_LEAGUES = 'http://api.pathofexile.com/leagues?type=main&compact=1'
-    POE_PROFILE = 'https://pathofexile.com/character-window/get-characters?accountName={}'
-    POE_INFO = 'https://pathofexile.com/character-window/get-items?character={0}&accountName={1}'
+    LEAGUES_API = 'http://api.pathofexile.com/leagues?type=main&compact=1'
+    PROFILE_API = 'https://pathofexile.com/character-window/get-characters?accountName={}'
+    ITEMS_API = 'https://pathofexile.com/character-window/get-items?character={0}&accountName={1}'
     leagues = {}
     league_names = set()
 
     def __init__(self):
         self.session = requests_retry_session()
 
-    def _get_local_data(self) -> None:
+    def refresh_local_league_data(self) -> None:
         self.leagues = self._get_local_leagues_info()
         self.league_names = set(self.leagues.keys())
 
@@ -48,17 +47,17 @@ class LadderUpdateTask(UniqueNamedTask):
         return {x[0]: {'league_id': x[1], 'end_date': x[2]}
                 for x in League.objects.values_list('name', 'id', 'end_date')}
 
-    def get_main_skills(self, character: str, account: str):
-        response = self.session.get(self.POE_INFO.format(character, account))
+    def get_main_skills(self, character_name: str, account: str):
+        response = self.session.get(self.ITEMS_API.format(character_name, account))
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
             logger.debug(response.headers['X-Rate-Limit-Ip-State'])
             logger.error('Rate limited!')
             time.sleep(61)
-            response = self.session.get(self.POE_INFO.format(character, account))
-        if response.ok:
-            data = json.loads(response.text)
-            return detect_skills(data)
-        return []
+            response = self.session.get(self.ITEMS_API.format(character_name, account))
+        if not response.ok:
+            logger.error('Unable to get gem data for %s: %s', account, character_name)
+            return []
+        return detect_skills(response.json())
 
     def _parse_league_datetime(self, str_datetime: str) -> datetime:
         if isinstance(str_datetime, str):
@@ -66,7 +65,7 @@ class LadderUpdateTask(UniqueNamedTask):
         return None
 
     def update_leagues(self):
-        league_api_data = self.session.get(self.POE_LEAGUES).json()
+        league_api_data = self.session.get(self.LEAGUES_API).json()
         api_league_names = {x['id'] for x in league_api_data}
 
         # Remove old leagues
@@ -102,8 +101,7 @@ class LadderUpdateTask(UniqueNamedTask):
             League.objects.create(name='Void')
 
         # Update local league info
-        self.leagues = self._get_local_leagues_info()
-        self.league_names = set(self.leagues.keys())
+        self.refresh_local_league_data()
 
     def _delete_characters(self, characters: set[str]):
         logger.info('Deleting characters %s', characters)
@@ -166,7 +164,7 @@ class LadderUpdateTask(UniqueNamedTask):
 
     def _get_account_data(self, account_name: str) -> list[CharacterSchema]:
         """Retrieves PoE Account data with all characters"""
-        response = self.session.get(self.POE_PROFILE.format(account_name))
+        response = self.session.get(self.PROFILE_API.format(account_name))
         match response.status_code:
             case status.HTTP_200_OK:
                 # TODO: Handle HTML responses during maintenance
@@ -224,7 +222,7 @@ class LadderUpdateTask(UniqueNamedTask):
 
     def run(self):
         logger.info('Starting PoE ladder update')
-        self._get_local_data()
+        self.refresh_local_league_data()
         self.update_leagues()
         self.main()
         self.update_ladder_info()
