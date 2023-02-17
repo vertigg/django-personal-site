@@ -84,7 +84,7 @@ class DiscordUserAdmin(admin.ModelAdmin):
     search_fields = ('display_name',)
     list_filter = ('admin', 'mod_group',)
     fields = ('display_name', 'id', 'poe_profile', 'admin', 'mod_group',
-              'user', 'wf_settings')
+              'user')
 
     formfield_overrides = {
         models.TextField: {'widget': TextInput(attrs={'size': 20})},
