@@ -102,7 +102,8 @@ class LadderUpdateTask(UniqueNamedTask):
             League.objects.create(name='Void')
 
         # Update local league info
-        self.leagues, self.league_names = self._get_local_leagues_info()
+        self.leagues = self._get_local_leagues_info()
+        self.league_names = set(self.leagues.keys())
 
     def _delete_characters(self, characters: set[str]):
         logger.info('Deleting characters %s', characters)
