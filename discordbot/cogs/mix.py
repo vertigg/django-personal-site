@@ -41,10 +41,10 @@ class Mix(commands.Cog):
         return '\n'.join(message_items)
 
     @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч', 'мікс', 'міх', 'хіх'])
-    async def mix(self, ctx, *, additional_message: str = None):
+    async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
-            message = self._generate_mix_message(additional_message)
+            message = self._generate_mix_message()
             if isinstance(ctx.channel, (DMChannel, VoiceChannel, Thread)):
                 await ctx.channel.send(message)
             else:
