@@ -1,6 +1,7 @@
 import re
 import string
 from typing import List
+from urllib.parse import urlparse
 
 IP_REGEX = re.compile(r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}')
 URL_REGEX = re.compile(
@@ -31,4 +32,7 @@ def clean_text(text: str) -> str:
 
 
 def extract_urls(text: str) -> List[str]:
-    return URL_REGEX.findall(text)
+    return [
+        urlparse(url)._replace(query='', fragment='').geturl()
+        for url in URL_REGEX.findall(text)
+    ]
