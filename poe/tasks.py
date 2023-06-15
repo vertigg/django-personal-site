@@ -1,6 +1,5 @@
 import logging
 import time
-from datetime import datetime
 
 from django.conf import settings
 from django.utils import timezone
@@ -9,7 +8,7 @@ from rest_framework import status
 from config.celery import UniqueNamedTask, app, register_task
 from discordbot.models import DiscordUser
 from poe.models import Character, League, PoeInfo
-from poe.schema import CharacterSchema
+from poe.schema import CharacterSchema, LeagueSchema
 from poe.utils.session import requests_retry_session
 from poe.utils.skills import detect_skills
 
@@ -47,22 +46,19 @@ class LadderUpdateTask(UniqueNamedTask):
         return {x[0]: {'league_id': x[1], 'end_date': x[2]}
                 for x in League.objects.values_list('name', 'id', 'end_date')}
 
-    def get_main_skills(self, character_name: str, account: str):
-        response = self.session.get(self.ITEMS_API.format(character_name, account))
+    def get_main_skills(self, character: CharacterSchema, account: str):
+        if character.expired:
+            return []
+        response = self.session.get(self.ITEMS_API.format(character.name, account))
         if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
             logger.debug(response.headers['X-Rate-Limit-Ip-State'])
             logger.error('Rate limited!')
             time.sleep(61)
-            response = self.session.get(self.ITEMS_API.format(character_name, account))
+            response = self.session.get(self.ITEMS_API.format(character.name, account))
         if not response.ok:
-            logger.error('Unable to get gem data for %s: %s', account, character_name)
+            logger.error('Unable to get gem data for %s: %s', account, character.name)
             return []
         return detect_skills(response.json())
-
-    def _parse_league_datetime(self, str_datetime: str) -> datetime:
-        if isinstance(str_datetime, str):
-            return datetime.strptime(str_datetime, '%Y-%m-%dT%H:%M:%S%z')
-        return None
 
     def update_leagues(self):
         league_api_data = self.session.get(self.LEAGUES_API).json()
@@ -77,23 +73,23 @@ class LadderUpdateTask(UniqueNamedTask):
             logger.info('Deleting %s', difference)
             League.objects.filter(name__in=difference).delete()
 
-        for league in league_api_data:
-            league_name = league.get('id')
-            if league_name not in self.league_names:
+        data = [LeagueSchema(**x) for x in league_api_data]
+        for league in data:
+            if league.name not in self.league_names:
                 # Create new league
-                logger.info('New league: %s', league_name)
+                logger.info('New league: %s', league.name)
                 League.objects.create(
-                    name=league_name,
-                    url=league['url'],
-                    start_date=league['startAt'],
-                    end_date=league['endAt']
+                    name=league.name,
+                    url=league.url,
+                    start_date=league.start_date,
+                    end_date=league.end_date
                 )
             # Check if league's end date changed
-            elif self._parse_league_datetime(league['endAt']) != self.leagues[league_name]['end_date']:
-                League.objects.filter(name=league_name).update(end_date=league['endAt'])
+            elif league.end_date != self.leagues[league.name]['end_date']:
+                League.objects.filter(name=league.name).update(end_date=league.end_date)
                 logger.info(
                     '%s league has been updated with new end date %s',
-                    league_name.capitalize(), league.get("endAt")
+                    league.name.capitalize(), league.end_date
                 )
 
         if 'Void' not in self.league_names:
@@ -122,7 +118,7 @@ class LadderUpdateTask(UniqueNamedTask):
                 experience=character.experience,
                 expired=character.expired
             )
-            gems_qs = self.get_main_skills(character.name, account)
+            gems_qs = self.get_main_skills(character, account)
             new_character.gems.add(*gems_qs)
 
     def _update_characters(self, data: list[CharacterSchema], account_name: str):
@@ -150,7 +146,7 @@ class LadderUpdateTask(UniqueNamedTask):
                     expired=character.expired,
                 )
                 # If gems changed - update with new set
-                gems_qs = self.get_main_skills(character.name, account_name)
+                gems_qs = self.get_main_skills(character, account_name)
                 if not set(existing_character.gems.values_list('id', flat=True)) == set(gems_qs):
                     existing_character.gems.clear()
                     existing_character.gems.add(*gems_qs)

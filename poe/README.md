@@ -3,10 +3,9 @@
 Django application that gathers and sorts information about every game character.
 
 ## How to use
-- Register at https://verti.gg/profile
-- Get your token from discord bot and activate your profile
-- Put your account in the field below and press "Update":
 
-  ![Help](https://i.imgur.com/q9iAviC.png)
-> Your character tab on pathofexile.com must be public
-- All your characters will be added in the next ladder update (every day at midnight GMT+0300)
+- Use bot command `/poe account` and type in your account into Discord form
+
+> Your character tab on pathofexile.com must be public!
+
+- All your characters will be added in the next ladder update (usually every 3-6 hours)

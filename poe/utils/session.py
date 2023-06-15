@@ -10,7 +10,7 @@ def requests_retry_session(
     backoff_factor: float = 1.2,
     status_forcelist: Sequence[int] = (429, 500, 502, 504, 522),
     session: requests.Session = None
-):
+) -> requests.Session:
     """Create a requests Session object pre-configured for retries
 
     Args:

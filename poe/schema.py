@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from datetime import datetime
+
+from pydantic import AnyUrl, BaseModel, Field
 
 
 class CharacterSchema(BaseModel):
@@ -13,3 +15,11 @@ class CharacterSchema(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
+
+class LeagueSchema(BaseModel):
+    name: str = Field(alias='id')
+    realm: str | None
+    url: AnyUrl
+    start_date: datetime | None = Field(alias='startAt')
+    end_date: datetime | None = Field(alias='endAt')

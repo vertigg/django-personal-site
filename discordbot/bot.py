@@ -12,7 +12,6 @@ class TonyBot(Bot):
     cog_names: list[str] = ['admin', 'general', 'poe', 'markov', 'mix', 'wikipedia']
 
     def __init__(self):
-        self._token = None
         super().__init__(
             command_prefix='!',
             description='Super duper halal bot for clowans. List of commands below',

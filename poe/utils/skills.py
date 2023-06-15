@@ -21,7 +21,7 @@ def detect_skills(request_data):
 
         # zip sockets and socketed items if possible
         socketed_items = {x.get('socket'): x for x in item.get('socketedItems')}
-        gems = list()
+        gems = []
         for index, socket in enumerate(sockets):
             gem = socketed_items.get(index, {})
             gems.append({
@@ -51,8 +51,7 @@ def detect_skills(request_data):
 
     # Check if there are less than 4 active skills in link
     if 0 < len(active_gems) <= 4:
-        cached_gems_qs = ActiveGem.objects.values_list('name', 'id')
-        cached_gems = {x[0]: x[1] for x in cached_gems_qs}
+        cached_gems = dict(ActiveGem.objects.values_list('name', 'id'))
 
         # Check if skills exists in db
         for gem in active_gems:
