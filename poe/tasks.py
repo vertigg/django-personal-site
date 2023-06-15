@@ -10,7 +10,7 @@ from discordbot.models import DiscordUser
 from poe.models import Character, League, PoeInfo
 from poe.schema import CharacterSchema, LeagueSchema
 from poe.utils.session import requests_retry_session
-from poe.utils.skills import detect_skills
+from poe.utils.skills import detect_active_skills
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class LadderUpdateTask(UniqueNamedTask):
         if not response.ok:
             logger.error('Unable to get gem data for %s: %s', account, character.name)
             return []
-        return detect_skills(response.json())
+        return detect_active_skills(response.json())
 
     def update_leagues(self):
         league_api_data = self.session.get(self.LEAGUES_API).json()

@@ -23,3 +23,13 @@ class LeagueSchema(BaseModel):
     url: AnyUrl
     start_date: datetime | None = Field(alias='startAt')
     end_date: datetime | None = Field(alias='endAt')
+
+
+class SocketedGemSchema(BaseModel):
+    name: str = Field(alias='typeLine')
+    icon: AnyUrl | None
+    is_support: bool = Field(alias='support', default=False)
+
+    @property
+    def is_active(self):
+        return not self.is_support
