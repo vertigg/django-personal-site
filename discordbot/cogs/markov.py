@@ -25,7 +25,6 @@ class Markov(commands.Cog):
 
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self._excluded_ids = [223837667186442240, 345296059712405505]
         self.markov_texts = self._get_cached_texts()
         self.channel_locks = dict.fromkeys(self.markov_texts, False)
         self.update_text_caches.start()
@@ -97,7 +96,7 @@ class Markov(commands.Cog):
 
     def _clean_up_markov_text(self, df: pd.DataFrame):
         """Processes message dataframe into markov chain clean text"""
-        df = df[~df.author_id.isin(self._excluded_ids)]  # Remove messages from certain people
+        df = df[~df.author_id.isin(settings.MARKOV_EXCLUDE_IDS)]  # Remove messages from certain people
         df = df.dropna(subset=['content'])  # Remove messages without text content
         df = df[~df.content.str.startswith('!')]  # Remove messages that starts with command_prefix
         df['content'] = df.content.apply(clean_text)

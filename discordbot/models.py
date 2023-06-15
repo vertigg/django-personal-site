@@ -23,7 +23,7 @@ class KeyValueModelMeta(models.base.ModelBase):
         except cls.DoesNotExist as exc:
             if default:
                 return default
-            raise KeyError(f'There is no such setting with key {key}') from exc
+            raise KeyError(f'There is no such item with key {key}') from exc
 
     def __setitem__(cls, key: str, value: str):
         return cls.objects.update_or_create(key=key, defaults={'value': value})
@@ -41,7 +41,7 @@ class KeyValueModelMeta(models.base.ModelBase):
 
 class KeyValueModel(models.Model, metaclass=KeyValueModelMeta):
     """
-    Model with key and value char fields and dictionary like interface for 
+    Model with key and value char fields and dictionary like interface for
     setting, getting and deleting values.
     """
     key = models.CharField(unique=True, blank=False, null=True, max_length=20)
@@ -132,10 +132,7 @@ class DiscordUser(models.Model):
 
     @classmethod
     def get_cached_nicknames(cls) -> dict[int, str]:
-        return {
-            id: display_name for id, display_name in
-            cls.objects.values_list('id', 'display_name')
-        }
+        return dict(cls.objects.values_list('id', 'display_name'))
 
 
 class Wisdom(BaseModel):
