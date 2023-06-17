@@ -4,6 +4,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from requests_ratelimiter import Limiter, RequestRate, LimiterSession
+
 
 def requests_retry_session(
     retries: int = 5,
@@ -31,8 +33,13 @@ def requests_retry_session(
         status_forcelist=status_forcelist,
     )
 
-    session = session or requests.Session()
     adapter = HTTPAdapter(max_retries=retry)
+    limiter = Limiter(
+        RequestRate(30, 60),
+        RequestRate(90, 1800),
+        RequestRate(180, 7200),
+    )
+    session = session or LimiterSession(limiter=limiter)
 
     session.mount("http://", adapter)
     session.mount("https://", adapter)

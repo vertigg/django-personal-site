@@ -1,5 +1,4 @@
 import logging
-import time
 
 from django.conf import settings
 from django.utils import timezone
@@ -8,8 +7,8 @@ from rest_framework import status
 from config.celery import UniqueNamedTask, app, register_task
 from discordbot.models import DiscordUser
 from poe.models import Character, League, PoeInfo
-from poe.schema import CharacterSchema, LeagueSchema
-from poe.utils.session import requests_retry_session
+from poe.schema import CharacterSchema
+from poe.utils.api import Client
 from poe.utils.skills import detect_active_skills
 
 logger = logging.getLogger(__name__)
@@ -17,14 +16,11 @@ logger = logging.getLogger(__name__)
 
 @register_task
 class LadderUpdateTask(UniqueNamedTask):
-    LEAGUES_API = 'http://api.pathofexile.com/leagues?type=main&compact=1'
-    PROFILE_API = 'https://pathofexile.com/character-window/get-characters?accountName={}'
-    ITEMS_API = 'https://pathofexile.com/character-window/get-items?character={0}&accountName={1}'
     leagues = {}
     league_names = set()
 
     def __init__(self):
-        self.session = requests_retry_session()
+        self.client = Client()
 
     def refresh_local_league_data(self) -> None:
         self.leagues = self._get_local_leagues_info()
@@ -47,22 +43,18 @@ class LadderUpdateTask(UniqueNamedTask):
                 for x in League.objects.values_list('name', 'id', 'end_date')}
 
     def get_main_skills(self, character: CharacterSchema, account: str):
-        if character.expired:
+        if character.expired or character.level <= 90:
             return []
-        response = self.session.get(self.ITEMS_API.format(character.name, account))
-        if response.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
-            logger.debug(response.headers['X-Rate-Limit-Ip-State'])
-            logger.error('Rate limited!')
-            time.sleep(61)
-            response = self.session.get(self.ITEMS_API.format(character.name, account))
+        logger.info('Getting skills for character: %s', character.name)
+        response = self.client.get_items_data(account, character.name)
         if not response.ok:
             logger.error('Unable to get gem data for %s: %s', account, character.name)
             return []
         return detect_active_skills(response.json())
 
     def update_leagues(self):
-        league_api_data = self.session.get(self.LEAGUES_API).json()
-        api_league_names = {x['id'] for x in league_api_data}
+        data = self.client.get_league_data()
+        api_league_names = {league.name for league in data}
 
         # Remove old leagues
         difference = self.league_names.difference(api_league_names)
@@ -73,7 +65,6 @@ class LadderUpdateTask(UniqueNamedTask):
             logger.info('Deleting %s', difference)
             League.objects.filter(name__in=difference).delete()
 
-        data = [LeagueSchema(**x) for x in league_api_data]
         for league in data:
             if league.name not in self.league_names:
                 # Create new league
@@ -160,15 +151,11 @@ class LadderUpdateTask(UniqueNamedTask):
 
     def _get_account_data(self, account_name: str) -> list[CharacterSchema]:
         """Retrieves PoE Account data with all characters"""
-        response = self.session.get(self.PROFILE_API.format(account_name))
+        response = self.client.get_characters(account_name)
         match response.status_code:
             case status.HTTP_200_OK:
                 # TODO: Handle HTML responses during maintenance
                 ...
-            case status.HTTP_429_TOO_MANY_REQUESTS:
-                logger.error('Rate limited!')
-                time.sleep(65)
-                return self._get_account_data(account_name)
             case status.HTTP_403_FORBIDDEN:
                 logger.error("Forbidden: 403. Can't access %s profile", account_name)
                 self._unsub_user(account_name)
@@ -180,7 +167,6 @@ class LadderUpdateTask(UniqueNamedTask):
                 )
                 return
         api_data = response.json()
-        time.sleep(1)
         if isinstance(api_data, dict) and 'error' in api_data:
             logger.error(
                 "Error requesting %s %d: %s",

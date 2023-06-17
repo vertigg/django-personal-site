@@ -1,4 +1,3 @@
-import time
 from collections import defaultdict
 
 from poe.models import ActiveGem
@@ -59,8 +58,6 @@ def detect_active_skills(request_data) -> list[int]:
                     continue
                 # Add all active gems to character
                 active_gems.extend([gem for gem in group if gem.is_active])
-
-    time.sleep(1)
 
     # Check if there are less than 4 active skills in link
     if 0 < len(active_gems) <= 4:
