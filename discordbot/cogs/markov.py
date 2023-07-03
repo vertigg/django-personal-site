@@ -20,7 +20,6 @@ logger = logging.getLogger('discordbot.markov')
 
 
 class Markov(commands.Cog):
-
     max_sentences = 20
 
     def __init__(self, bot):
@@ -86,7 +85,7 @@ class Markov(commands.Cog):
                 await ctx.send(message)
 
     def _get_cached_texts(self):
-        return {x[0]: Text(x[1]) for x in list(
+        return {x[0]: Text(x[1]) for x in (
             MarkovText.objects
             .annotate(text_length=Length('text'))
             .filter(text_length__gte=1)
