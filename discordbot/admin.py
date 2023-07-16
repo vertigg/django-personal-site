@@ -11,6 +11,7 @@ from django.forms import Textarea, TextInput
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.defaultfilters import truncatechars
 from django.urls import path
+from django.utils.html import mark_safe
 
 from discordbot.models import (
     DiscordLink, DiscordSettings, DiscordUser, MarkovText, MixImage, Wisdom
@@ -95,10 +96,13 @@ class DiscordUserAdmin(admin.ModelAdmin):
 @admin.register(MixImage)
 class DiscordMixImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image', 'pid', 'checksum', 'date', 'author')
-    readonly_fields = ('checksum', 'date')
+    readonly_fields = ('checksum', 'date', 'preview')
 
     def get_urls(self):
         return [path('download/', self.download_backup)] + super().get_urls()
+
+    def preview(self, obj: MixImage):
+        return mark_safe(f'<img src="{obj.image.url}" style="max-width:600px"/>')
 
     def download_backup(self, request):
         """
