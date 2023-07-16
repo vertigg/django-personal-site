@@ -95,7 +95,7 @@ class DiscordUserAdmin(admin.ModelAdmin):
 
 @admin.register(MixImage)
 class DiscordMixImageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'image', 'pid', 'checksum', 'date', 'author')
+    list_display = ('id', 'image', 'pid', 'checksum', 'date', 'author', 'deleted', 'small_preview')
     readonly_fields = ('checksum', 'date', 'preview')
 
     def get_urls(self):
@@ -103,6 +103,11 @@ class DiscordMixImageAdmin(admin.ModelAdmin):
 
     def preview(self, obj: MixImage):
         return mark_safe(f'<img src="{obj.image.url}" style="max-width:600px"/>')
+
+    def small_preview(self, obj: MixImage):
+        return mark_safe(f'<img src="{obj.image.url}" style="max-height:20px"/>')
+
+    small_preview.short_description = 'preview'
 
     def download_backup(self, request):
         """
