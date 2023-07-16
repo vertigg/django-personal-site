@@ -133,6 +133,7 @@ DBBACKUP_STORAGE_OPTIONS = {'location': '/var/backups'}
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -281,6 +282,7 @@ LOGGING = {
 REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/0')
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Cache settings
 CACHES = {

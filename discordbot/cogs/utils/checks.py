@@ -44,7 +44,7 @@ def admin_command(func: FunctionType) -> FunctionType:
     @wraps(func)
     async def decorated(self, ctx, *args, **kwargs):
         user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.message.author.id
-        if DiscordUser.is_admin(user_id):
+        if await DiscordUser.is_admin(user_id):
             return await func(self, ctx, *args, **kwargs)
         return await send_warning_message(
             ctx, f"You don't have permissions to call `{ctx.command.name}` command"
@@ -57,7 +57,7 @@ def mod_command(func: FunctionType) -> FunctionType:
     @wraps(func)
     async def decorated(self, ctx, *args, **kwargs):
         user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.message.author.id
-        if DiscordUser.is_moderator(user_id):
+        if await DiscordUser.is_moderator(user_id):
             return await func(self, ctx, *args, **kwargs)
         return await send_warning_message(
             ctx, f"You don't have permissions to call `{ctx.command.name}` command"
@@ -78,12 +78,11 @@ def text_channels_only(func: FunctionType) -> FunctionType:
 async def validate_poe_profile(profile_name: str) -> str | None:
     if not profile_name:
         return None
-    if DiscordUser.objects.filter(poe_profile=profile_name).exists():
+    if await DiscordUser.objects.filter(poe_profile=profile_name).aexists():
         raise DuplicatedProfileException('Account is already in the system')
 
     async with aiohttp.ClientSession(headers=DEFAULT_HEADERS) as client:
         response = await client.options(POE_PROFILE_URL.format(profile_name))
-        print(response.status)
         if response.status != 200:
             raise PrivateProfileException(f'"{profile_name}" account is private or does not exist')
 

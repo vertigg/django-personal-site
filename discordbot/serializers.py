@@ -6,4 +6,4 @@ class MixImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MixImage
-        fields = ('image', 'author', 'date', 'checksum')
+        fields = ('image', 'author', 'date', 'checksum', 'deleted')

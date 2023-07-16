@@ -1,4 +1,3 @@
-import hashlib
 import logging
 import os
 from typing import AnyStr
@@ -9,7 +8,6 @@ from discord.channel import DMChannel, VoiceChannel
 from discord.ext import commands
 from discord.interactions import Interaction
 from discord.threads import Thread
-from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
 
@@ -28,9 +26,9 @@ class Mix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def _generate_mix_message(self, additional_message: str = None) -> str:
-        wisdom_obj = Wisdom.objects.get_random_entry()
-        picture_url = MixImage.objects.get_random_entry()
+    async def _generate_mix_message(self, additional_message: str = None) -> str:
+        wisdom_obj = await Wisdom.objects.aget_random_entry()
+        picture_url = await MixImage.objects.aget_random_entry()
         message_items: list[AnyStr] = []
         if additional_message:
             message_items.append(additional_message)
@@ -44,7 +42,7 @@ class Mix(commands.Cog):
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
-            message = self._generate_mix_message()
+            message = await self._generate_mix_message()
             if isinstance(ctx.channel, (DMChannel, VoiceChannel, Thread)):
                 await ctx.channel.send(message)
             else:
@@ -86,15 +84,14 @@ class Mix(commands.Cog):
                     content = ContentFile(await response.read())
 
                 filename = os.path.basename(url)
-                md5 = hashlib.md5(content.read()).hexdigest()
 
-                if MixImage.objects.filter(checksum=md5).exists():
+                if await MixImage.is_image_exist(content):
                     errors.append(f'{url} picture already exists in DB')
                     logger.info('%s already exists', filename)
                     continue
 
                 obj = MixImage(date=now(), author_id=ctx.author.id)
-                obj.image.save(filename, content, save=True)
+                await obj.save_image(filename, content, save=True)
                 added += 1
             except Exception as exc:
                 logger.error(str(exc))
@@ -108,19 +105,21 @@ class Mix(commands.Cog):
 
     @app_commands.command(name='mix', description='Generate mix image with some text')
     async def mix_generate(self, interaction: Interaction, message: str = None, is_private: bool = False):
-        await interaction.response.send_message(self._generate_mix_message(message), ephemeral=is_private)
+        message = await self._generate_mix_message(message)
+        await interaction.response.send_message(message, ephemeral=is_private)
 
     @wisdom_group.command(name='generate', description='Generate random wisdom')
     async def wisdom_generate(self, interaction: Interaction):
-        await interaction.response.send_message(Wisdom.objects.get_random_entry().text)
+        obj = await Wisdom.objects.aget_random_entry()
+        await interaction.response.send_message(obj.text)
 
     @wisdom_group.command(name='add', description='Adds new wisdom to database')
     @mod_command
     async def wisdom_add(self, interaction: Interaction, text: str):
-        if Wisdom.objects.filter(text=text).exists():
+        if await Wisdom.objects.filter(text=text).aexists():
             await interaction.response.send_message('Wisdom already exists in db', ephemeral=True)
             return
-        Wisdom.objects.create(text=text, author_id=interaction.user.id)
+        await Wisdom.objects.acreate(text=text, author_id=interaction.user.id)
         await interaction.response.send_message(f'{text} added', ephemeral=True)
 
 

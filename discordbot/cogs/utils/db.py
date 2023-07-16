@@ -3,45 +3,47 @@ from datetime import datetime
 from itertools import chain
 
 from allauth.socialaccount.models import SocialAccount
+
 from discordbot.models import DiscordSettings, DiscordUser
 
 logger = logging.getLogger('discordbot.utils.db')
 
 
-def sync_users(servers):
+async def sync_users(servers):
     """Update display names for every user in bot.servers"""
-    cache = DiscordUser.get_cached_nicknames()
+    cache = await DiscordUser.get_cached_nicknames()
     users = {m.id: m for m in list(chain(*[s.members for s in servers]))}
 
     for discord_id, member in users.items():
         if discord_id not in cache:
-            new_user = DiscordUser.objects.create(
+            new_user = await DiscordUser.objects.acreate(
                 id=discord_id,
                 display_name=member.display_name,
                 avatar_url=member.avatar
             )
-            sync_with_social_account(new_user, discord_id)
+            await sync_with_social_account(new_user, discord_id)
         elif member.display_name != cache[discord_id]:
-            (DiscordUser.objects
+            (await DiscordUser.objects
              .filter(id=discord_id)
-             .update(display_name=member.display_name))
+             .aupdate(display_name=member.display_name)
+             )
         if member.avatar:
-            (DiscordUser.objects
+            (await DiscordUser.objects
              .filter(id=discord_id)
-             .update(avatar_url=member.avatar))
+             .aupdate(avatar_url=member.avatar))
         else:
-            DiscordUser.objects.filter(id=discord_id).update(avatar_url=None)
+            await DiscordUser.objects.filter(id=discord_id).aupdate(avatar_url=None)
 
-    DiscordSettings.objects \
+    await DiscordSettings.objects \
         .filter(key='cache_update') \
-        .update(value=datetime.now())
+        .aupdate(value=datetime.now())
     logger.info('Discord users table synced')
 
 
-def sync_with_social_account(new_user: DiscordUser, discord_id: int):
+async def sync_with_social_account(new_user: DiscordUser, discord_id: int):
     try:
-        social_account = SocialAccount.objects.get(uid=discord_id)
+        social_account = await SocialAccount.objects.select_related('user').aget(uid=discord_id)
         new_user.user = social_account.user
-        new_user.save()
+        await new_user.asave()
     except SocialAccount.DoesNotExist:
         pass

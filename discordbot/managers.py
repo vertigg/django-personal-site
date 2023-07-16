@@ -1,6 +1,7 @@
 import random
 from datetime import timedelta
 
+from asgiref.sync import sync_to_async
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.timezone import now
@@ -65,6 +66,9 @@ class PseudoRandomManager(models.Manager):
             return f'No records for `{self.model._meta.object_name}` model'
         self.reset_pids()
         return self.get_random_entry()
+
+    async def aget_random_entry(self):
+        return await sync_to_async(self.get_random_entry)()
 
     def get_random_weighted_entry(self, retries: int = 5):
         """

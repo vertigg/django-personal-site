@@ -1,6 +1,7 @@
 import hashlib
 import urllib.parse as urllib
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
@@ -37,6 +38,18 @@ class KeyValueModelMeta(models.base.ModelBase):
     def set(cls, key: str, value: str):
         item, _ = cls.__setitem__(key, value)
         return item
+
+    async def aset(cls, key: str, value: str):
+        # return await sync_to_async(cls.set(key, value))()
+        return await cls.objects.aupdate_or_create(key=key, defaults={'value': value})
+
+    async def aget(cls, key: str, default: str = None):
+        try:
+            return (await cls.objects.aget(key=key)).value
+        except cls.DoesNotExist as exc:
+            if default:
+                return default
+            raise KeyError(f'There is no item with key {key}') from exc
 
 
 class KeyValueModel(models.Model, metaclass=KeyValueModelMeta):
@@ -123,16 +136,16 @@ class DiscordUser(models.Model):
         return self.display_name
 
     @classmethod
-    def is_admin(cls, discord_id):
-        return cls.objects.filter(id=discord_id, admin=True).exists()
+    async def is_admin(cls, discord_id: int):
+        return await cls.objects.filter(id=discord_id, admin=True).aexists()
 
     @classmethod
-    def is_moderator(cls, discord_id):
-        return cls.objects.filter(id=discord_id, mod_group=True).exists()
+    async def is_moderator(cls, discord_id):
+        return await cls.objects.filter(id=discord_id, mod_group=True).aexists()
 
     @classmethod
-    def get_cached_nicknames(cls) -> dict[int, str]:
-        return dict(cls.objects.values_list('id', 'display_name'))
+    async def get_cached_nicknames(cls) -> dict[int, str]:
+        return {_id: name async for _id, name in cls.objects.values_list('id', 'display_name')}
 
 
 class Wisdom(BaseModel):
@@ -180,6 +193,16 @@ class DiscordImage(BaseModel):
             using=using,
             update_fields=update_fields
         )
+
+    @classmethod
+    async def is_image_exist(cls, image):
+        checksum = hashlib.md5(image.read()).hexdigest()
+        return await cls.objects.filter(checksum=checksum).aexists()
+
+    async def save_image(self, filename, content, save=True):
+        await sync_to_async(self.image.save)(filename, content, save=False)
+        if save:
+            await self.asave()  # this will call sync_to_async(self.save)
 
     def __str__(self):
         if self.image:

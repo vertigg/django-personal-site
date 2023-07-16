@@ -21,16 +21,19 @@ logger = logging.getLogger('discordbot.markov')
 
 class Markov(commands.Cog):
     max_sentences = 20
+    markov_texts: dict[int, MarkovText]
+    channel_locks: dict[int, bool]
 
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.markov_texts = self._get_cached_texts()
-        self.channel_locks = dict.fromkeys(self.markov_texts, False)
-        self.update_text_caches.start()
 
-    def cog_unload(self):
-        self.update_text_caches.cancel()
-        return super().cog_unload()
+    async def cog_load(self):
+        self.markov_texts = await self._get_cached_texts()
+        self.channel_locks = dict.fromkeys(self.markov_texts, False)
+        self.update_text_caches.start()  # pylint: disable=maybe-no-member
+
+    async def cog_unload(self):
+        self.update_text_caches.cancel()  # pylint: disable=maybe-no-member
 
     async def __update(self, ctx, channel_id: int = None):
         """Main MarkovText update function. Depending on provided arguments will
@@ -44,7 +47,7 @@ class Markov(commands.Cog):
         Raises:
 
         """
-        obj = MarkovText.objects.filter(key=channel_id).first()
+        obj = await MarkovText.objects.filter(key=channel_id).afirst()
         new_text = None
         message = None
         if channel_id in self.markov_texts.keys() and obj and obj.last_update:
@@ -65,10 +68,10 @@ class Markov(commands.Cog):
             } for message in messages])
             new_text = self._clean_up_markov_text(messages_df)
             if new_text:
-                obj, _ = MarkovText.objects.get_or_create(key=channel_id)
+                obj, _ = await MarkovText.objects.aget_or_create(key=channel_id)
                 obj.text = f'{new_text} {obj.text}'
                 obj.last_update = messages_df.created_at.dt.to_pydatetime().max()
-                obj.save()
+                await obj.asave()
                 self.markov_texts[channel_id] = Text(obj.text)
                 message = (
                     f'Markov text is now `{len(obj.text)}` characters for '
@@ -84,8 +87,8 @@ class Markov(commands.Cog):
             if ctx:
                 await ctx.send(message)
 
-    def _get_cached_texts(self):
-        return {x[0]: Text(x[1]) for x in (
+    async def _get_cached_texts(self):
+        return {x[0]: Text(x[1]) async for x in (
             MarkovText.objects
             .annotate(text_length=Length('text'))
             .filter(text_length__gte=1)
@@ -199,7 +202,7 @@ class Markov(commands.Cog):
         """
         Admin command for refreshing markov text caches
         """
-        self.markov_texts = self._get_cached_texts()
+        self.markov_texts = await self._get_cached_texts()
         self.channel_locks = dict.fromkeys(self.markov_texts, False)
         await ctx.send('Markov text caches refreshed', delete_after=5)
 

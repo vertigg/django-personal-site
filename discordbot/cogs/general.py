@@ -18,16 +18,16 @@ class General(commands.Cog):
 
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.update_cache_task = self.update_cache.start()
+        self.update_cache_task = self.update_cache.start()  # pylint: disable=maybe-no-member
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.update_cache_task.cancel()
 
     @tasks.loop(hours=24, reconnect=True)
     async def update_cache(self):
         await self.bot.wait_until_ready()
         logger.info('Syncing Discord user with Django database')
-        sync_users(self.bot.guilds)
+        await sync_users(self.bot.guilds)
 
     @app_commands.command(name='avatar', description="Shows mentioned user's avatar")
     async def avatar(self, interaction: Interaction, user: discord.User):
@@ -37,13 +37,13 @@ class General(commands.Cog):
     @admin_command
     async def game(self, interaction: Interaction, name: str):
         """Change bot's status"""
-        DiscordSettings.set('game', name)
+        await DiscordSettings.aset('game', name)
         await self.bot.change_presence(activity=discord.Game(name=name))
         await interaction.response.send_message('Status changed', ephemeral=True)
 
     @commands.hybrid_command(name='low')
     async def low(self, ctx: commands.Context) -> None:
-        await ctx.send(DiscordLink.get('low'))
+        await ctx.send(await DiscordLink.aget('low'))
 
     @app_commands.command(name='choose', description='Chooses between multiple items')
     async def choose(self, interaction: Interaction, item_1: str, item_2: str):
@@ -51,7 +51,7 @@ class General(commands.Cog):
 
     @app_commands.command(name='friday', description="It's morbin time")
     async def friday(self, interaction: Interaction):
-        await interaction.response.send_message(DiscordLink.get('friday'))
+        await interaction.response.send_message(await DiscordLink.aget('friday'))
 
     @app_commands.command(name='roll', description='Rolls a number in 1-100 range')
     async def roll(self, interaction: Interaction):
@@ -59,7 +59,7 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def vb(self, ctx):
-        await ctx.send(DiscordLink.get('vb', "Can't find saved link for that command"))
+        await ctx.send(await DiscordLink.aget('vb', "Can't find saved link for that command"))
 
 
 async def setup(bot):

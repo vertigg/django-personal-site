@@ -2,7 +2,7 @@ import io
 import json
 import os
 import zipfile
-from datetime import datetime
+from time import time
 
 from django.conf import settings
 from django.contrib import admin, messages
@@ -114,7 +114,6 @@ class DiscordMixImageAdmin(admin.ModelAdmin):
         Generates zip archive with all MixImage objects and JSON file with all
         MixImage data from database
         """
-        date = datetime.now().strftime('%y%m%d%H%M%S')
         queryset = self.model.objects.all()
         images = [os.path.join(settings.MEDIA_ROOT, x) for x in
                   queryset.values_list('image', flat=True)]
@@ -133,5 +132,5 @@ class DiscordMixImageAdmin(admin.ModelAdmin):
             zip_file.writestr('data.json', json.dumps(serializer.data, indent=4))
 
         resp = HttpResponse(buffer.getvalue(), content_type="application/x-zip-compressed")
-        resp['Content-Disposition'] = f'attachment; filename=mix_{date}.zip'
+        resp['Content-Disposition'] = f'attachment; filename=mix_{int(time())}.zip'
         return resp

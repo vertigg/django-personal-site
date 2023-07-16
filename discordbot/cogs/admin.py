@@ -26,8 +26,8 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.is_owner()
     @commands.command(hidden=True)
-    @admin_command
     async def change_avatar(self, ctx: Context, url: str):
         """Sets Bot's avatar"""
         try:
@@ -40,8 +40,8 @@ class Admin(commands.Cog):
             await ctx.send("Can't change avatar now. Whoops I guess")
             logger.exception(exc)
 
+    @commands.is_owner()
     @commands.command(hidden=True)
-    @admin_command
     async def change_nickname(self, ctx: Context, nickname: str):
         """Sets Bot's nickname"""
         try:
@@ -52,25 +52,25 @@ class Admin(commands.Cog):
             await ctx.send("Error, check your console or logs for more information.")
             logger.exception(exc)
 
+    @commands.is_owner()
     @commands.command(hidden=True)
-    @admin_command
     async def load(self, ctx: Context, extension_name: str):
         """Loads an extension."""
         try:
             if "cogs." not in extension_name:
-                extension_name = "cogs." + extension_name
+                extension_name = "discordbot.cogs." + extension_name
             await self.bot.load_extension(extension_name)
         except (AttributeError, ImportError) as ex:
             await ctx.send("```py\n{}: {}\n```".format(type(ex).__name__, str(ex)))
             return
         await ctx.send(f"{extension_name} loaded.")
 
+    @commands.is_owner()
     @commands.command(hidden=True)
-    @admin_command
     async def unload(self, ctx: Context, extension_name: str):
         """Unloads an extension."""
         if "cogs." not in extension_name:
-            extension_name = "cogs." + extension_name
+            extension_name = "discordbot.cogs." + extension_name
         await self.bot.unload_extension(extension_name)
         await ctx.send(f"{extension_name} unloaded.")
 
@@ -95,7 +95,7 @@ class Admin(commands.Cog):
     async def update_users(self, ctx):
         """Force update display names for every user in bot.servers"""
         try:
-            sync_users(self.bot.guilds)
+            await sync_users(self.bot.guilds)
         except Exception as exc:
             await ctx.send(exc)
 

@@ -15,7 +15,8 @@ class TonyBot(Bot):
         super().__init__(
             command_prefix='!',
             description='Super duper halal bot for clowans. List of commands below',
-            intents=self.get_bot_intents()
+            intents=self.get_bot_intents(),
+            owner_ids=settings.OWNER_IDS
         )
 
     @cached_property
@@ -49,8 +50,8 @@ class TonyBot(Bot):
 
     async def on_ready(self):
         from discordbot.models import DiscordSettings
-        game = discord.Game(DiscordSettings.get('game', default='No game'))
-        await bot.change_presence(activity=game)
+        name = await DiscordSettings.aget('game')
+        await bot.change_presence(activity=discord.Game(name))
         logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
 
     async def on_message_delete(self, message):

@@ -23,7 +23,7 @@ class PathOfExileCog(commands.Cog):
 
     @poe_group.command(name='account', description='Add or remove your PoE account from private ladder')
     async def account(self, interaction: Interaction):
-        if user := DiscordUser.objects.filter(id=interaction.user.id).first():
+        if user := await DiscordUser.objects.filter(id=interaction.user.id).afirst():
             return await interaction.response.send_modal(AccountModal(user=user))
         await interaction.response.send_message('Local user not found, please try again later', ephemeral=True)
 
@@ -46,7 +46,7 @@ class AccountModal(Modal, title='Private PoE Ladder Account'):
             return await interaction.followup.send('No changes were made')
         profile = await validate_poe_profile(self.text_input.value)
         self.user.poe_profile = profile
-        self.user.save(update_fields=['poe_profile'])
+        await self.user.asave(update_fields=['poe_profile'])
         if profile is None:
             remove_related_characters.delay(discord_id=self.user.id)
             return await interaction.followup.send('Profile successfully removed!', ephemeral=True)
