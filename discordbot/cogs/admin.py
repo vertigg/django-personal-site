@@ -18,7 +18,7 @@ from discordbot.cogs.utils.checks import admin_command, mod_command
 from discordbot.cogs.utils.db import sync_users
 from poe.tasks import LadderUpdateTask
 
-logger = logging.getLogger('discordbot.admin')
+logger = logging.getLogger('discord.admin')
 
 
 class Admin(commands.Cog):

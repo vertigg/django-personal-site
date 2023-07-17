@@ -6,7 +6,7 @@ from allauth.socialaccount.models import SocialAccount
 
 from discordbot.models import DiscordSettings, DiscordUser
 
-logger = logging.getLogger('discordbot.utils.db')
+logger = logging.getLogger('discord.utils.db')
 
 
 async def sync_users(servers):

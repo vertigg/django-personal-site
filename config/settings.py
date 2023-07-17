@@ -4,18 +4,19 @@ Main settings file.
 
 import os
 import sys
+from pathlib import Path
 
 import sentry_sdk
 from dotenv import load_dotenv
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 DEFAULT_DOMAIN = os.getenv('DEFAULT_DOMAIN', 'https://verti.gg')
 
@@ -99,13 +100,13 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'main', 'templates'),
-            os.path.join(BASE_DIR, 'main', 'templates', 'allauth'),
-            os.path.join(BASE_DIR, 'poe', 'static'),
-            os.path.join(BASE_DIR, 'discordbot', 'templates'),
-            os.path.join(BASE_DIR, 'webgames', 'static'),
-            os.path.join(BASE_DIR, 'webgames', 'dots'),
+            BASE_DIR / 'templates',
+            BASE_DIR / 'main' / 'templates',
+            BASE_DIR / 'main' / 'templates' / 'allauth',
+            BASE_DIR / 'poe' / 'static',
+            BASE_DIR / 'discordbot' / 'templates',
+            BASE_DIR / 'webgames' / 'static',
+            BASE_DIR / 'webgames' / 'dots',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -129,21 +130,26 @@ AUTHENTICATION_BACKENDS = [
 
 # Database backup settings
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-DBBACKUP_STORAGE_OPTIONS = {'location': '/var/backups'}
+DBBACKUP_STORAGE_OPTIONS = {'location': '/home/vertig/backups/'}
 
 # Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'data.db'),  # 'db.sqlite3'
-        'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+        'NAME': BASE_DIR / 'data.db',
+        'TEST_NAME': BASE_DIR / 'test.db'
     }
 }
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
 # Password validation
-# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -162,7 +168,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.9/topics/i18n/
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -176,25 +182,24 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_URL = 'static/'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'webgames', 'dots', 'static'),
-    os.path.join(BASE_DIR, 'webgames', 'dots')
+    BASE_DIR / 'webgames' / 'dots' / 'static',
+    BASE_DIR / 'webgames' / 'dots',
 ]
 # For production - Enable STATIC_ROOT, remove STATIC_ROOT from STATIFILES_DIRS
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = BASE_DIR / 'static'
 
 # For debug - Disable STATIC_ROOT, enable STATICFILES_DIRS
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# STATICFILES_DIRS = BASE_DIR / 'static'
 
 # Logging stuff
 LOGGING_DATE_FMT = '%Y-%m-%d %H:%M:%S'
-LOGGING_FILE_DJANGO = os.path.join('logs', 'django.log')
-LOGGING_FILE_DISCORD = os.path.join('logs', 'discord.log')
+LOGGING_FILE_DJANGO = BASE_DIR / 'logs' / 'django.log'
 
 LOGGING = {
     'version': 1,
@@ -227,12 +232,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'file-discord': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOGGING_FILE_DISCORD,
-            'formatter': 'verbose'
-        },
         'file-django': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
@@ -246,23 +245,9 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
-        # 'django.db.backends': {
-        #     'level': 'DEBUG',
-        # },
         'django': {
             'handlers': ['console', 'file-django'],
             'level': 'INFO',
-            'propagate': False
-        },
-        'discord': {
-            'handlers': ['console', 'file-discord'],
-            'level': 'ERROR',
-            'propagate': False
-        },
-        'discordbot': {
-            'handlers': ['console', 'file-discord'],
-            'level': 'DEBUG',
-            'formatter': 'compact',
             'propagate': False
         },
         'ladder_update': {

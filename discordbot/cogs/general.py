@@ -11,7 +11,7 @@ from discordbot.models import DiscordLink, DiscordSettings
 from .utils.checks import admin_command
 from .utils.db import sync_users
 
-logger = logging.getLogger('discordbot.general')
+logger = logging.getLogger('discord.general')
 
 
 class General(commands.Cog):

@@ -5,7 +5,7 @@ import discord
 from discord.ext.commands import Bot
 from discordbot.config import settings
 
-logger = logging.getLogger('discordbot')
+logger = logging.getLogger('discord.tonybot')
 
 
 class TonyBot(Bot):

@@ -12,7 +12,7 @@ from discordbot.cogs.utils.exceptions import (
 from discordbot.models import DiscordUser
 from poe.tasks import remove_related_characters
 
-logger = logging.getLogger('discordbot.poe')
+logger = logging.getLogger('discord.poe')
 
 
 class PathOfExileCog(commands.Cog):

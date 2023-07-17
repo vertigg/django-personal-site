@@ -16,7 +16,7 @@ from .utils.checks import admin_command, text_channels_only
 from .utils.exceptions import UnavailableChannelError
 from .utils.formatters import clean_text
 
-logger = logging.getLogger('discordbot.markov')
+logger = logging.getLogger('discord.markov')
 
 
 class Markov(commands.Cog):

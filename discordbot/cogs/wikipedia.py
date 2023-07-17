@@ -9,7 +9,7 @@ from wikipedia.exceptions import DisambiguationError, PageError
 
 from discordbot.cogs.utils.checks import admin_command
 
-logger = logging.getLogger('discordbot.wiki')
+logger = logging.getLogger('discord.wiki')
 
 
 class Wikipedia(commands.Cog):

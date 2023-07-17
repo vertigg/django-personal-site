@@ -12,7 +12,8 @@ from discordbot.cogs.utils.exceptions import (
 )
 from discordbot.models import DiscordUser
 
-logger = logging.getLogger('discordbot.utils.checks')
+logger = logging.getLogger('discord.utils.checks')
+
 IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}
 POE_PROFILE_URL = 'https://pathofexile.com/character-window/get-characters?accountName={}'
 DEFAULT_HEADERS = {

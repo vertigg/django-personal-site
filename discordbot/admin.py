@@ -97,6 +97,7 @@ class DiscordUserAdmin(admin.ModelAdmin):
 class DiscordMixImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image', 'pid', 'checksum', 'date', 'author', 'deleted', 'small_preview')
     readonly_fields = ('checksum', 'date', 'preview')
+    list_filter = ('deleted', 'date')
 
     def get_urls(self):
         return [path('download/', self.download_backup)] + super().get_urls()

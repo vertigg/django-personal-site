@@ -17,7 +17,7 @@ from discordbot.models import MixImage, Wisdom
 from .utils.checks import is_image_mimetype, mod_command
 from .utils.formatters import extract_urls
 
-logger = logging.getLogger('discordbot.mix')
+logger = logging.getLogger('discord.mix')
 
 
 class Mix(commands.Cog):
