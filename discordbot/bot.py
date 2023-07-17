@@ -50,7 +50,7 @@ class TonyBot(Bot):
 
     async def on_ready(self):
         from discordbot.models import DiscordSettings
-        name = await DiscordSettings.aget('game')
+        name = await DiscordSettings.get('game')
         await bot.change_presence(activity=discord.Game(name))
         logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
 

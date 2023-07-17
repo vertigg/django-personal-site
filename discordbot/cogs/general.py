@@ -37,13 +37,13 @@ class General(commands.Cog):
     @admin_command
     async def game(self, interaction: Interaction, name: str):
         """Change bot's status"""
-        await DiscordSettings.aset('game', name)
+        await DiscordSettings.set('game', name)
         await self.bot.change_presence(activity=discord.Game(name=name))
         await interaction.response.send_message('Status changed', ephemeral=True)
 
     @commands.hybrid_command(name='low')
     async def low(self, ctx: commands.Context) -> None:
-        await ctx.send(await DiscordLink.aget('low'))
+        await ctx.send(await DiscordLink.get('low'))
 
     @app_commands.command(name='choose', description='Chooses between multiple items')
     async def choose(self, interaction: Interaction, item_1: str, item_2: str):
@@ -51,7 +51,7 @@ class General(commands.Cog):
 
     @app_commands.command(name='friday', description="It's morbin time")
     async def friday(self, interaction: Interaction):
-        await interaction.response.send_message(await DiscordLink.aget('friday'))
+        await interaction.response.send_message(await DiscordLink.get('friday'))
 
     @app_commands.command(name='roll', description='Rolls a number in 1-100 range')
     async def roll(self, interaction: Interaction):
@@ -59,7 +59,7 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def vb(self, ctx):
-        await ctx.send(await DiscordLink.aget('vb', "Can't find saved link for that command"))
+        await ctx.send(await DiscordLink.get('vb', "Can't find saved link for that command"))
 
 
 async def setup(bot):

@@ -32,18 +32,10 @@ class KeyValueModelMeta(models.base.ModelBase):
     def __delitem__(cls, key):
         return cls.objects.filter(key=key).delete()
 
-    def get(cls, key: str, default: str = None):
-        return cls.__getitem__(key, default)
-
-    def set(cls, key: str, value: str):
-        item, _ = cls.__setitem__(key, value)
-        return item
-
-    async def aset(cls, key: str, value: str):
-        # return await sync_to_async(cls.set(key, value))()
+    async def set(cls, key: str, value: str):
         return await cls.objects.aupdate_or_create(key=key, defaults={'value': value})
 
-    async def aget(cls, key: str, default: str = None):
+    async def get(cls, key: str, default: str = None):
         try:
             return (await cls.objects.aget(key=key)).value
         except cls.DoesNotExist as exc:
