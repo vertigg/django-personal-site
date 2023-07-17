@@ -222,16 +222,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'console-info': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-        'console-errors': {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
         'file-django': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
@@ -240,11 +230,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': {
-            'handlers': ['console-errors'],
-            'level': 'INFO',
-            'propagate': False
-        },
         'django': {
             'handlers': ['console', 'file-django'],
             'level': 'INFO',
@@ -255,10 +240,6 @@ LOGGING = {
             'level': 'DEBUG',
             'formatter': 'compact',
             'propagate': False
-        },
-        'googleapiclient': {
-            'handlers': ['console-errors'],
-            'level': 'ERROR'
         },
     },
 }
