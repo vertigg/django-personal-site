@@ -198,9 +198,6 @@ STATIC_ROOT = BASE_DIR / 'static'
 # STATICFILES_DIRS = BASE_DIR / 'static'
 
 # Logging stuff
-LOGGING_DATE_FMT = '%Y-%m-%d %H:%M:%S'
-LOGGING_FILE_DJANGO = BASE_DIR / 'logs' / 'django.log'
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -210,11 +207,7 @@ LOGGING = {
                 '[%(asctime)s] [%(levelname)s] [%(name)s:%(funcName)s] '
                 '%(message)s'
             ),
-            'datefmt': LOGGING_DATE_FMT
-        },
-        'compact': {
-            'format': '[%(levelname)s] [%(name)s] %(message)s',
-            'datefmt': LOGGING_DATE_FMT
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
     'handlers': {
@@ -222,23 +215,11 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'file-django': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOGGING_FILE_DJANGO,
-            'formatter': 'verbose'
-        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file-django'],
+            'handlers': ['console'],
             'level': 'INFO',
-            'propagate': False
-        },
-        'ladder_update': {
-            'handlers': ['console', 'file-django'],
-            'level': 'DEBUG',
-            'formatter': 'compact',
             'propagate': False
         },
     },
