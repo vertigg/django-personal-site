@@ -1,0 +1,55 @@
+body {
+    background-color: #333333;
+    color: white
+}
+
+img {
+    max-height: 30px;
+    max-width: 40px;
+    object-fit: contain;
+}
+
+a {
+    color: var(--bs-secondary);
+    text-decoration: none;
+}
+
+a:hover,
+a:focus {
+    color: var(--bs-primary);
+}
+
+table a {
+    color: var(--bs-info);
+    text-decoration: none;
+}
+
+table a:hover,
+table a:focus {
+    color: var(--bs-secondary);
+}
+
+span.i {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 5px;
+}
+
+span.i a {
+    display: flex;
+    min-height: 30px;
+    min-width: 40px;
+    justify-content: center;
+}
+
+.class-filter {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    gap: 2px
+}
+
+.class-filter p {
+    margin: 0;
+}

@@ -59,3 +59,15 @@ class DisconnectDiscordAccountView(RedirectView):
             discorduser.save()
         messages.success(request, 'Discord account disconnected')
         return super().post(request, *args, **kwargs)
+
+
+class CalamityPreHardmodeSetups(TemplateView):
+    template_name = 'calamity/pre-hardmode.html'
+
+
+class CalamityHardmodeSetups(TemplateView):
+    template_name = 'calamity/hardmode.html'
+
+
+class CalamityPostHardmodeSetups(TemplateView):
+    template_name = 'calamity/post-hardmode.html'
