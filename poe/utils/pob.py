@@ -13,7 +13,7 @@ logger = logging.getLogger('poe.wrapper')
 
 class PoBWrapper:
     def __init__(self, character_name: str, items_data: dict, tree_data: dict) -> None:
-        if not which('luajit') or not any(settings.POB_RUNTIME_PATH, settings.POB_SOURCE_PATH):
+        if not which('luajit') or not any([settings.POB_RUNTIME_PATH, settings.POB_SOURCE_PATH]):
             raise ModuleNotFoundError('luajit is not installed for current system or env variables are misconfigured')
         self.save_pob_file(character_name, PoBFileType.ITEMS, items_data)
         self.save_pob_file(character_name, PoBFileType.TREE, tree_data)
