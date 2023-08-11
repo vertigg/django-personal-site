@@ -153,7 +153,7 @@ function GetWorkDir()
 	return ""
 end
 
--- function LaunchSubScript(scriptText, funcList, subList, ...) end
+function LaunchSubScript(scriptText, funcList, subList, ...) end
 
 function AbortSubScript(ssID) end
 
