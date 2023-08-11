@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import AnyUrl, BaseModel, Field
 
@@ -33,3 +34,14 @@ class SocketedGemSchema(BaseModel):
     @property
     def is_active(self):
         return not self.is_support
+
+
+class PoBDataSchema(BaseModel):
+    life: int = Field(alias='Life')
+    es: int = Field(alias='EnergyShield')
+    combined_dps: float = Field(alias='CombinedDPS')
+
+
+class PoBFileType(str, Enum):
+    TREE = 'tree'
+    ITEMS = 'items'

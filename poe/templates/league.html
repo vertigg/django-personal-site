@@ -26,13 +26,16 @@
                 <th class="row-level text-center">Level</th>
                 <th class="row-level text-center">Progress</th>
                 <th class="row-level text-center">Experience</th>
+                <th class="row-level text-center">Life</th>
+                <th class="row-level text-center">ES</th>
+                <th class="row-level text-center">DPS</th>
                 <th class="row-level text-center compact-column">Skills</th>
                 <th class="row-level text-center compact-column">Last Update</th>
             </tr>
         </thead>
         <tbody>
             {% for character in characters %}
-            <tr class="LadderRows{% if current_profile == character.profile.poe_profile %} current-user{% endif %}{% if character.expired %} character-expired{% endif %}">
+            <tr class="LadderRows{% if current_profile == character.profile.poe_profile %} {% endif %}{% if character.expired %} character-expired{% endif %}">
                 <td class="text-center">{{forloop.counter0|add:page_obj.start_index}}</td>
                 <td class="row-link">
                     <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
@@ -58,10 +61,20 @@
                     </div>
                 </td>
                 {% endwith %}
-
-                <td class="text-center ">
+                <td class="text-center">
                     <div class="text-right" style="width:75%">{{character.experience|space_separator}}</div>
                 </td>
+                <td class="text-center">
+                    <div class="text-right" style="width:75%">{{character.life|default_if_none:"-"}}</div>
+                </td>
+                <td class="text-center">
+                    <div class="text-right" style="width:75%">{{character.es|default_if_none:"-"}}</div>
+                </td>
+
+                <td class="text-center">
+                    <div class="text-right" style="width:75%">{{character.combined_dps|float_compact_format|default_if_none:"-"}}</div>
+                </td>
+
                 <td class="row-gems compact-column">
                     <div class="gems-container">
                         {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}

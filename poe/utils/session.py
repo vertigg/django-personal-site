@@ -45,6 +45,7 @@ def requests_retry_session(
     session.mount("https://", adapter)
 
     session.headers.update({
+        'Accept': 'application/json',
         'User-Agent': (
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
             '(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'

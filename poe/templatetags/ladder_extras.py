@@ -20,3 +20,16 @@ def level_progress(character):
 @register.filter
 def space_separator(number: int) -> str:
     return f'{number:,}'.replace(',', ' ')
+
+
+@register.filter
+def float_compact_format(num: int):
+    if not num:
+        return '-'
+    round_to = 1
+    magnitude = 0
+    abbr = ['', 'K', 'M', 'B', 'T', 'Q']
+    while abs(num) >= 1000:
+        magnitude += 1
+        num = round(num / 1000.0, round_to)
+    return f'{num:.{round_to}f}{abbr[magnitude]}'

@@ -62,6 +62,11 @@ class Character(BaseModel):
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     expired = models.BooleanField(default=False)
 
+    # Experimental fields
+    life = models.PositiveSmallIntegerField(null=True)
+    es = models.PositiveSmallIntegerField(null=True)
+    combined_dps = models.FloatField(null=True)
+
     class Meta:
         verbose_name = 'Character'
         verbose_name_plural = 'Characters'
