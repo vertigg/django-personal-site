@@ -7,6 +7,7 @@ from rest_framework import status
 
 from config.celery import UniqueNamedTask, app, register_task
 from discordbot.models import DiscordUser
+from poe.config import settings as poe_settings
 from poe.models import Character, League, PoeInfo
 from poe.schema import CharacterSchema
 from poe.utils.api import Client, PoEClientException
@@ -233,7 +234,7 @@ class UpdateCharacterMetadataTask(Task):
         if not character:
             logger.error('Aborting task: %s character not found', character_name)
             return
-        if character.expired or character.level < 90:
+        if character.expired or character.level < poe_settings.LADDER_METADATA_MIN_LEVEL:
             return
         items_data = self.detect_main_skills(character, account_name)
         if items_data:
