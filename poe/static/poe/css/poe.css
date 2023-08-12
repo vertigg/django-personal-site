@@ -29,16 +29,17 @@ html:has(body div.stash-container) {
   background-image: url("../img/stash.jpg");
 }
 
-h1.ladder-title {
-  color: white;
-  font-family: "Fontin-Regular", "Segoe UI", "Tahoma", "Verdana", "sans-serif";
-  margin: 15px 0 15px 0;
-}
 
 h2 {
   color: white;
   font-family: "Segoe UI", "Tahoma", "Verdana", "sans-serif";
   margin: 10px 0 10px 0;
+}
+
+h1.ladder-title, h2.ladder-title {
+  color: white;
+  font-family: "Fontin-Regular", "Segoe UI", "Tahoma", "Verdana", "sans-serif";
+  margin: 15px 0 15px 0;
 }
 
 table.LadderTable {

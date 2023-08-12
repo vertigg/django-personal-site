@@ -82,8 +82,13 @@ class LadderSearchView(FilterView):
     filterset_class = PoeSearchFilter
     template_name = 'ladder.html'
     model = Character
-    paginate_by = 10
-    ordering = 'name'
+    paginate_by = 15
+    ordering = ('name', 'level')
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        qs = kwargs['object_list']
+        kwargs['object_list'] = qs.prefetch_related('gems').select_related('profile', 'league')
+        return super().get_context_data(**kwargs)
 
 
 class StashHistoryView(LoginRequiredMixin, TemplateView):

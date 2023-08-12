@@ -4,7 +4,7 @@
   {% if poe_search_form.errors %}
   <h2>{{poe_search_form.errors}}</h2>
   {% else %}
-  <h2>
+  <h2 class="ladder-title">
     Found {{paginator.count}} result{{search_results|pluralize}} for
     «{% if request.GET.name %}{{request.GET.name}}{% else %}All characters{% endif %}»
   </h2>
@@ -15,6 +15,7 @@
         <tr class="LadderHeader">
           <th>Character</th>
           <th>Account</th>
+          <th>League</th>
           <th class="row-level text-center">Class</th>
           <th class="row-level text-center">Level</th>
           <th class="row-level text-center">Skills</th>
@@ -44,6 +45,9 @@
                 {{character.profile.poe_profile}}
               </div>
             </a>
+          </td>
+          <td>
+            <a class="ladder-link" href="{{ character.league.get_absolute_url }}">{{ character.league.name }}</a>
           </td>
           <td>
             <img
