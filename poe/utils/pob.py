@@ -17,6 +17,7 @@ class PoBWrapper:
             raise ModuleNotFoundError('luajit is not installed for current system or env variables are misconfigured')
         self.save_pob_file(character_name, PoBFileType.ITEMS, items_data)
         self.save_pob_file(character_name, PoBFileType.TREE, tree_data)
+        self.character_name = character_name
 
     @property
     def lua_scipt_path(self):
@@ -25,6 +26,7 @@ class PoBWrapper:
     @property
     def env(self):
         new_env = os.environ.copy()
+        new_env['POB_SCRIPTPATH'] = settings.POB_RUNTIME_PATH
         new_env['LUA_PATH'] = ';'.join([
             f'{settings.POB_RUNTIME_PATH}/lua/?.lua',
             f'{settings.POB_RUNTIME_PATH}/lua/?/init.lua'
@@ -39,8 +41,8 @@ class PoBWrapper:
         except Exception as exc:
             logger.error(exc)
 
-    def get_character_pob_data(self, character_name: str) -> PoBDataSchema:
-        args = ['luajit', self.lua_scipt_path, character_name]
+    def get_character_pob_data(self) -> PoBDataSchema:
+        args = ['luajit', self.lua_scipt_path, self.character_name]
         with Popen(
             args=args, cwd=settings.POB_SOURCE_PATH, env=self.env, stdin=PIPE,
             stdout=PIPE, stderr=PIPE, universal_newlines=True, bufsize=1
@@ -48,9 +50,11 @@ class PoBWrapper:
             returncode = proc.wait(timeout=30)
 
             if returncode == 0:
-                output_file = os.path.join(settings.TEMP_FOLDER, f'{character_name}.output.json')
+                output_file = os.path.join(settings.TEMP_FOLDER, f'{self.character_name}.output.json')
                 with open(output_file, 'r', encoding='utf-8') as f:
                     pob_data = json.load(f)
                     return PoBDataSchema(**pob_data)
             else:
+                if proc.stdout:
+                    logger.info(proc.stdout.read())
                 raise Exception(f'POB process ended with status code: {returncode}. {proc.stderr.read()}')

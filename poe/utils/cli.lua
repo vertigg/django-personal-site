@@ -95,8 +95,76 @@ function GetAsyncCount()
 	return 0
 end
 
+
+_fhandle = {}
+
+setmetatable(_fhandle, {__index = _fhandle;})
+
+function _fhandle:new(tbl)
+    return setmetatable({tbl=tbl, cur_idx=1}, getmetatable(self))
+end
+
+function _fhandle:NextFile()
+    local next_idx = self.cur_idx + 1
+    self.cur_idx = next_idx
+    return self.tbl[next_idx]
+end
+
+function _fhandle:GetFileName()
+    local filename, popen = self.tbl[self.cur_idx], io.popen
+    if filename then
+        local pfile = popen("basename "..filename)
+        for line in pfile:lines() do
+            return line
+        end
+    end
+    return nil
+end
+
+function _fhandle:GetFileModifiedTime()
+    local filename, popen = self.tbl[self.cur_idx], io.popen
+    if filename then
+        local pfile = popen("stat -c '%Y' "..filename)
+        for line in pfile:lines() do
+            return tonumber(line)
+        end
+    end
+    return 0
+end
+
+function executeCommand(command)
+    local tmpfile = '/tmp/lua_execute_tmp_file'
+    local exit = os.execute(command .. ' > ' .. tmpfile .. ' 2> ' .. tmpfile .. '.err')
+
+    local stdout_file = io.open(tmpfile)
+    local stdout = stdout_file:read("*all")
+
+    local stderr_file = io.open(tmpfile .. '.err')
+    local stderr = stderr_file:read("*all")
+
+    stdout_file:close()
+    stderr_file:close()
+
+    return exit, stdout, stderr
+end
+
 -- Search Handles
-function NewFileSearch() end
+function NewFileSearch(directory) 
+    local i, t, popen = 0, {}, io.popen
+    local exit, stdout, stderr = executeCommand("find "..directory)
+	
+    if exit ~= 0 then
+		-- print(stderr)
+        return nil
+    end
+
+    for filename in stdout:gmatch("[^\r\n]+") do
+        i = i + 1
+        t[i] = filename
+    end
+	-- print(stdout)
+    return _fhandle:new(t)
+end
 
 -- General Functions
 function SetWindowTitle(title) end
@@ -132,11 +200,11 @@ function GetTime()
 end
 
 function GetScriptPath()
-	return ""
+	return os.getenv('POB_SCRIPTPATH')
 end
 
 function GetRuntimePath()
-	return ""
+	return os.getenv('POB_SCRIPTPATH')
 end
 
 function GetUserPath()

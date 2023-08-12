@@ -218,7 +218,7 @@ class UpdateCharacterMetadataTask(Task):
         try:
             tree_data = self.client.get_character_skill_tree(account, character.name)
             wrapper = PoBWrapper(character.name, items_data, tree_data)
-            data = wrapper.get_character_pob_data(character.name)
+            data = wrapper.get_character_pob_data()
             logger.info(data)
             character.life = data.life
             character.es = data.es
