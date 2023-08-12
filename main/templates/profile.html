@@ -43,7 +43,7 @@
                 {% endif %}
                 <div class="card-body text-center">
                     {% if user.discorduser %}
-                    <h3>{{ user.discorduser }}{% if accounts.discord.0 %}#{{ accounts.discord.0.extra_data.discriminator }}{% endif %}</h3>
+                    <h3>{{ user.discorduser }}{% if accounts.discord.0 %}{% endif %}</h3>
                     <small class="text-muted">{{ user.discorduser.id }}</small>
                     <div id="badges">
                         {% if user.discorduser.admin %}<span class="badge badge-primary">Admin</span>{% endif %}

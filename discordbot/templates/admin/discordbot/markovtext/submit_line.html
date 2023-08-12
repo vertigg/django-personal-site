@@ -2,17 +2,13 @@
 <div class="submit-row">
     {% if show_save %}<input type="submit" value="{% trans 'Save' %}" class="default" name="_save" />{% endif %}
     {% if show_delete_link %}
-    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
-    <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}"
-            class="deletelink">{% trans "Delete" %}</a></p>
+        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+        <a href="{% add_preserved_filters delete_url %}" style="margin-left: 0;" class="deletelink">{% trans "Delete" %}</a>
     {% endif %}
     <input type="submit" value="{% trans 'Download object' %}" name="_download" />
     <input type="submit" value="{% trans 'Clear object' %}" name="_clearobject" />
     {% if show_save_as_new %}<input type="submit" value="{% trans 'Save as new' %}" name="_saveasnew" />{% endif %}
-    {% if show_save_and_add_another %}<input type="submit" value="{% trans 'Save and add another' %}"
-        name="_addanother" />{% endif %}
-    {% if show_save_and_continue %}<input type="submit" value="{% trans 'Save and continue editing' %}"
-        name="_continue" />{% endif %}
-
+    {% if show_save_and_add_another %}<input type="submit" value="{% trans 'Save and add another' %}" name="_addanother" />{% endif %}
+    {% if show_save_and_continue %}<input type="submit" value="{% trans 'Save and continue editing' %}" name="_continue" />{% endif %}
 
 </div>

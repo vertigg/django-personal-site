@@ -9,7 +9,7 @@ from config.celery import UniqueNamedTask, app, register_task
 from discordbot.models import DiscordUser
 from poe.config import settings as poe_settings
 from poe.models import Character, League, PoeInfo
-from poe.schema import CharacterSchema
+from poe.schema import CharacterSchema, PoBDataSchema
 from poe.utils.api import Client, PoEClientException
 from poe.utils.pob import PoBWrapper
 from poe.utils.skills import detect_active_skills
@@ -103,7 +103,7 @@ class LadderUpdateTask(UniqueNamedTask):
                 experience=character.experience,
                 expired=character.expired
             )
-            self.character_tasks.append(UpdateCharacterMetadataTask.si(
+            self.character_tasks.append(CharacterStatsUpdateTask.si(
                 account_name, character.name
             ))
 
@@ -131,7 +131,7 @@ class LadderUpdateTask(UniqueNamedTask):
                     experience=character.experience,
                     expired=character.expired,
                 )
-                self.character_tasks.append(UpdateCharacterMetadataTask.si(
+                self.character_tasks.append(CharacterStatsUpdateTask.si(
                     account_name, existing_character.name
                 ))
 
@@ -197,36 +197,32 @@ class LadderUpdateTask(UniqueNamedTask):
 
 
 @register_task
-class UpdateCharacterMetadataTask(Task):
+class CharacterStatsUpdateTask(Task):
 
     def __init__(self):
         self.client = Client()
 
-    def detect_main_skills(self, character: Character, account: str):
-        logger.info('Detecting main skills for character: %s', character.name)
-        try:
-            items_data = self.client.get_character_items(account, character.name)
-        except PoEClientException:
-            logger.error('Unable to get gem data for %s: %s', account, character.name)
-            return
-        gem_ids = detect_active_skills(items_data)
-        character.gems.clear()
-        character.gems.add(*gem_ids)
-        return items_data
-
-    def set_pob_data(self, character: Character, account: str, items_data: dict):
+    def get_pob_data(self, character: Character, account: str, items_data: dict):
         try:
             tree_data = self.client.get_character_skill_tree(account, character.name)
             wrapper = PoBWrapper(character.name, items_data, tree_data)
-            data = wrapper.get_character_pob_data()
-            logger.info(data)
-            character.life = data.life
-            character.es = data.es
-            character.combined_dps = data.combined_dps
-            character.save(update_fields=['life', 'es', 'combined_dps'])
-            logger.info('Updating character with PoB data: %s', character.name)
+            return wrapper.get_character_pob_data()
         except Exception as exc:
             logger.error(exc)
+            return None
+
+    def update_character_skills(self, character: Character, items_data: dict):
+        gem_ids = detect_active_skills(items_data)
+        if not set(character.gems.values_list('id', flat=True)) == set(gem_ids):
+            character.gems.clear()
+            character.gems.add(*gem_ids)
+
+    def update_character_stats(self, character: Character, pob_data: PoBDataSchema):
+        # Using temp schema, might change in future updates
+        character.life = pob_data.life
+        character.es = pob_data.es
+        character.combined_dps = pob_data.combined_dps
+        character.save(update_fields=['life', 'es', 'combined_dps'])
 
     def run(self, account_name: str, character_name: str):
         logger.info('Received task for %s - %s', account_name, character_name)
@@ -236,9 +232,13 @@ class UpdateCharacterMetadataTask(Task):
             return
         if character.expired or character.level < poe_settings.LADDER_METADATA_MIN_LEVEL:
             return
-        items_data = self.detect_main_skills(character, account_name)
-        if items_data:
-            self.set_pob_data(character, account_name, items_data)
+
+        items_data = self.client.get_character_items(account_name, character_name)
+        self.update_character_skills(character, items_data)
+
+        if pob_data := self.get_pob_data(character, account_name, items_data):
+            self.update_character_stats(character, pob_data)
+
         logger.info('Character %s updated with additional data', character_name)
 
 

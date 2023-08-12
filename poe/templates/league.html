@@ -40,6 +40,11 @@
                 <td class="row-link">
                     <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
                         <div class="cell-link" style="height:100%; width:100%">
+                            {% if user.is_staff %}
+                                <a href="{% url 'admin:poe_character_change' character.id %}">
+                                    <i class="fa-solid fa-wrench"></i>
+                                </a>
+                            {% endif %}
                             {{character.name}}
                         </div>
                     </a>

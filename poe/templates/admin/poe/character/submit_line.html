@@ -1,0 +1,8 @@
+{% load i18n admin_urls %}
+<div class="submit-row">
+    <input type="submit" value="{% trans 'Update skills/PoB data' %}" name="_update_stats" />
+    {% if show_delete_link %}
+        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+        <a href="{% add_preserved_filters delete_url %}" style="margin-left: auto;" class="deletelink">{% trans "Delete" %}</a>
+    {% endif %}
+</div>

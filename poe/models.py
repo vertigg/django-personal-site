@@ -64,7 +64,7 @@ class Character(BaseModel):
 
     # Experimental fields
     life = models.PositiveSmallIntegerField(null=True)
-    es = models.PositiveSmallIntegerField(null=True)
+    es = models.PositiveSmallIntegerField(null=True, verbose_name='Energy Shield')
     combined_dps = models.FloatField(null=True)
 
     class Meta:
@@ -72,7 +72,7 @@ class Character(BaseModel):
         verbose_name_plural = 'Characters'
 
     def __str__(self):
-        return f'{self.name}: {self.level} level'
+        return f'{self.name}: Level {self.level} {self.class_name}'
 
 
 class Announcement(BaseModel):
