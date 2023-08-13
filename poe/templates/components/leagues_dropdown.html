@@ -1,0 +1,36 @@
+<div class="z-30 ml-2">
+  <div class="group inline-block relative">
+    <button class="text-gray-300 text-opacity-90 rounded inline-flex items-center">
+      <span class="mr-1">
+        <span>{% firstof active_league.name "Leagues" %}</span>
+      </span>
+      <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+      </svg>
+    </button>
+    <ul class="z-30 absolute hidden bg-[#4e5d6c] border-[1px] min-w-fit whitespace-nowrap pt-2 border-black/40 text-gray-700 group-hover:block group-focus:block group-focus-within:block">
+      {% for league in poe_context.temp_leagues %}
+      <li class="hover:bg-gray-300/50 active:bg-orange-500">
+        <a
+          class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap {% if league.name == active_league.name %} bg-orange-500{% endif %}"
+          href="{% url 'poe:ladder_url' slug=league.slug %}"
+        >
+          <span>{{ league.name }}</span>
+        </a>
+      </li>
+      {% endfor %} {% if poe_context.temp_leagues %}
+      <div class="h-0 my-1 overflow-hidden border-t-[1px] border-black/10"></div>
+      {% endif %} 
+      {% for league in poe_context.old_leagues %}
+      <li class="hover:bg-gray-300/50 active:bg-orange-500">
+        <a
+          class="text-white no-underline hover:text-white hover:no-underline py-1 px-4 flex gap-2 items-baseline whitespace-no-wrap {% if league.name == active_league.name %} bg-orange-500{% endif %}"
+          href="{% url 'poe:ladder_url' slug=league.slug %}"
+        >
+          <span>{{ league.name }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

@@ -21,6 +21,14 @@ def poe_info(request):
             'old_leagues': old_leagues,
             'temp_leagues': temp_leagues,
             'last_update': update_time,
-            'search_form': SearchForm
+            'search_form': SearchForm,
+            'tools_links': {
+                'Path of Building Community': 'https://pathofbuilding.community/',
+                'Official Trade Website': 'https://www.pathofexile.com/trade',
+                'poe.ninja': 'https://poe.ninja/challenge/builds',
+                'Betrayal Cheat Sheet': 'https://hashbr.github.io/betrayal-cs',
+                'Vorici Chromatic Calculator': 'https://siveran.github.io/calc.html',
+                'Aura Calculator': 'https://poe.mikelat.com/'
+            }
         }
     return {'poe_context': SimpleLazyObject(get_poe_context)}

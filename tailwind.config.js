@@ -1,8 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["**/templates/**/*.{html,js}", "**/static/**/*.{html,js}"],
+  content: ["**/templates/**/*.{html,js}", "**/static/**/*.{html,js}", "**/forms.py"],
+  blocklist: [
+    'collapse', // until we deal with collapsable nav
+  ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'gotham': ['Gotham-Book', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+      },
+    },
   },
   plugins: [],
 }

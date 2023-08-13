@@ -1,0 +1,65 @@
+<nav class="navbar navbar-expand-lg navbar-dark text-white">
+  <div class="flex items-center gap-[2px]">
+    {% block nav_brand_container %}
+    <a class="navbar-brand" href="{% url 'main:home' %}">Vertig's Hideout</a>
+    {% endblock %}
+  </div>
+  <div class="collapse navbar-collapse" id="collapsable">
+    {% block header_extras %} {% endblock %}
+  </div>
+  <div class="ml-auto nav-right">
+    {% if user.is_authenticated %}
+    <div id="profile-controls" class="z-10 ml-2">
+      <div class="group inline-block relative">
+        <button
+          class="text-gray-300 text-opacity-90 py-1 pl-8 rounded inline-flex items-center"
+        >
+          <span class="mr-1">
+            <i class="fa-solid fa-user"></i>
+            <span>{{ user }}</span>
+          </span>
+          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" >
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+          </svg>
+        </button>
+        <ul
+          class="absolute hidden bg-[#4e5d6c] border-[1px] py-1 min-w-full border-black/40 text-gray-700 group-hover:block group-focus:block group-focus-within:block"
+        >
+          {% if user.is_staff %}
+          <li class="hover:bg-gray-300/50 active:bg-orange-500">
+            <a
+              class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap"
+              href="{% url 'admin:index' %}"
+            >
+              <i class="fa-solid fa-toolbox"></i>
+              <span>Admin Panel</span>
+            </a>
+          </li>
+          <div class="h-0 my-1 overflow-hidden border-t-[1px] border-black/10"></div>
+          {% endif %}
+          <li class="hover:bg-gray-300/50 active:bg-orange-500">
+            <a
+              class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap"
+              href="{% url 'main:profile' %}"
+            >
+              <i class="fa-solid fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="hover:bg-gray-300/50 active:bg-orange-500">
+            <a
+              class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap"
+              href="{% url 'main:logout' %}"
+            >
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    {% else %}
+    <a href="{% url 'main:login' %}" class="btn btn-primary">Login</a>
+    {% endif %}
+  </div>
+</nav>
