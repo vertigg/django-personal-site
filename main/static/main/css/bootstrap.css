@@ -50,11 +50,7 @@
           box-sizing: border-box;
 }
 
-@font-face {
-  font-family: 'Gotham-Book';
-  src: url('../fonts/Gotham-Book.woff') format('woff'), /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-       url('../fonts/Gotham-Book.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
-}  
+
 
 .discord-avatar {
   height: 50%;
@@ -93,30 +89,18 @@ html {
   background-repeat: repeat; /*Prevent showing multiple background images*/
 }
 
-article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+/* article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
   display: block;
-}
+} */
 
 body {
   margin: 0;
   font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #EBEBEB;
-  text-align: left;
   background-color: transparent;
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {
   outline: 0 !important;
-}
-
-hr {
-  -webkit-box-sizing: content-box;
-          box-sizing: content-box;
-  height: 0;
-  overflow: visible;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -1609,67 +1593,6 @@ fieldset:disabled a.btn {
 .card-img-top {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
-}
-
-.pagination {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  padding-left: 0;
-  list-style: none;
-  border-radius: 0px;
-}
-
-.page-link {
-  position: relative;
-  display: block;
-  padding: 0.5rem 0.75rem;
-  margin-left: -1px;
-  line-height: 1.25;
-  color: #fff;
-  background-color: #4E5D6C;
-  border: 1px solid transparent;
-}
-
-.page-link:hover {
-  z-index: 2;
-  color: #fff;
-  text-decoration: none;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-color: transparent;
-}
-
-.page-link:focus {
-  z-index: 3;
-  outline: 0;
-  -webkit-box-shadow: 0 0 0 0.2rem rgba(223, 105, 26, 0.25);
-          box-shadow: 0 0 0 0.2rem rgba(223, 105, 26, 0.25);
-}
-
-.page-item:first-child .page-link {
-  margin-left: 0;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-}
-
-.page-item:last-child .page-link {
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-}
-
-.page-item.active .page-link {
-  z-index: 3;
-  color: #fff;
-  background-color: #DF691A;
-  border-color: #DF691A;
-}
-
-.page-item.disabled .page-link {
-  color: rgba(255, 255, 255, 0.4);
-  pointer-events: none;
-  cursor: auto;
-  background-color: #4E5D6C;
-  border-color: transparent;
 }
 
 .badge {

@@ -1,8 +1,7 @@
 from django.urls import path
-from django.contrib.auth.views import TemplateView
+from django.views.generic.base import TemplateView
 
 urlpatterns = [
-    path('dots/', TemplateView.as_view(template_name='dots.html'), name='dots'),
-    path('asteroids/',
-         TemplateView.as_view(template_name='webgames/index.html'), name='asteroids'),
+    path('dots/', TemplateView.as_view(template_name='dots/index.html'), name='dots'),
+    path('asteroids/', TemplateView.as_view(template_name='asteroids/index.html'), name='asteroids'),
 ]

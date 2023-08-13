@@ -1,0 +1,83 @@
+{% extends "poe/base.html" %} 
+{% load static %}
+
+{% block title %}Chat Monitor{% endblock %}
+
+{% block content %}
+<div class="flex w-100 justify-center" style="min-width: 90vw !important;">
+  <div class="w-full lg:w-[95%]">
+    <div class="font-fontin">
+      <h1 class="text-4xl mt-2">Chat Monitor</h1>
+      <p class="mb-4">
+        Monitor your local Client.txt file and receive notifications about specific phrases mentioned. Works only in Google Chrome
+      </p>
+    </div>
+    <div v-scope class="flex flex-wrap flex-row gap-2">
+        <div class="basis-60 flex-grow flex flex-col gap-2">
+          <div class="bg-[#333333] rounded-md p-3.5">
+            <h5><i class="fa-solid fa-file"></i> Client File</h5>
+            <div class="flex flex-row justify-between items-center">
+              <span class="">[[ selected ? selected.file.name : 'No file selected'  ]]</span>
+              <button @click="selectClientFile" class="bg-orange-600 py-1 px-2 rounded-md">Select</button>
+            </div>
+          </div>
+          <div class="bg-[#333333] rounded-md p-3.5 chat-filters-block">
+            <h5><i class="fa-solid fa-filter"></i> Filters</h5>
+              <span class="flex flex-wrap gap-0.5 max-w-[200px]">
+                <span v-if="!textFilters.length">
+                  No filters available
+                </span>
+                <span class="inline-block text-sm p-1 text-center whitespace-nowrap align-baseline bg-orange-500/70" v-for="(phrase, index) in textFilters" :key="index" :title="phrase">
+                  [[ truncateString(phrase) ]] <i @click="removeTextFilter(index)" class="fa-solid fa-circle-xmark"></i>
+                </span>
+              </span>
+              <form @submit.prevent="addTextFilter" id="filterForm">
+                <input class="focus:outline-none text-black px-1 my-1" type="text" name="phrase" autocomplete="off" @keyup.enter="$el.value = ''">
+              </form>
+              <div class="flex justify-start gap-2 mt-1">
+                <button class="bg-gray-500 py-1 px-2 rounded-md text-sm" form="filterForm" type="submit">Add phrase</button>
+                <button @click="clearTextFilters" class="bg-gray-500 py-1 px-2 rounded-md text-sm">Clear Filters</button>
+              </div>
+          </div>
+          <div class="bg-[#333333] rounded-md p-3.5">
+            <h5><i class="fa-solid fa-gear"></i> Settings</h5>
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm">Polling Rate (in seconds)</span>
+                <input class="focus:outline-none text-black px-1" :disabled="isMonitoring" type="number" id="pollingRate" name="quantity" min="1" max="60" step="1" v-model="pollingRate">
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm">Blacklisted [[ options.blacklistedUsers.length ]] [[ pluralize(options.blacklistedUsers.length, 'user') ]]</span>
+                <button @click="clearBlacklist" :disabled="!options.blacklistedUsers.length" class="bg-orange-600 py-1 px-2 rounded-md text-sm disabled:bg-gray-700 disabled:text-gray-400">Clear</button>
+              </div>
+            </div>
+          </div>
+          <button @click="startWatching" :disabled="isMonitoring || !selected" class="bg-orange-600 py-1 px-2 rounded-md disabled:bg-gray-600">Start monitoring</button>
+          <button @click="stopWatching" :disabled="!isMonitoring" class="bg-orange-600 py-1 px-2 rounded-md disabled:bg-gray-600">Stop monitoring</button>
+        </div>
+        <div class="font-fontin bg-gray-700/50 rounded-md max-h-[60vh] overflow-y-scroll basis-0 grow-[999] p-2">
+          <div>
+            <h6 v-if="!chatMessages.length" class="font-fontin transition duration-300 hover:bg-orange-400/20 rounded-md">
+              Matched messages will be displayed here
+            </h6>
+            <h6 @vue:mounted="autoscrollChat()" v-for="(message, index) in chatMessages" :class="`chat-entry-${index}`" class="font-fontin transition duration-300 hover:bg-orange-400/20 rounded-md">
+              <i class="fa-solid fa-ban transition duration-200 hover:text-red-500" title="Blacklist user" @click="blacklistUser(message.name)"></i>
+              <i class="fa-solid fa-copy transition duration-200 hover:text-green-500 title="Copy to clipboard"  @click="copyUsernameToClipboard(message.name)"></i>
+              <span v-show="message.guild" title="Guild" class="text-orange-600">&lt;[[ message.guild ]]&gt;</span> <span class="text-yellow-500" title="Nickname">[[ message.name ]]</span>: [[ message.text ]]
+              <hr class="m-0">
+            </h6>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+<div class="flex justify-center p-2 font-fontin">
+  <div>Powered by <a href="https://github.com/vuejs/petite-vue">petite-vue</a></div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+    <script defer src="{% static 'poe/js/petite-vue.iife.js' %}"></script>
+    <script defer src="{% static 'poe/js/chatMonitor.js' %}"></script>
+{% endblock %}

@@ -1,11 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import (
-    FormView, LoginView, LogoutView, TemplateView
-)
+from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
-from django.views.generic.base import RedirectView
+from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.edit import FormView
 
 from main.forms import MainAuthenticationForm, MainUserCreationForm
 

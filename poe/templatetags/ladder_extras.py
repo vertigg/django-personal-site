@@ -25,7 +25,7 @@ def space_separator(number: int) -> str:
 @register.filter
 def float_compact_format(num: int):
     if not num:
-        return '-'
+        return None
     round_to = 1
     magnitude = 0
     abbr = ['', 'K', 'M', 'B', 'T', 'Q']

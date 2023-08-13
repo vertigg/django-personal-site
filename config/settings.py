@@ -100,13 +100,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',
-            BASE_DIR / 'main' / 'templates',
             BASE_DIR / 'main' / 'templates' / 'allauth',
-            BASE_DIR / 'poe' / 'static',
-            BASE_DIR / 'discordbot' / 'templates',
-            BASE_DIR / 'webgames' / 'static',
-            BASE_DIR / 'webgames' / 'dots',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -187,10 +181,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-STATICFILES_DIRS = [
-    BASE_DIR / 'webgames' / 'dots' / 'static',
-    BASE_DIR / 'webgames' / 'dots',
-]
+
 # For production - Enable STATIC_ROOT, remove STATIC_ROOT from STATIFILES_DIRS
 STATIC_ROOT = BASE_DIR / 'static'
 

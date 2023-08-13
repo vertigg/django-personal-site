@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+{% include "bootstrap4.html" %}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'poe/css/poe.min.css' %}" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'poe/js/jquery.plugin.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'poe/js/jquery.countdown.min.js' %}"></script>
+{% endblock %}
+
+{% block header %}
+{% include "poe/navbar.html" %}
+{% endblock %}
+
+{% block title %}
+    {% if active_league %}
+        {{active_league.name}}
+    {% elif title %}
+        {{ title }}
+    {% else %}
+        Path of Exile Private Ladder
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}

@@ -1,13 +1,14 @@
 from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import TemplateView
 from django.db.models import Count
+from django.db.models.query import QuerySet
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import RedirectView
+from django.views.generic.base import TemplateView
 from django_filters.views import FilterView
 
 from poe.filters import PoeClassFilter, PoeSearchFilter
@@ -31,32 +32,30 @@ class MainLadderView(RedirectView):
             return reverse('poe:ladder_url', kwargs={'slug': top_league.slug})
         return None
 
-    def get_context(self) -> Dict[str, Any]:
-        return {
-            'ladder_main': True,
-            'announcement': Announcement.get_next_announcement(),
-        }
-
     def get(self, request, *args, **kwargs):
-        context = self.get_context()
-        # If no new league announcements - proceed to most active current league
+        # If no new league announcements - redirect to most active league
+        announcement = Announcement.get_next_announcement()
         url = self.get_redirect_url()
-        if context.get('announcement') or not url:
-            return render(request, 'ladder.html', context)
+        if announcement or not url:
+            return render(request, 'poe/main.html', {'announcement': announcement})
         return HttpResponseRedirect(url)
 
 
-class LadderView(FilterView):
-    filterset_class = PoeClassFilter
+class PoEFilterView(FilterView):
     context_object_name = 'characters'
-    template_name = 'ladder.html'
     model = Character
-    paginate_by = 150
-    active_league = None
+    paginate_by = 25
 
     def _get_current_user_profile(self, request):
         return request.user.discorduser.poe_profile if hasattr(
             request.user, 'discorduser') else None
+
+
+class LadderView(PoEFilterView):
+    filterset_class = PoeClassFilter
+    template_name = 'poe/ladder.html'
+    paginate_by = 150
+    active_league = None
 
     def get_queryset(self):
         self.active_league = get_object_or_404(League, slug=self.kwargs.get('slug'))
@@ -76,24 +75,20 @@ class LadderView(FilterView):
         return context
 
 
-class LadderSearchView(FilterView):
-    extra_context = {'search': True, 'title': 'Search results'}
-    context_object_name = 'search_results'
+class LadderSearchView(PoEFilterView):
     filterset_class = PoeSearchFilter
-    template_name = 'ladder.html'
-    model = Character
-    paginate_by = 15
+    extra_context = {'title': 'Search results'}
+    template_name = 'poe/search.html'
     ordering = ('name', 'level')
 
+    def get_queryset(self) -> QuerySet[Any]:
+        return super().get_queryset().prefetch_related('gems').select_related('profile', 'league')
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        qs = kwargs['object_list']
-        kwargs['object_list'] = qs.prefetch_related('gems').select_related('profile', 'league')
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        context['current_profile'] = self._get_current_user_profile(self.request)
+        return context
 
 
 class StashHistoryView(LoginRequiredMixin, TemplateView):
     template_name = 'stash.html'
-
-
-class TestView(LoginRequiredMixin, TemplateView):
-    template_name = 'chat.html'

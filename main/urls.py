@@ -1,5 +1,5 @@
-from django.contrib.auth.views import TemplateView
 from django.urls import path
+from django.views.generic.base import TemplateView
 
 from main.views import (
     DisconnectDiscordAccountView, HomeView, MainLoginView, MainLogoutView,

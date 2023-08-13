@@ -1,0 +1,8 @@
+{% load static %}
+<div class="grid h-[80vh]">
+    <div class="flex h-100 justify-center flex-col items-center">
+      <img src="{% static 'poe/img/logo.png' %}" alt="Psina sutulaya" class="max-w-[450px]">
+      <div class="font-fontin text-xl">{{ announcement.text }} starts in:</div>
+      <div id='timer' class='font-fontin text-center min-w-[300px] mt-3'></div>
+    </div>
+</div>

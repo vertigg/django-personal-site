@@ -1,6 +1,10 @@
 window.onload = () => {
-  if (releaseDate > new Date()) {
-    $("#timer").countdown({ until: releaseDate, padZeroes: true, labels: [] });
+  let value = JSON.parse(document.getElementById('announcement-date').textContent);
+  if (value) {
+    value = new Date(value)
+  }
+  if (value > new Date()) {
+    $("#timer").countdown({ until: value, padZeroes: true, labels: [] });
   } else {
     $("#timer").html("League released!");
   }

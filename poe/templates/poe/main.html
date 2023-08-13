@@ -1,0 +1,13 @@
+{% extends "poe/base.html" %}
+{% load static %}
+
+{% block content %}
+    {% if announcement %}
+      {% include "components/announcement_timer.html" %}
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+{{ announcement.release_date.isoformat|json_script:"announcement-date" }}
+<script src="{% static 'poe/js/ext.js' %}"></script>
+{% endblock %}

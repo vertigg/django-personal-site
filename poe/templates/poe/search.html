@@ -1,0 +1,31 @@
+{% extends "poe/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="flex w-100 justify-center">
+  <div class="w-full lg:w-[95%]">
+
+  <h1 class="font-fontin text-4xl mt-2">
+    Search results
+  </h1>
+
+  {% if poe_search_form.errors %}
+    <h2 class="text-sm text-red-500">{{poe_search_form.errors}}</h2>
+  {% else %}
+  <p class="font-fontin text-xl pl-1 mb-4">
+    Found {{paginator.count}} result{{characters|pluralize}} for
+    <code class="font-fontin text-cyan-400">
+      &laquo;{% if request.GET.name %}{{request.GET.name}}{% else %}All characters{% endif %}&raquo;
+    </code>
+  </p>
+  {% endif %} 
+
+  {% if characters %}
+  {% include "components/character_list.html" with show_leagues=True hide_ranks=True characters=characters %}
+    {% if is_paginated %} 
+      {% include "paginator.html" with item=page_obj%} 
+    {% endif %}
+  {% endif %}
+  </div>
+</div>
+{% endblock %}

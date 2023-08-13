@@ -1,0 +1,25 @@
+{% extends "poe/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="flex w-100 justify-center">
+  <div class="w-full lg:w-[95%]">
+      <h1 class="font-fontin text-4xl mt-2">
+          {{active_league.name}} League
+      </h1>
+      <div class="text-sm font-fontin pl-1 mb-4">
+          <p class="text-sm m-0">
+              {% if active_league.start_date %}{{ active_league.start_date }}{% endif %}
+              {% if active_league.end_date %}- {{ active_league.end_date }}{% endif %}
+          </p>
+          {% if active_league.url %}
+              <a class="ladder-link text-sm mb-2" href="{{active_league.url}}">
+                   Official ladder link <i class="fa-solid fa-external-link"></i>
+              </a>
+          {% endif %}
+      </div>
+      {% include "components/character_list.html" %}
+      {% if is_paginated %} {% include "paginator.html" with item=page_obj%} {% endif %}
+  </div>
+</div>
+{% endblock %}

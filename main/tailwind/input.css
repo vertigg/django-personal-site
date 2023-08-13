@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply text-gray-100 text-base leading-6 m-0 text-left
+  }
+}
+
+@layer components {
+
+  @font-face {
+    font-family: 'Gotham-Book';
+    src: url('../fonts/Gotham-Book.woff') format('woff'), /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+         url('../fonts/Gotham-Book.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+  }  
+  
+  .ladder-row {
+    @apply odd:bg-[#181818] even:bg-[#121212] h-10 outline-black/10 outline -outline-offset-1 outline-2
+  }
+
+  .page-link {
+    @apply relative block py-2 px-3 bg-[#4E5D6C] text-white
+  }
+
+  .page-link:hover {
+    @apply text-white no-underline bg-white/40
+  }
+
+  .active > .page-link {
+    @apply bg-orange-500
+  }
+}
+
 .dropdown:hover .dropdown-menu {
     display: block;
 }
@@ -25,4 +56,35 @@
 
 .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-brand:focus {
   color: #fff;
+}
+
+.character-owner-border{
+  -webkit-box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76);
+  -moz-box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76);
+  box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76)
+}
+
+.ladder-link:link,
+.ladder-link:visited {
+  color: white;
+  text-decoration: none;
+}
+
+.countdown-row {
+  display: flex;
+  font-family: 'Fontin-Regular';
+  justify-content: space-evenly;
+}
+
+.countdown-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.countdown-amount {
+  font-size: xx-large;
+}
+
+.countdown-period {
+  font-size: small;
 }
