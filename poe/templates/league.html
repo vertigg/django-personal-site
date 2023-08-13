@@ -21,16 +21,16 @@
                 <th>Character</th>
                 <th>Account</th>
                 <th>Class
-                    <form id="" method="get" style="float:right">{{class_filter.form.class_id}}</form>
+                    <form id="" method="get" class="float-right">{{class_filter.form.class_id}}</form>
                 </th>
-                <th class="row-level text-center">Level</th>
-                <th class="row-level text-center">Progress</th>
-                <th class="row-level text-center">Experience</th>
-                <th class="row-level text-center">Life</th>
-                <th class="row-level text-center">ES</th>
-                <th class="row-level text-center"><abbr title="Unhinged estimation by unconfigured PoB">DPS</abbr></th>
-                <th class="row-level text-center compact-column">Skills</th>
-                <th class="row-level text-center compact-column">Last Update</th>
+                <th class="text-center">Level</th>
+                <th class="text-center">Progress</th>
+                <th class="text-center">Experience</th>
+                <th class="text-center">Life</th>
+                <th class="text-center">ES</th>
+                <th class="text-center"><abbr title="Unhinged estimation by unconfigured PoB">DPS</abbr></th>
+                <th class="text-center compact-column">Skills</th>
+                <th class="text-center compact-column">Last Update</th>
             </tr>
         </thead>
         <tbody>
@@ -56,7 +56,10 @@
                         </div>
                     </a>
                 </td>
-                <td> <img id="class-icon" src="{% get_static_prefix %}poe/img/characters/{{character.class_name}}_avatar.png"> {{character.class_name}}</td>
+                <td>
+                    <img class="max-h-[25px] hidden lg:inline" src="{% get_static_prefix %}poe/img/characters/{{character.class_name}}_avatar.png">
+                    <span>{{character.class_name}}</span>
+                </td>
                 <td class="text-center">{{character.level}}</td>
 
                 {% with character|level_progress as level_progress %}
@@ -66,24 +69,22 @@
                     </div>
                 </td>
                 {% endwith %}
-                <td class="text-center">
-                    <div class="text-right" style="width:75%">{{character.experience|space_separator}}</div>
+                <td class="text-right">
+                    <span class="mr-4">{{character.experience|space_separator}}</span>
                 </td>
                 <td class="text-center">
-                    <div class="text-right" style="width:75%">{{character.life|default_if_none:"-"}}</div>
+                    <span>{{character.life|default_if_none:"-"}}</span>
                 </td>
                 <td class="text-center">
-                    <div class="text-right" style="width:75%">{{character.es|default_if_none:"-"}}</div>
-                </td>
-
-                <td class="text-center">
-                    <div class="text-right" style="width:75%">{{character.combined_dps|float_compact_format|default_if_none:"-"}}</div>
+                    <span>{{character.es|default_if_none:"-"}}</span>
                 </td>
 
-                <td class="row-gems compact-column">
-                    <div class="gems-container">
-                        {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
-                    </div>
+                <td class="text-center">
+                    <div>{{character.combined_dps|float_compact_format|default_if_none:"-"}}</div>
+                </td>
+
+                <td class="max-w-[150px] min-w-max flex flex-row py-1 justify-center ">
+                    {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
                 </td>
                 <td class="compact-column" title="{{ character.modified|date:'c' }}">
                     {{ character.modified|date:"j F, H:i:s" }}

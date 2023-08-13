@@ -1,3 +1,4 @@
+<!-- TODO: Just use one table for both pages ffs -->
 {% load static %}
 <div class="container col-lg-10">
   <h1 class="ladder-title">Search results</h1>
@@ -16,9 +17,9 @@
           <th>Character</th>
           <th>Account</th>
           <th>League</th>
-          <th class="row-level text-center">Class</th>
-          <th class="row-level text-center">Level</th>
-          <th class="row-level text-center">Skills</th>
+          <th class="text-center">Class</th>
+          <th class="text-center">Level</th>
+          <th class="text-center">Skills</th>
         </tr>
       </thead>
       <tbody>
@@ -49,20 +50,16 @@
           <td>
             <a class="ladder-link" href="{{ character.league.get_absolute_url }}">{{ character.league.name }}</a>
           </td>
-          <td>
-            <img
-              id="class-icon"
+          <td class="max-w-min">
+              <img
+              class="max-h-[25px] inline ml-16"
               src="{% get_static_prefix %}poe/img/characters/{{character.class_name}}_avatar.png"
-            />
-            {{character.class_name}}
+              />
+              <span>{{character.class_name}}</span>
           </td>
           <td class="text-center">{{character.level}}</td>
-          <td class="row-gems">
-            <div class="gems-container">
-                {% for gem in character.gems.all %}
-                <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}" />
-                {% endfor %}
-            </div>
+          <td class="min-w-max flex flex-row py-1 justify-center ">
+            {% for gem in character.gems.all %} <img class="active-skill" src="{{gem.icon}}" title="{{gem.name}}">{% endfor %}
           </td>
         </tr>
         {% endfor %}
