@@ -63,7 +63,7 @@ class LadderView(PoEFilterView):
             Character.objects
             .filter(league_id=self.active_league.id)
             .order_by('-level', '-experience')
-            .prefetch_related('gems')
+            .prefetch_related('gems', 'items')
             .select_related('profile')
         )
 
@@ -82,7 +82,11 @@ class LadderSearchView(PoEFilterView):
     ordering = ('name', 'level')
 
     def get_queryset(self) -> QuerySet[Any]:
-        return super().get_queryset().prefetch_related('gems').select_related('profile', 'league')
+        return (
+            super().get_queryset()
+            .prefetch_related('gems', 'items')
+            .select_related('profile', 'league')
+        )
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)

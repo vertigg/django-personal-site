@@ -8,7 +8,7 @@ from rest_framework import status
 from config.celery import UniqueNamedTask, app, register_task
 from discordbot.models import DiscordUser
 from poe.config import settings as poe_settings
-from poe.models import Character, League, PoeInfo
+from poe.models import Character, Item, League, PoeInfo
 from poe.schema import CharacterSchema, PoBDataSchema
 from poe.utils.api import Client, PoEClientException
 from poe.utils.pob import PoBWrapper
@@ -230,6 +230,15 @@ class CharacterStatsUpdateTask(Task):
         character.combined_dps = pob_data.combined_dps
         character.save(update_fields=['life', 'es', 'combined_dps'])
 
+    def update_character_items(self, character: Character, items_data: dict):
+        player_items = {x.get('name', '').lower() for x in items_data.get('items')}
+        detected_items: set[int] = set()
+        for _id, name in dict(Item.objects.values_list('id', 'name')).items():
+            if name.lower() in player_items:
+                detected_items.add(_id)
+        character.items.clear()
+        character.items.set(detected_items)
+
     def run(self, account_name: str, character_name: str):
         logger.info('Received task for %s - %s', account_name, character_name)
         character = Character.objects.filter(name=character_name).first()
@@ -241,6 +250,7 @@ class CharacterStatsUpdateTask(Task):
 
         items_data = self.client.get_character_items(account_name, character_name)
         self.update_character_skills(character, items_data)
+        self.update_character_items(character, items_data)
 
         if pob_data := self.get_pob_data(character, account_name, items_data):
             self.update_character_stats(character, pob_data)

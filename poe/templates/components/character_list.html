@@ -29,18 +29,25 @@
             </td>
             {% endif %}
             <td>
-                {% if user.is_staff %}
-                <a href="{% url 'admin:poe_character_change' character.id %}">
-                    <i class="fa-solid fa-wrench"></i>
-                </a>
-                {% endif %}
-                {% if not character.expired %}
-                <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
-                    <span class="ml-2">{{character.name}}</span>
-                </a>
-                {% else %}
-                    <span class="ml-2">{{character.name}}</span>
-                {% endif %}
+                <div class="flex flex-row h-full items-center gap-2">
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin:poe_character_change' character.id %}">
+                            <i class="fa-solid fa-wrench"></i>
+                        </a>
+                    {% endif %}
+                    {% if not character.expired %}
+                    <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters?characterName={{character.name}}">
+                        <span class="ml-2">{{character.name}}</span>
+                    </a>
+                    {% else %}
+                        <span class="ml-2">{{character.name}}</span>
+                    {% endif %}
+                    <div class="flex flex-row">
+                        {% for item in character.items.all %}
+                            <img class="w-8 object-contain luxury-item" src="{{item.icon}}" title="{{item.name}}">
+                        {% endfor %}
+                    </div>
+                </div>
             </td>
             <td>
                 <a class="ladder-link" href="https://www.pathofexile.com/account/view-profile/{{character.profile.poe_profile}}/characters">
@@ -70,14 +77,16 @@
                 </div>
             </td>
             {% endwith %}
-            <td title="{{character.get_experience_trend_display}}" class="pl-2 pr-1 w-0">
+            <td class="pl-2 pr-1 w-0">
                 {% if character.experience_trend == character.ExperienceTrend.UPWARD %}
                 <span title="{{character.get_experience_trend_display}}">
                     <i class="fa-solid fa-arrow-up text-green-500 text-xs"></i>
                 </span>
                 {% endif %}
                 {% if character.experience_trend == character.ExperienceTrend.DOWNWARD %}
+                <span title="{{character.get_experience_trend_display}}">
                     <i class="fa-solid fa-arrow-down text-red-500 text-xs"></i>
+                </span>
                 {% endif %}
             </td>
             <td class="text-right w-[12ch]">

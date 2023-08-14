@@ -50,10 +50,19 @@ class ActiveGem(models.Model):
         ordering = ('name',)
 
 
+class Item(BaseModel):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=256)
+    icon = models.URLField(blank=True, null=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Character(BaseModel):
 
     class ExperienceTrend(models.IntegerChoices):
-        NO_CHANGE = 0, ''
+        NO_CHANGE = 0, 'No changes'
         UPWARD = 1, 'Player has more experience since last update'
         DOWNWARD = 2, 'Player has less experience since last update'
 
@@ -64,13 +73,11 @@ class Character(BaseModel):
     class_id = models.PositiveIntegerField(blank=True, null=True)
     ascendancy_id = models.PositiveIntegerField(blank=True, null=True)
     level = models.PositiveIntegerField(blank=True, null=True)
-    gems = models.ManyToManyField(ActiveGem)
     experience = models.BigIntegerField(blank=True, null=True)
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     expired = models.BooleanField(default=False)
-
-    # New fields
-    # items = models.ManyToManyField(Item)
+    gems = models.ManyToManyField(ActiveGem)
+    items = models.ManyToManyField(Item, blank=True)
     experience_trend = models.PositiveSmallIntegerField(
         choices=ExperienceTrend.choices,
         default=ExperienceTrend.NO_CHANGE

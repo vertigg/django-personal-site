@@ -1,9 +1,10 @@
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
+from django.utils.html import mark_safe
 
 from discordbot.models import DiscordUser
-from poe.models import Announcement, Character, League
+from poe.models import Announcement, Character, Item, League
 from poe.tasks import CharacterStatsUpdateTask, LadderUpdateTask
 
 admin.site.register(Announcement)
@@ -31,7 +32,7 @@ class PoeCharacterAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'class_name', 'level', 'league')
     search_fields = ('name',)
     list_filter = ('league', ProfileFilter)
-    exclude = ['gems']
+    exclude = ['gems', 'items']
 
     class Media:
         css = {'all': ('admin/css/custom.css',)}
@@ -61,3 +62,17 @@ class PoeCharacterAdmin(admin.ModelAdmin):
 @admin.register(League)
 class PoeLeagueAdmin(admin.ModelAdmin):
     readonly_fields = ('name', 'start_date', 'end_date', 'slug')
+
+
+@admin.register(Item)
+class PoeItemAdmin(admin.ModelAdmin):
+    fields = ('name', 'icon', 'preview')
+    list_display = ('name', 'small_preview')
+    readonly_fields = ('preview', )
+
+    def preview(self, obj: Item):
+        if obj and obj.icon:
+            return mark_safe(f'<img src="{obj.icon}" style="max-width:600px"/>')
+
+    def small_preview(self, obj: Item):
+        return mark_safe(f'<img src="{obj.icon}" style="max-height:20px"/>')
