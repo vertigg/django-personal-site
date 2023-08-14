@@ -122,6 +122,7 @@ class LadderUpdateTask(UniqueNamedTask):
                 existing_character.expired != character.expired,
             ]):
                 logger.info('Updating %s', character.name)
+                exp_change = existing_character.get_experience_trend(character.experience)
                 existing_character.update(
                     league_id=league_id,
                     class_name=character.class_name,
@@ -130,10 +131,15 @@ class LadderUpdateTask(UniqueNamedTask):
                     level=character.level,
                     experience=character.experience,
                     expired=character.expired,
+                    experience_trend=exp_change
                 )
                 self.character_tasks.append(CharacterStatsUpdateTask.si(
                     account_name, existing_character.name
                 ))
+            else:
+                existing_character.update(
+                    experience_trend=existing_character.ExperienceTrend.NO_CHANGE
+                )
 
     def _unsub_user(self, account_name: str):
         profile = DiscordUser.objects.get(poe_profile=account_name)

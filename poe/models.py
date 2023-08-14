@@ -1,8 +1,9 @@
-from discordbot.models import DiscordUser
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import now
+
+from discordbot.models import DiscordUser
 from main.models import BaseModel
 
 
@@ -50,6 +51,12 @@ class ActiveGem(models.Model):
 
 
 class Character(BaseModel):
+
+    class ExperienceTrend(models.IntegerChoices):
+        NO_CHANGE = 0, ''
+        UPWARD = 1, 'Player has more experience since last update'
+        DOWNWARD = 2, 'Player has less experience since last update'
+
     id = models.AutoField(blank=True, null=False, primary_key=True)
     name = models.TextField(unique=True)
     league = models.ForeignKey(League, on_delete=models.CASCADE)
@@ -62,6 +69,13 @@ class Character(BaseModel):
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     expired = models.BooleanField(default=False)
 
+    # New fields
+    # items = models.ManyToManyField(Item)
+    experience_trend = models.PositiveSmallIntegerField(
+        choices=ExperienceTrend.choices,
+        default=ExperienceTrend.NO_CHANGE
+    )
+
     # Experimental fields
     life = models.PositiveSmallIntegerField(null=True)
     es = models.PositiveSmallIntegerField(null=True, verbose_name='Energy Shield')
@@ -73,6 +87,13 @@ class Character(BaseModel):
 
     def __str__(self):
         return f'{self.name}: Level {self.level} {self.class_name}'
+
+    def get_experience_trend(self, new_value: int):
+        if self.experience == new_value:
+            return self.ExperienceTrend.NO_CHANGE
+        if self.experience < new_value:
+            return self.ExperienceTrend.UPWARD
+        return self.ExperienceTrend.DOWNWARD
 
 
 class Announcement(BaseModel):

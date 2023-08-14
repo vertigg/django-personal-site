@@ -1,7 +1,7 @@
 {% load static %} {% load ladder_extras %}
 <table class="table-auto w-full mb-10">
     <thead>
-        <tr class="bg-gray-800 text-center h-8 font-gotham">
+        <tr class="bg-gray-800 text-center h-8">
             {% if not hide_ranks %}<th>Rank</th>{% endif %}
             <th class="text-left"><span class="ml-2">Character</span></th>
             <th class="text-left">Account</th>
@@ -11,6 +11,7 @@
             </th>
             <th>Level</th>
             <th>Progress</th>
+            <th></th>
             <th class="pl-3">Experience</th>
             <th>Life</th>
             <th>ES</th>
@@ -61,7 +62,7 @@
                 {{character.level}}
             </td>
             {% with character|level_progress as level_progress %}
-            <td title="{{level_progress}}%" class="">
+            <td title="{{level_progress}}%">
                 <div class="relative pl-1">
                     <div class="h-2 flex bg-gray-600 ">
                         <div style="width:{{level_progress}}%" class="bg-cyan-500"></div>
@@ -69,8 +70,18 @@
                 </div>
             </td>
             {% endwith %}
-            <td class="text-right w-[150px]">
-                <span class="pr-3">{{character.experience|space_separator}}</span>
+            <td title="{{character.get_experience_trend_display}}" class="pl-2 pr-1 w-0">
+                {% if character.experience_trend == character.ExperienceTrend.UPWARD %}
+                <span title="{{character.get_experience_trend_display}}">
+                    <i class="fa-solid fa-arrow-up text-green-500 text-xs"></i>
+                </span>
+                {% endif %}
+                {% if character.experience_trend == character.ExperienceTrend.DOWNWARD %}
+                    <i class="fa-solid fa-arrow-down text-red-500 text-xs"></i>
+                {% endif %}
+            </td>
+            <td class="text-right w-[12ch]">
+                <span class="">{{character.experience|space_separator}}</span>
             </td>
             <td class="text-center">
                 <span>{{character.life|default_if_none:""}}</span>

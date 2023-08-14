@@ -17,7 +17,8 @@
   }  
   
   .ladder-row {
-    @apply odd:bg-[#181818] even:bg-[#121212] h-10 outline-black/10 outline -outline-offset-1 outline-2
+    @apply odd:bg-[#181818] even:bg-[#121212] h-10 outline-black/10 outline -outline-offset-1 outline-2 
+    hover:odd:bg-[#252525] hover:even:bg-[#1f1f1f]
   }
 
   .page-link {
