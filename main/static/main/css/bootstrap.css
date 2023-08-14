@@ -1410,11 +1410,7 @@ fieldset:disabled a.btn {
   float: none;
 }
 
-.navbar-text {
-  display: inline-block;
-  /* padding-top: 0.5rem; */
-  /* padding-bottom: 0.5rem; */
-}
+
 
 .navbar-collapse {
   -ms-flex-preferred-size: 100%;
@@ -1532,17 +1528,6 @@ fieldset:disabled a.btn {
   color: #fff;
 }
 
-.navbar-dark .navbar-text {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.navbar-dark .navbar-text a {
-  color: #fff;
-}
-
-.navbar-dark .navbar-text a:hover, .navbar-dark .navbar-text a:focus {
-  color: #fff;
-}
 
 .card {
   position: relative;
@@ -2178,7 +2163,7 @@ button.bg-dark:focus {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1030;
+  z-index: 20;
 }
 
 @supports ((position: -webkit-sticky) or (position: sticky)) {
@@ -2223,66 +2208,6 @@ button.bg-dark:focus {
   max-width: 100% !important;
 }
 
-.m-1 {
-  margin: 0.25rem !important;
-}
-
-.mb-1 {
-  margin-bottom: 0.25rem !important;
-}
-
-.m-2 {
-  margin: 0.5rem !important;
-}
-
-
-.my-2 {
-  margin-top: 0.5rem !important;
-}
-
-
-.my-2 {
-  margin-bottom: 0.5rem !important;
-}
-
-.ml-2 {
-  margin-left: 0.5rem !important;
-}
-
-.m-4 {
-  margin: 1.5rem !important;
-}
-
-.p-2 {
-  padding: 0.5rem !important;
-}
-
-.pl-2 {
-  padding-left: 0.5rem !important;
-}
-
-.p-3 {
-  padding: 1rem !important;
-}
-
-.p-4 {
-  padding: 1.5rem !important;
-}
-
-.p-5 {
-  padding: 3rem !important;
-}
-
-.mt-auto {
-  margin-top: auto !important;
-}
-
-.mr-auto,
-.mx-auto {
-  margin-right: auto !important;
-}
-
-.ml-auto,
 .mx-auto {
   margin-left: auto !important;
 }
@@ -2468,12 +2393,6 @@ label,
   opacity: 1;
 }
 
-.nav-right {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
 
 .text-divider {
   display: flex;

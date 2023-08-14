@@ -1,28 +1,22 @@
-{% extends "navbar.html" %} {% load ladder_extras %} 
-{% block nav_brand_container %}
-<span
-  class="navbar-text mr-auto navbar-toggler"
-  data-toggle="collapse"
-  data-target="#collapsable"
-  aria-controls="navbarSupportedContent"
-  aria-expanded="false"
-  aria-label="Toggle navigation"
->
-  <button class="btn btn-primary btn-sm">
-    <i class="fa-solid fa-bars"></i>
-  </button>
-</span>
-{{ block.super }} 
+{% extends "navbar.html" %} 
+
+{% block navbar_extras %}
+  <div class="flex flex-grow items-baseline w-100">
+    {% include "components/leagues_dropdown.html" %}
+    {% include "components/tools_dropdown.html" %}
+    <a class="ml-2 inline-block mr-1 hover:no-underline text-gray-300 text-opacity-90 hover:text-gray-200" href="{% url 'poe:chat-monitor' %}">
+      <span>Chat Monitor</span>
+    </a>
+    <form class="ml-auto" action="{% url 'poe:ladder_search' %}" method="get">
+      {{ poe_context.search_form.name }}
+    </form>
+  </div>
 {% endblock %}
-{% block header_extras %}
-  {% include "components/leagues_dropdown.html" %}
-  {% include "components/tools_dropdown.html" %}
 
-  <a class="ml-2 inline-block mr-1 hover:no-underline text-gray-300 text-opacity-90 hover:text-gray-200" href="{% url 'poe:chat-monitor' %}">
-    <span>Chat Monitor</span>
-  </a>
-
-  <form class="lg:ml-auto" action="{% url 'poe:ladder_search' %}" method="get">
+{% block mobile_navbar_extras %}
+  <form class="w-100 mobile-search-form p-2" action="{% url 'poe:ladder_search' %}" method="get">
     {{ poe_context.search_form.name }}
   </form>
+  {% include "components/leagues_mobile_list.html" %}
+  {% include "components/tools_mobile_list.html" %}
 {% endblock %}

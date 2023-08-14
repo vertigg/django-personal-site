@@ -8,6 +8,8 @@
   }
 }
 
+/* Components contain some unreachable template css (like django forms fields or countdown.js timer. Or I'm just lazy sometimes */
+/* TODO: Remove some @apply rules */
 @layer components {
 
   @font-face {
@@ -33,8 +35,8 @@
     @apply bg-orange-500
   }
 
-  .btn-default {
-    @apply bg-orange-500 py-1 px-3 font-thin hover:bg-orange-700 rounded-md text-white hover:text-white hover:no-underline
+  .mobile-search-form > input {
+    @apply w-full px-2 h-10 placeholder:text-base
   }
 
 }
@@ -52,29 +54,13 @@
   white-space: nowrap;
 }
   
-.navbar-brand:hover, .navbar-brand:focus {
-  text-decoration: none;
-}
-
-.navbar-dark .navbar-brand {
-  color: #fff;
-}
-
-.navbar-dark .navbar-brand:hover, .navbar-dark .navbar-brand:focus {
-  color: #fff;
-}
-
-.character-owner-border{
+.character-owner-border {
   -webkit-box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76);
   -moz-box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76);
   box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76)
 }
 
-.ladder-link:link,
-.ladder-link:visited {
-  color: white;
-  text-decoration: none;
-}
+
 
 .countdown-row {
   display: flex;

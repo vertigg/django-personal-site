@@ -1,20 +1,25 @@
-<nav class="navbar navbar-expand-lg navbar-dark text-white font-gotham">
-  <div class="flex items-center gap-[2px]">
-    {% block nav_brand_container %}
-    <a class="navbar-brand" href="{% url 'main:home' %}">Vertig's Hideout</a>
-    {% endblock %}
+<nav class="relative px-2 py-2 flex align-baseline justify-between items-center bg-transparent font-gotham text-base">
+  <a class="text-xl leading-none text-white px-2 py-1 hover:text-white hover:no-underline" href="{% url 'main:home' %}">Vertig's Hideout</a>
+  <!-- John Burger -->
+  <div class="lg:hidden">
+    <button class="navbar-burger flex items-center text-white p-2">
+      <svg class="block h-4 w-4 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <title>Mobile menu</title>
+        <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
+      </svg>
+    </button>
   </div>
-  <div class="collapse navbar-collapse" id="collapsable">
-    {% block header_extras %} {% endblock %}
-  </div>
-  <div class="ml-auto nav-right">
+  <!-- Middle section -->
+  <ul class="hidden lg:flex m-0 lg:w-auto flex-grow ">
+    <!--HEADER EXTRAS BLOCK HERE-->
+    {% block navbar_extras %} {% endblock %}
+  </ul>
+  <div class="hidden lg:inline-block lg:ml-auto">
     {% if user.is_authenticated %}
-    <div id="profile-controls" class="z-10 ml-2">
+    <div class="z-10 ml-2">
       <div class="group inline-block relative">
-        <button
-          class="text-gray-300 text-opacity-90 py-1 pl-8 rounded inline-flex items-center focus:outline-none focus:text-orange-500 group-hover:text-orange-500"
-        >
-          <span class="mr-1">
+        <button class="text-gray-300 text-opacity-90 py-1 pl-6 inline-flex items-center focus:outline-none focus:text-orange-500 group-hover:text-orange-500">
+          <span class="mr-1 text-sm">
             <i class="fa-solid fa-user"></i>
             <span>{{ user }}</span>
           </span>
@@ -22,44 +27,96 @@
             <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
           </svg>
         </button>
-        <ul
-          class="absolute hidden bg-[#4e5d6c] border-[1px] py-1 min-w-full border-black/40 text-gray-700 group-hover:block group-focus:block group-focus-within:block"
-        >
+        <ul class="absolute hidden bg-[#4e5d6c] border-[1px] py-1 min-w-full border-black/40 text-gray-700 group-hover:block group-focus:block group-focus-within:block ">
           {% if user.is_staff %}
           <li class="hover:bg-gray-300/50 active:bg-orange-500">
-            <a
-              class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap"
-              href="{% url 'admin:index' %}"
-            >
+            <a class="text-sm text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline" href="{% url 'admin:index' %}">
               <i class="fa-solid fa-toolbox"></i>
-              <span>Admin Panel</span>
+              <span class="whitespace-nowrap">Admin Panel</span>
             </a>
           </li>
           <div class="h-0 my-1 overflow-hidden border-t-[1px] border-black/10"></div>
           {% endif %}
           <li class="hover:bg-gray-300/50 active:bg-orange-500">
-            <a
-              class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap"
-              href="{% url 'main:profile' %}"
-            >
+            <a class="text-sm text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline" href="{% url 'main:profile' %}">
               <i class="fa-solid fa-user"></i>
-              <span>Profile</span>
+              <span class="whitespace-nowrap">Profile</span>
             </a>
           </li>
           <li class="hover:bg-gray-300/50 active:bg-orange-500">
-            <a
-              class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-no-wrap"
-              href="{% url 'main:logout' %}"
-            >
+            <a class="text-sm text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline" href="{% url 'main:logout' %}">
               <i class="fa-solid fa-right-from-bracket"></i>
-              <span>Logout</span>
+              <span class="whitespace-nowrap">Logout</span>
             </a>
           </li>
         </ul>
       </div>
     </div>
     {% else %}
-    <a href="{% url 'main:login' %}" class="ml-2 btn-default">Login</a>
+    <a class="text-white no-underline hover:text-white hover:no-underline px-4 flex gap-2 items-baseline whitespace-nowrap" href="{% url 'main:login' %}">
+      <i class="fa-solid fa-right-to-bracket"></i>
+      <span>Login</span>
+    </a>
     {% endif %}
   </div>
 </nav>
+<!--Mobile menu-->
+<div class="navbar-menu relative z-50 hidden ">
+  <div class="navbar-backdrop fixed inset-0 bg-gray-800 opacity-90"></div>
+  <nav class="fixed top-0 left-0 bottom-0 flex flex-col w-5/6 max-w-xs p-1 bg-gray-600 opacity-95 border-r overflow-y-auto">
+    <div class="flex items-center justify-between px-3 pt-2">
+      <a class="text-xl font-gotham leading-none text-white hover:text-white hover:no-underline" href="{% url 'main:home' %}">Vertig's Hideout</a>
+      <button class="navbar-close">
+        <svg class="h-6 w-6 text-gray-400 cursor-pointer hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    {% if user.is_authenticated %}<p class="px-3 text-xs text-gray-300">Logged in as {{ user }}</p>{% endif %}
+    <div>
+      <ul class="my-4 group-hover:block group-focus:block group-focus-within:block list-none">
+        {% if user.is_authenticated %}
+          {% if user.is_staff %}
+            <li class="hover:bg-gray-300/50 active:bg-orange-500">
+              <a class="text-white no-underline hover:text-white hover:no-underline py-1 px-4 flex gap-2 items-baseline whitespace-nowrap" href="{% url 'admin:index' %}">
+                <i class="fa-solid fa-toolbox"></i>
+                <span>Admin Panel</span>
+              </a>
+            </li>
+          {% endif %}
+          <li class="hover:bg-gray-300/50 active:bg-orange-500">
+            <a class="text-white no-underline hover:text-white hover:no-underline py-1 px-4 flex gap-2 items-baseline whitespace-nowrap" href="{% url 'main:profile' %}">
+              <i class="fa-solid fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="hover:bg-gray-300/50 active:bg-orange-500">
+            <a class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-nowrap" href="{% url 'main:login' %}">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Login</span>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    <ul>
+      {% block mobile_navbar_extras %}{% endblock %}
+    </ul>
+    </div>
+    <div class="mt-auto">
+      {% if user.is_authenticated %}
+        <ul class="list-none">
+          <li class="hover:bg-gray-300/50 active:bg-orange-500">
+            <a class="text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline whitespace-nowrap" href="{% url 'main:logout' %}">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      {% endif %}
+      <p class="my-4 text-xs text-center text-gray-400">
+        <span></span>
+      </p>
+    </div>
+  </nav>
+</div>

@@ -1,0 +1,19 @@
+<ul>
+  <div class="flex items-center py-1">
+    <div class="flex-grow h-px ml-2 bg-black/10"></div> 
+    <span class="flex-shrink text-white px-4">Tools</span>
+    <div class="flex-grow h-px mr-2 bg-black/10"></div>
+  </div>
+  {% for title, url in poe_context.tools_links.items %}
+  <li class="hover:bg-gray-300/50 active:bg-orange-500">
+    <a class="text-white no-underline hover:text-white hover:no-underline py-1 px-4 flex gap-2 items-baseline whitespace-nowrap" href="{{ url }}">
+      <span>{{ title }}</span>
+    </a>
+  </li>
+  {% endfor %}
+  <li class="hover:bg-gray-300/50 active:bg-orange-500">
+    <a class="text-white no-underline hover:text-white hover:no-underline py-1 px-4 flex gap-2 items-baseline whitespace-nowrap" href="{% url 'poe:chat-monitor' %}">
+      <span>Chat Monitor</span>
+    </a>
+  </li>
+</ul>
