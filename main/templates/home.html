@@ -1,61 +1,59 @@
 {% extends "base.html" %}
 {% load static%}
-{% block css %}
-{% include "bootstrap4.html" %}
-{% endblock %}
 {% block title%}Vertig's hideout{% endblock %}
+
 {% block content%}
 {% include "navbar.html" %}
-<div class="container col-sm-10">
-    <br>
-    <h1 class="display-4 p-2">Personal projects</h1>
-    <div class="d-flex row justify-content-center" style="gap: 2rem">
-            <div class="col-sm-4 d-flex align-items-stretch">
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="{% static 'main/image/bot.png' %}" alt="Tony Tornado">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Tornado Bot</h5>
-                    <p class="card-text">Another bot for Discord, based on Rapptz/discord.py API Wrapper.</p>
-                    <a href="https://github.com/vertigg/django-personal-site/tree/master/discordbot" class="mt-auto align-self-start btn btn-primary">GitHub</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4 d-flex align-items-stretch">
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="{% static 'main/image/ladder.png' %}" alt="Mr. Minotaur">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Path of Exile Ladder</h5>
-                    <p class="card-text">Django Application which compares Path of Exile characters</p>
-                    <div class="float-right">
-                        <a href="{% url 'poe:ladder_main' %}" class="btn btn-primary">Open</a>
-                        <a href="{% url 'poe:api-root' %}" class="btn btn-primary">API</a>
-                        <a href="https://github.com/vertigg/django-personal-site/tree/master/poe" class="btn btn-primary">GitHub</a>
+<div class="flex justify-center w-full">
+    <div class="w-10/12">
+        <div>
+            <h1 class="text-4xl font-thin p-2 my-6">Personal projects</h1>
+            <section class="flex flex-row flex-wrap gap-8 justify-center">
+                <div class="group relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
+                    <img class="flex-shrink-0" src="{% static 'main/image/bot.png' %}" alt="Tony Tornado">
+                    <div class="flex flex-col p-5 h-full">
+                        <h5 class="text-xl">Tornado Bot</h5>
+                        <p class="text-base my-1 flex-grow">Another bot for Discord, based on Rapptz/discord.py API Wrapper.</p>
+                        <div class="flex gap-1 mt-4">
+                            <a href="https://github.com/vertigg/django-personal-site/tree/master/discordbot" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">GitHub</a>
+                        </div>
+                        
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-sm-4 d-flex align-items-stretch">
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="{% static 'main/image/asteroids.png' %}" alt="Asteroids">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Asteroids Game</h5>
-                    <p class="card-text">Small game made with Unity.</p>
-                    <a href="{% url 'asteroids' %}" class="mt-auto align-self-start btn btn-primary">Play</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4 d-flex align-items-stretch">
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="{% static 'main/image/heist.png' %}" alt="Asteroids">
-                <div class="card-body d-flex flex-column" style="justify-content: space-between;">
-                    <h5 class="card-title">Heist Gems Price Checker </h5>
-                    <p class="card-text">OCR solution for price checking gems in PoE Heists</p>
-                    <div class="float-right">
-                        <a href="https://github.com/vertigg/HeistGemPriceChecker" class="mt-auto align-self-start btn btn-primary">Github</a>
-                        <a href="https://github.com/vertigg/HeistGemPriceChecker/releases" class="mt-auto align-self-start btn btn-primary">Releases</a>
+                <div class="relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
+                    <img class="flex-shrink-0" src="{% static 'main/image/ladder.png' %}" alt="John Minotaur">
+                    <div class="flex flex-col p-5 h-full">
+                        <h5 class="text-xl">Path of Exile Ladder</h5>
+                        <p class="text-base my-1 flex-grow">Django Application which compares Path of Exile characters</p>
+                        <div class="flex gap-1 mt-4">
+                            <a href="{% url 'poe:ladder_main' %}" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Open</a>
+                            <a href="{% url 'poe:api-root' %}" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">API</a>
+                            <a href="https://github.com/vertigg/django-personal-site/tree/master/poe" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">GitHub</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
+                    <img class="flex-shrink-0" src="{% static 'main/image/asteroids.png' %}" alt="Asteroids">
+                    <div class="flex flex-col p-5 h-full">
+                        <h5 class="text-xl">Asteroids Game</h5>
+                        <p class="text-base my-1 flex-grow">Small game made with Unity.</p>
+                        <div class="flex gap-1 mt-auto">
+                            <a href="{% url 'asteroids' %}" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Play</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
+                    <img class="flex-shrink-0" src="{% static 'main/image/heist.png' %}" alt="Le Heist">
+                    <div class="flex flex-col p-5 h-full">
+                        <h5 class="text-xl">Heist Gems Price Checker</h5>
+                        <p class="text-base my-1 flex-grow">OCR solution for price checking gems in PoE Heists</p>
+                        <div class="flex gap-1 mt-auto">
+                            <a href="https://github.com/vertigg/HeistGemPriceChecker" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Github</a>
+                            <a href="https://github.com/vertigg/HeistGemPriceChecker/releases" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Releases</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 </div>

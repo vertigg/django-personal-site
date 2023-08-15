@@ -38,12 +38,10 @@
     <title>{% block title %}{% endblock %}</title>
   </head>
 
-  <body>
-    <div class="flex flex-col h-screen">
-        <header>{% block header %}{% endblock %}</header>
-        <main class="flex-grow">{% block content %}{% endblock %}</main>
-        {% block footer %}{% block footer_content %} {% endblock %}{% endblock %}
-    </div>
+  <body class="flex flex-col h-screen">
+      <header>{% block header %}{% endblock %}</header>
+      <main class="flex-grow">{% block content %}{% endblock %}</main>
+      {% block footer %}{% block footer_content %} {% endblock %}{% endblock %}
   </body>
 
   {% block script %} {% endblock %}
