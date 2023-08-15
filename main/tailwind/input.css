@@ -11,7 +11,7 @@
   /*Cause it's the pain in the ass to style some Django forms*/
   input[type="text"],
   input[type="password"] {
-    @apply block w-full rounded-sm p-2 text-black
+    @apply block w-full rounded-sm p-2 text-black focus:outline-none
   }
 }
 
@@ -26,71 +26,29 @@
   }  
   
   .ladder-row {
-    @apply odd:bg-[#181818] even:bg-[#121212] h-10 outline-black/10 outline -outline-offset-1 outline-2 
-    hover:odd:bg-[#252525] hover:even:bg-[#1f1f1f]
+    @apply odd:bg-[#181818] hover:odd:bg-[#252525] even:bg-[#121212] hover:even:bg-[#1f1f1f] h-10 outline-black/10 outline -outline-offset-1 outline-2 
   }
 
-  .page-link {
-    @apply relative block py-2 px-3 bg-[#4E5D6C] text-white
-  }
-
-  .page-link:hover {
-    @apply text-white no-underline bg-white/40
-  }
-
-  .active > .page-link {
-    @apply bg-orange-500
-  }
-
+  /* Unreachable css classes */
   .mobile-search-form > input {
     @apply w-full px-2 h-10 placeholder:text-base
   }
 
-}
+  .countdown-row {
+    @apply flex font-fontin justify-evenly
+  }
 
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
+  .countdown-section {
+    @apply flex flex-col
+  }
 
-.navbar-brand {
-  display: inline-block;
-  padding-top: 0.3125rem;
-  padding-bottom: 0.3125rem;
-  font-size: 1.25rem;
-  line-height: inherit;
-  white-space: nowrap;
-}
-  
-.character-owner-border {
-  -webkit-box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76);
-  -moz-box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76);
-  box-shadow:inset 2px 0px 0px 0px hsla(142, 69%, 58%, 0.76)
-}
+  .countdown-amount {
+    @apply font-mono text-4xl
+  }
 
-
-
-.countdown-row {
-  display: flex;
-  font-family: 'Fontin-Regular';
-  justify-content: space-evenly;
-}
-
-.countdown-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.countdown-amount {
-  font-size: xx-large;
-}
-
-.countdown-period {
-  font-size: small;
-}
-
-.luxury-item {
-  -webkit-filter: drop-shadow(0px 0px 3px hsla(26, 65%, 42%));
-  filter: drop-shadow(0px 0px 3px hsla(26, 65%, 42%));
+  .countdown-period {
+    @apply font-fontin text-sm
+  }
 }
 
 /* TODO: change stupid notifications */

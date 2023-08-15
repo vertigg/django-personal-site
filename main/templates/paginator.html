@@ -1,58 +1,53 @@
 <!-- Paginator -->
+{% load pagination_tags %}
+
 {% if item.paginator.num_pages != 1 %}
 <div class="flex justify-center my-3">
-  <ul class="flex flex-row list-none">
-    {% if item.has_previous %}
-      <li>
-        <a class="page-link" href="?page={{item.previous_page_number}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %} ">&laquo;</a>
-      </li>
-    {% else %}
-      <li>
-        <a class="page-link bg-[#4E5D6C] text-gray-400 pointer-events-none" href="#">&laquo;</a>
-      </li>
-    {% endif %}
-
+  <ul class="flex flex-row list-none mb-4">
+    <li>
+        <a 
+          class="py-2 px-3 bg-[#4E5D6C] hover:bg-white/40{% if not item.has_previous %} text-gray-400 pointer-events-none{% endif %}" 
+          href="{% if item.has_previous %}{{ request|generate_pagination_link:item.previous_page_number }}{% else %}#{% endif %}">
+          &laquo;
+        </a>
+    </li>
     {% for page in item.paginator.page_range %}
       <!-- First page -->
       {% if 1 < item.number|add:'-5' and forloop.first %}
           <li>
-              <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}">1</a>
+              <a class="py-2 px-3 bg-[#4E5D6C] hover:bg-white/40" href="{{ request|generate_pagination_link:1 }}">1</a>
           </li>
           <li>
-              <a class="page-link bg-[#4E5D6C] pointer-events-none" href="#">...</a>
+              <a class="py-2 px-3 bg-[#4E5D6C] hover:bg-white/40 pointer-events-none" href="#">...</a>
           </li>
       {% endif %}
       <!-- Main loop -->
       {% if page > item.number|add:'-5' and page < item.number|add:'5' %}
-        {% if item.number == forloop.counter %}
-          <li class="active">
-        {% else %}
-          <li>
-        {% endif %}
-              <a class="page-link" href="?page={{forloop.counter}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}">{{forloop.counter}}</a>
-          </li>
-        {% endif %}
+        <li>
+          <a 
+            class="py-2 px-3 {% if item.number == forloop.counter %}bg-orange-500/90 hover:bg-orange-600{% else %}bg-[#4E5D6C] hover:bg-white/40{% endif %}" 
+            href="{{ request|generate_pagination_link:forloop.counter }}">
+            {{forloop.counter}}
+          </a>
+        </li>
+      {% endif %}
       <!-- Last page -->
       {% if item.paginator.num_pages > item.number|add:'5' and forloop.last %}
         <li>
-            <a class="page-link bg-[#4E5D6C] pointer-events-none" href="#">...</a>
+            <a class="py-2 px-3 bg-[#4E5D6C] hover:bg-white/40 pointer-events-none" href="#">...</a>
         </li>
         <li>
-            <a class="page-link" href="?page={{item.paginator.num_pages}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %}">{{item.paginator.num_pages}}</a>
+            <a class="py-2 px-3 bg-[#4E5D6C] hover:bg-white/40" href="{{ request|generate_pagination_link:item.paginator.num_pages }}">{{item.paginator.num_pages}}</a>
         </li>
       {% endif %}
     {% endfor %}
-
-
-    {% if item.has_next %}
-      <li>
-        <a class="page-link" href="?page={{item.next_page_number}}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{key}}={{value}}{% endif %}{% endfor %} ">&raquo;</a>
-      </li>
-    {% else %}
-      <li>
-        <a class="page-link bg-[#4E5D6C] text-gray-400 pointer-events-none" href="#">&raquo;</a>
-      </li>
-    {% endif %}
+    <li>
+      <a 
+        class="py-2 px-3 bg-[#4E5D6C] hover:bg-white/40{% if not item.has_next %} text-gray-400 pointer-events-none{% endif %}" 
+        href="{% if item.has_next %}{{ request|generate_pagination_link:item.next_page_number }}{% else %}#{% endif %}">
+        &raquo;
+      </a>
+    </li>
   </ul>
 </div>
 {% endif %}

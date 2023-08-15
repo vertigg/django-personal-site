@@ -1,11 +1,18 @@
+from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.socialaccount.models import SocialLogin
-from discordbot.models import DiscordUser
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseRedirect
 from django.urls import reverse
+
+from discordbot.models import DiscordUser
 
 
 class CustomDiscordAccountAdapter(DefaultSocialAccountAdapter):
+
+    def authentication_error(self, request, provider_id, **kwargs):
+        raise ImmediateHttpResponse(HttpResponseRedirect(reverse('main:login')))
+
     def pre_social_login(self, request, sociallogin: SocialLogin):
         """
         Connects social account to existing user if email exists in the system

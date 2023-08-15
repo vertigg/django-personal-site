@@ -22,7 +22,7 @@
     </thead>
     <tbody>
         {% for character in characters %}
-        <tr class="ladder-row{% if character.expired %} opacity-70{% endif %} {% if current_profile == character.profile.poe_profile %} character-owner-border{% endif %}">
+        <tr class="ladder-row{% if character.expired %} opacity-70{% endif %} {% if current_profile == character.profile.poe_profile %} shadow-[inset_2px_0px_0px_0px_hsla(142,69%,58%,0.76)]{% endif %}">
             {% if not hide_ranks %}
             <td class="text-center">
                 {{forloop.counter0|add:page_obj.start_index}}
@@ -44,7 +44,7 @@
                     {% endif %}
                     <div class="flex flex-row">
                         {% for item in character.items.all %}
-                            <img class="w-8 object-contain luxury-item" src="{{item.icon}}" title="{{item.name}}">
+                            <img class="h-8 w-8 object-contain drop-shadow-[0_0_3px_hsla(26,65%,42%)]" src="{{item.icon}}" title="{{item.name}}">
                         {% endfor %}
                     </div>
                 </div>

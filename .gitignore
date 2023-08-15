@@ -282,7 +282,6 @@ credentials.py
 .vs/
 env/
 .venv/
-.venv39/
 examples/
 data.db
 
@@ -297,3 +296,5 @@ books/
 !.gitkeep
 .env310
 recap
+TODO
+token.json

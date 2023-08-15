@@ -9,7 +9,7 @@
         <div class="text-center flex flex-col items-center">
             <img class="max-w-xs" src="{% static 'main/image/already_logged.jpg'%}">
             <span class="text-xl">How the hell did you get here?</span>
-            <a href="{% url 'main:home' %}" class="bg-orange-500/90 p-2 rounded-sm">Back to reality</a>
+            <a href="{% url 'main:home' %}" class="bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Back to reality</a>
         </div>
     {% else %}
     <div class="w-[400px] min-w-[300px] font-gotham">
@@ -17,7 +17,7 @@
         <div>
             <form action="{% provider_login_url 'discord' %}" method="post">
                 {% csrf_token %}
-                <button class="bg-orange-500/90 rounded-md p-2 w-full"><i class="fa-brands fa-discord"></i> Via Discord</button>
+                <button class="bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm  p-2 w-full"><i class="fa-brands fa-discord"></i> Via Discord</button>
             </form>
         </div>
         <div class="flex items-center py-2">
@@ -46,7 +46,7 @@
                     <a class="text-orange-500/90" href="{% url 'main:signup' %}?{{ request.GET.urlencode }}">here</a>
                 </span>
                 <input type="hidden" name="next" value="{{ next }}" />
-                <input class="ml-auto rounded-md py-2 px-4 bg-orange-500/90 text-white" type="submit" value="Login" />
+                <input class="ml-auto rounded-md py-2 px-4 bg-orange-500/90 hover:bg-orange-600/90 text-sm text-white" type="submit" value="Login" />
             </div>
         </form>
     </div>

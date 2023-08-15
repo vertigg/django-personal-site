@@ -7,45 +7,19 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<!--TODO: This thing is a mess, need to override social login view probably to clean this up-->
 <div class="grid h-[80vh] items-center justify-center">
   <div class=" min-w-[300px] font-gotham flex flex-col items-center">
-    {% if user.is_authenticated %}
-      {% if process == "connect" %}
-      {% get_social_accounts user as accounts %}
-        {% if not accounts %}
-        <h1 class="text-5xl font-light text-center mt-2">{% blocktrans with provider.name as provider %}Connect {{ provider }} account{% endblocktrans %}</h1>
-        <p class="text-center">{% blocktrans with provider.name as provider %}You are about to connect a new third party account from {{ provider }}.{% endblocktrans %}</p>
-        <form method="post">
-          {% csrf_token %}
-          <button class="p-2 m-2 bg-orange-500/90 rounded-sm" type="submit">{% trans "Connect" %}</button>
-        </form>
-        {% else %}
-        <div class="text-center flex flex-col items-center">
-          <img class="max-w-xs" src="{% static 'main/image/already_logged.jpg'%}">
-          <span class="text-xl">You already have an account connected</span>
-          <span>You already have linked account. You can connect new account from 
-            <a class="text-orange-500/90" href="{% url 'main:profile' %}">profile page</a>
-          </span>
-      </div>
-       {% endif %}
-      {% else %}
-      <div class="text-center flex flex-col items-center">
-          <img class="max-w-xs" src="{% static 'main/image/already_logged.jpg'%}">
-          <span class="text-xl">You already logged in.</span>
-          <span>If you wish to connected Discord account you can do this from 
-            <a class="text-orange-500/90" href="{% url 'main:profile' %}">profile page</a>
-          </span>
-      </div>
-      {% endif %}
+    {% if process == "connect" %}
+      <h1 class="text-5xl font-light text-center mt-2">{% blocktrans with provider.name as provider %}Connect {{ provider }} account{% endblocktrans %}</h1>
+      <p class="text-center">{% blocktrans with provider.name as provider %}You are about to connect a new third party account from {{ provider }}.{% endblocktrans %}</p>
     {% else %}
-        <h1 class="text-5xl font-light text-center mt-2">{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
-        <p class="text-center">{% blocktrans with provider.name as provider %}You are about to sign in using a third party account from {{ provider }}.{% endblocktrans %}</p>
-        <form method="post" action="{% provider_login_url provider.name.lower %}">
-          {% csrf_token %}
-          <button class="p-2 m-2 bg-orange-500/90 rounded-sm" type="submit">{% trans "Let me in" %}</button>
-        </form>
+      <h1 class="text-5xl font-light text-center mt-2">{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
+      <p class="text-center">{% blocktrans with provider.name as provider %}You are about to sign in using a third party account from {{ provider }}.{% endblocktrans %}</p>
     {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <button class="p-2 m-2 bg-orange-500/90 rounded-sm" type="submit">{% trans "Let's go" %}</button>
+    </form>
   </div>
 </div>
 {% endblock %}
