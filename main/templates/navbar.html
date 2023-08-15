@@ -1,4 +1,4 @@
-<nav class="relative px-2 py-2 flex align-baseline justify-between items-center bg-transparent font-gotham text-base">
+<nav class="relative px-2 py-1 flex align-baseline justify-between items-center bg-transparent font-gotham text-base">
   <a class="text-xl leading-none text-white px-2 py-1 hover:text-white hover:no-underline" href="{% url 'main:home' %}">Vertig's Hideout</a>
   <!-- John Burger -->
   <div class="lg:hidden">
@@ -27,7 +27,7 @@
             <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
           </svg>
         </button>
-        <ul class="absolute hidden bg-[#4e5d6c] border-[1px] py-1 min-w-full border-black/40 text-gray-700 group-hover:block group-focus:block group-focus-within:block ">
+        <ul class="z-50 absolute hidden bg-[#4e5d6c] border-[1px] py-1 min-w-full border-black/40 text-gray-700 group-hover:block group-focus:block group-focus-within:block ">
           {% if user.is_staff %}
           <li class="hover:bg-gray-300/50 active:bg-orange-500">
             <a class="text-sm text-white no-underline hover:text-white hover:no-underline py-2 px-4 flex gap-2 items-baseline" href="{% url 'admin:index' %}">

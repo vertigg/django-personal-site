@@ -1,93 +1,93 @@
 {% extends "base.html" %}
 {% load static%}
 {% load webp %}
-{% block css %}
-{% include "bootstrap4.html" %}
-{% endblock %}
 {% block title %} Profile - {{ user }} {% endblock title %}
 {% block content  %}
 {% include "navbar.html" %}
-{% load socialaccount %}
-{% get_social_accounts user as accounts %}
 
 {% if messages %}
-<div class="position-absolute w-100 d-flex flex-column p-4">
+<div class="absolute w-100 flex flex-col p-4 gap-2 right-0">
     {% for message in messages %}
-    <div class="toast ml-auto" aria-live="assertive" aria-atomic="true" role="alert" data-delay="10000"
+    <div class="toast opacity-0 transition-opacity duration-300 rounded-sm bg-gray-500 shadow-sm shadow-black max-w-[300px]" aria-live="assertive" aria-atomic="true" role="alert" data-delay="1000000"
         data-autohide="true">
-        <div class="toast-header">
-            <strong class="mr-auto text-primary">{{message.tags.capitalize}}</strong>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                <span aria-hidden="true">×</span>
+        <div class="flex flex.col p-2 text-white bg-gray-600 justify-between border-b-2 border-black/10">
+            <strong class="">{{message.tags.capitalize}}</strong>
+            <button type="button" class="ml-1 mb-1 text-xl focus:outline-none" data-dismiss="toast" aria-label="Close">
+                <span class="hover:text-orange-500 " aria-hidden="true">×</span>
             </button>
         </div>
-        <div class="toast-body"> {{message}} </div>
+        <div class="p-4"> {{message}} </div>
     </div>
     {% endfor %}
 </div>
 {% endif %}
 
-<div class="container w-75">
-    <br>
-    <h1 class="display-6">Welcome, {{user}}</h1><br>
-    <div class="row">
-        <div class="col-md-4">
-            <div><br>
+<section>
+    {% load socialaccount %}
+    {% get_social_accounts user as accounts %}
+    <div class="w-full flex flex-col items-center mt-10">
+        <div class="flex flex-row flex-wrap w-full xl:w-9/12">
+            <div class="flex-grow-[1] flex flex-col items-center pt-5">
                 {% if not user.discorduser.avatar_url %}
-                    <img src="{% static 'main/image/default_avatar.png'%}" alt="Avatar" class="discord-avatar text-center">
+                    <img src="{% static 'main/image/default_avatar.png'%}" alt="Avatar" class="h-32 rounded-full shadow-black shadow-sm">
                 {% else %}
                     <picture>
                         <source srcset="{{ user.discorduser.avatar_url }}" type="image/webp">
-                        <img src="{{ user.discorduser.avatar_url|discord_avatar_to_jpg }}" alt="Avatar" class="discord-avatar text-center">
+                        <img src="{{ user.discorduser.avatar_url|discord_avatar_to_jpg }}" alt="Avatar" class="h-32 rounded-full shadow-black shadow-sm">
                     </picture>
                 {% endif %}
-                <div class="card-body text-center">
+                <div>
                     {% if user.discorduser %}
-                    <h3>{{ user.discorduser }}{% if accounts.discord.0 %}{% endif %}</h3>
-                    <small class="text-muted">{{ user.discorduser.id }}</small>
-                    <div id="badges">
-                        {% if user.discorduser.admin %}<span class="badge badge-primary">Admin</span>{% endif %}
-                        {% if user.discorduser.mod_group %}<span class="badge badge-info">Moderator</span>{% endif %}
+                        <p class="text-3xl text-center p-0 m-0">{{ user.discorduser }}{% if accounts.discord.0 %}{% endif %}</p>
+                        <small class="text-sm text-gray-400/90">{{ user.discorduser.id }}</small>
+                    <div class="flex gap-1 justify-center my-1">
+                        {% if user.discorduser.admin %}<div class="bg-red-400/80 p-1 rounded-sm inline text-xs">Admin</div>{% endif %}
+                        {% if user.discorduser.mod_group %}<div class="bg-cyan-400/80 p-1 rounded-sm inline text-xs">Moderator</div>{% endif %}
                     </div>
                     {% else %}
-                    <small class="text-muted">It seems that our Discord bot couldn't parse your information or you don't
-                        share any servers with our bot.</small>
+                    <small class="text-sm text-gray-400">
+                        It seems that our Discord bot couldn't parse your information or you don't
+                        share any servers with our bot.
+                    </small>
                     {% endif %}
                 </div>
-                <div class="card-body text-center">
 
+                <div class="m-2">
                     {% if accounts.discord.0 %}
-                    <form style="display: flex; justify-content: center;" action="{% url 'main:discord_disconnect' %}" method="post">
+                    <form class="flex justify-center" action="{% url 'main:discord_disconnect' %}" method="post">
                         {% csrf_token %}
-                        <a class="btn btn-secondary disabled btn-discord-connected" href="{% provider_login_url 'discord' %}">Discord account connected</a>
-                        <button class="btn btn-danger btn-discord-disconnect" title="Disconnect account" type="submit"><i class="fa-solid fa-user-slash"></i></button>
-                        </form>
-                        {% else %}
-                        <a class="btn btn-secondary w-100" href="{% provider_login_url "discord" process="connect" %}">Connect Discord account</a>
-                        {% endif %}
-                    </div>
+                        <a class="bg-gray-600 p-2 rounded-l-md" href="{% provider_login_url 'discord' %}">Discord account connected</a>
+                        <button class="bg-red-500 p-2 px-3 rounded-r-md" title="Disconnect account" type="submit"><i class="fa-solid fa-user-slash"></i></button>
+                    </form>
+                    {% else %}
+                    <a class="btn btn-secondary w-100" href="{% provider_login_url 'discord' process='connect' %}">Connect Discord account</a>
+                    {% endif %}
+                </div>
 
             </div>
-        </div>
-        <div class="col-md-6">
-            {% if user.discorduser %}
-            <h4>Additional Profile Info</h4>
-            <br>
-            <h4>PoE Profile</h4>
-            {{ user.discorduser.poe_profile|default_if_none:"No profile attached" }}
-            <small class="form-text text-muted">This form is disabled, please use <code class="text-primary">/poe account</code> bot command to update your PoE profile directrly</small>
-
-            <hr>
-            <h4>Warframe Alerts</h4>
-            <p class="form-text text-muted small">Warframe alert settings are deprecated and no longer supported by current Discord bot.</p>
-            {% endif %}
+            <div class="flex-grow-[2] px-2">
+                <h1 class="text-4xl font-light my-2">Welcome, {{user}}</h1>
+                {% if user.discorduser %}
+                <p class="text-2xl my-4">Additional Profile Info</p>
+                <h2 class="text-xl my-2">PoE Profile</h2>
+                <p class="text-lg my-4">{{ user.discorduser.poe_profile|default_if_none:"No profile attached" }}</p>
+                <small class="text-sm text-gray-400 my-4">This form is disabled, please use <code class="text-orange-500/90">/poe account</code> bot command to update your PoE profile directrly</small>
+                <div class="my-3 h-px bg-black/20"></div>
+                <h2 class="text-xl my-4">Warframe Alerts</h2>
+                <p class="text-sm text-gray-400">Warframe alert settings are deprecated and no longer supported by current Discord bot.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
+</section>
+{% endblock content %}
+
+{% block script %}
 <script>
     $('.toast').toast('show');
 </script>
-{% endblock content %}
+{% endblock %}
+
 {% block footer_content %}
 {% include "footer.html" %}
 {% endblock %}

@@ -1,32 +1,32 @@
 {% extends "base.html" %}
-{% block css %}
 {% load static%}
-{% include "bootstrap4.html" %}
-{% endblock %}
 {% block title%}Sign up{% endblock %}
 
 {% block content %}
-<div class="container" style="min-width:300px"></div>
-<div class="container signup-centered col-sm-3 col-xs-6" style="min-width:400px;">
-<h1 class="display-4 text-center">Sign up</h1><br>
-  <form method="post">
-    {% csrf_token %}
-    {% for field in form %}
-          <div class="form-group">
-            <label>{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}
+<div class="grid h-[80vh] items-center justify-center">
+    <div class="w-[400px] min-w-[300px] font-gotham">
+        <h1 class="text-6xl font-light text-center mt-2">Sign up</h1><br>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
                 {% autoescape off %}
-                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                <small class="text-gray-400 text-sm">{{ field.help_text }}</small>
                 {% endautoescape %}
-            {% endif %}
-            <br>
-            {% for error in field.errors %}
-            <h6 class="form-text text-danger">{{ error }}</h6>
-            {% endfor %}
-            {% endfor %}
-            <input class="btn btn-primary float-right" type="submit" value="Sign up" />
-          </div>
+                {% endif %}
+                <br>
+                {% for error in field.errors %}
+                <h6 class="text-sm text-red-500">{{ error }}</h6>
+                {% endfor %}
+                {% endfor %}
+                <div class="flex">
+                    <input class="ml-auto rounded-md py-2 px-4 bg-orange-500/90 text-white" type="submit" value="Sign up" />
+                </div>
+            </div>
         </form>
+    </div>
 </div>
 {% endblock %}

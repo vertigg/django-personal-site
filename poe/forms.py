@@ -7,7 +7,7 @@ class SearchForm(forms.Form):
         required=False,
         max_length=25,
         widget=forms.TextInput(attrs={
-            'class': 'p-1 rounded-md text-sm text-black placeholder:text-xs',
+            'class': 'h-6 p-2 rounded-md text-sm text-black placeholder:text-xs',
             'type': 'text',
             'placeholder': "Search character by name"
         })

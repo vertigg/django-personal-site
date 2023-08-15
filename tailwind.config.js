@@ -4,9 +4,15 @@ module.exports = {
   blocklist: [],
   theme: {
     extend: {
+      backgroundImage: {
+        'default-pattern': "url('../image/lel.png')"
+      },
+      colors: {
+        silver: "#c0c0c0"
+      },
       fontFamily: {
-        'gotham': ['Gotham-Book', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-        'fontin': ['Fontin-Regular', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+        'gotham': ['Gotham-Book', 'Arial'],
+        'fontin': ['Fontin-Regular', 'Arial'],
       },
     },
   },

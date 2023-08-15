@@ -20,7 +20,7 @@ class PoeClassFilter(FilterSet):
         empty_label='All classes',
         widget=forms.Select(attrs={
             'onchange': 'this.form.submit()',
-            'class': "w-100 p-1 bg-gray-700 rounded-none text-sm",
+            'class': "w-full p-1 bg-gray-700 rounded-none text-sm",
         }))
 
     class Meta:

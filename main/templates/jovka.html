@@ -1,18 +1,15 @@
 {% extends "base.html" %}
 {% load static%}
-{% block css %}
-{% include "bootstrap4.html" %}
-{% endblock %}
 {% block title%}Jovka Place{% endblock %}
+
 {% block content%}
-<div style="height: 96vh; display: flex; justify-content: center;align-items: center;">
+{% include "navbar.html" %}
+<div class="h-[80vh] flex justify-center items-center">
     <button style="height: 250px; width: 350px; font-size: 56pt; font-family: cursive; background-color: chocolate;"
         title="jovka" onclick=changeColor(this)>
         ЖОВКА
     </button>
 </div>
-{% endblock %}
-{% block footer %}
 {% endblock %}
 
 {% block script %}
@@ -21,6 +18,5 @@
     function changeColor(element) {
         element.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
     }
-
 </script>
 {% endblock %}

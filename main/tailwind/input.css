@@ -3,8 +3,15 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply text-gray-100 text-base leading-6 m-0 text-left
+  /*So we can override bg image in any other template*/
+  html {
+    @apply bg-gray-800 bg-default-pattern bg-repeat  text-gray-100 text-base leading-6 m-0 text-left
+  }
+
+  /*Cause it's the pain in the ass to style some Django forms*/
+  input[type="text"],
+  input[type="password"] {
+    @apply block w-full rounded-sm p-2 text-black
   }
 }
 
@@ -84,4 +91,14 @@
 .luxury-item {
   -webkit-filter: drop-shadow(0px 0px 3px hsla(26, 65%, 42%));
   filter: drop-shadow(0px 0px 3px hsla(26, 65%, 42%));
+}
+
+/* TODO: change stupid notifications */
+.toast.show {
+  display: block;
+  opacity: 1;
+}
+
+.toast.hide {
+  display: none;
 }

@@ -39,10 +39,11 @@
   </head>
 
   <body>
-    <header>{% block header %}{% endblock %}</header>
-    {% block content %}{% endblock %} {% block footer %}
-    <footer class="footer">{% block footer_content %} {% endblock %}</footer>
-    {% endblock %}
+    <div class="flex flex-col h-screen">
+        <header>{% block header %}{% endblock %}</header>
+        <main class="flex-grow">{% block content %}{% endblock %}</main>
+        {% block footer %}{% block footer_content %} {% endblock %}{% endblock %}
+    </div>
   </body>
 
   {% block script %} {% endblock %}

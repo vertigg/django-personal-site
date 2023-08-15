@@ -10,7 +10,7 @@ class CustomDiscordAccountAdapter(DefaultSocialAccountAdapter):
         """
         Connects social account to existing user if email exists in the system
         """
-        if sociallogin.account.provider != 'discord':
+        if sociallogin.account.provider != 'discord' or sociallogin.is_existing:
             return
 
         # If user already logged in - connect to current account

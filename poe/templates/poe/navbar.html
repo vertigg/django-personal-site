@@ -1,7 +1,7 @@
 {% extends "navbar.html" %} 
 
 {% block navbar_extras %}
-  <div class="flex flex-grow items-baseline w-100">
+  <div class="flex flex-grow items-baseline w-full">
     {% include "components/leagues_dropdown.html" %}
     {% include "components/tools_dropdown.html" %}
     <a class="ml-2 inline-block mr-1 hover:no-underline text-gray-300 text-opacity-90 hover:text-gray-200" href="{% url 'poe:chat-monitor' %}">
@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block mobile_navbar_extras %}
-  <form class="w-100 mobile-search-form p-2" action="{% url 'poe:ladder_search' %}" method="get">
+  <form class="w-full mobile-search-form p-2" action="{% url 'poe:ladder_search' %}" method="get">
     {{ poe_context.search_form.name }}
   </form>
   {% include "components/leagues_mobile_list.html" %}

@@ -1,61 +1,55 @@
 {% extends "base.html" %}
-{% block css %}
 {% load static%}
-{% include "bootstrap4.html" %}
-{% endblock %}
 {% block title%}Login{% endblock %}
+
 {% block content %}
 {% load socialaccount %}
-
-
-<div class="login-centered">
-{% if user.is_authenticated %}
-<div class="container col-sm">
-    <div class="display-6 text-center">
-        <img style="width: 200px" src="{% static 'main/image/already_logged.jpg'%}">
-        <h1>You are already logged in</h1>
-        <a href="{% url 'main:home' %}" class="btn btn-primary">Back to reality</a>
-    </div>
-</div>
-{% else %}
-    <div class="container col-sm-3 col-xs-6" style="min-width:300px;">
-        <h1 class="display-4 text-center">Login</h1>
-        <div class="col">
-            <form action="{% provider_login_url "discord" %}" method="post">
+<div class="grid h-[80vh] items-center justify-center">
+    {% if user.is_authenticated %}
+        <div class="text-center flex flex-col items-center">
+            <img class="max-w-xs" src="{% static 'main/image/already_logged.jpg'%}">
+            <span class="text-xl">How the hell did you get here?</span>
+            <a href="{% url 'main:home' %}" class="bg-orange-500/90 p-2 rounded-sm">Back to reality</a>
+        </div>
+    {% else %}
+    <div class="w-[400px] min-w-[300px] font-gotham">
+        <h1 class="text-6xl font-light text-center mb-6">Login</h1>
+        <div>
+            <form action="{% provider_login_url 'discord' %}" method="post">
                 {% csrf_token %}
-                <button class="btn btn-primary w-100"><i class="fa-brands fa-discord"></i> Via Discord</button>
+                <button class="bg-orange-500/90 rounded-md p-2 w-full"><i class="fa-brands fa-discord"></i> Via Discord</button>
             </form>
         </div>
-        {% block local_account_login %}
-        <div class="text-divider">OR</div>
-        <form method="post" action="{% url 'main:login' %}">
+        <div class="flex items-center py-2">
+            <div class="flex-grow h-px bg-silver"></div> 
+            <span class="flex-shrink font-gotham text-white px-4">OR</span>
+            <div class="flex-grow h-px bg-silver"></div>
+        </div>
+        <form method="post" class="font-gotham" action="{% url 'main:login' %}">
             {% csrf_token %}
-
-        <div class="form-group">
-            <td>Username</td>
-            <td>{{ form.username }}</td>
-        </div>
-        <div class="form-group">
-            <td>Password</td>
-            <td>{{ form.password }}</td>
-        </div>
-        <div>
-            <input type="hidden" name="next" value="{{ next }}" />
-            <input class="btn btn-primary float-right" type="submit" value="Login" />
-        </div>
-    </form>
-    <div class="form-group has-errors text-muted small">
-        Don't have a local account? Make one <a href="{% url 'main:signup' %}?{{ request.GET.urlencode }}">here</a>
-    </div>
-    <div class="form-group has-errors text-muted small">
-    </div>
-    {% if form.errors %}
-    <div class="form-group has-errors text-danger small">
-        <p>Your username and password didn't match. Please try again.</p>
+            <div class="mb-1 ">
+                <span>Username</span>
+                {{ form.username }}
+            </div>
+            <div class="mb-1 font-gotham">
+                <span>Password</span>
+                {{ form.password }}
+            </div>
+            {% if form.errors %}
+            <div class="text-red-600 text-sm mt-2">
+                <p>Your username and password didn't match. Please try again.</p>
+            </div>
+            {% endif %}
+            <div class="flex flex-row mt-2">
+                <span class="text-gray-400 text-sm">
+                    Don't have a local account? Make one 
+                    <a class="text-orange-500/90" href="{% url 'main:signup' %}?{{ request.GET.urlencode }}">here</a>
+                </span>
+                <input type="hidden" name="next" value="{{ next }}" />
+                <input class="ml-auto rounded-md py-2 px-4 bg-orange-500/90 text-white" type="submit" value="Login" />
+            </div>
+        </form>
     </div>
     {% endif %}
-    {% endblock %}
-</div>
-{% endif %}
 </div>
 {% endblock %}
