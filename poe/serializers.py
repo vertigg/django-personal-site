@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from poe.models import ActiveGem, Character, League
+from poe.models import ActiveGem, Character, Item, League
 from poe.templatetags.ladder_extras import level_progress
 
 
@@ -10,16 +10,22 @@ class ActiveGemSerializer(serializers.ModelSerializer):
         fields = ('name', 'icon')
 
 
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ('name', 'icon')
+
+
 class CharacterSerializer(serializers.ModelSerializer):
 
     gems = ActiveGemSerializer(many=True)
-    progress = serializers.SerializerMethodField()
+    items = ItemSerializer(many=True)
 
     class Meta:
         model = Character
         fields = (
-            'id', 'name', 'class_name', 'class_id', 'level', 'league',
-            'experience', 'gems', 'progress'
+            'id', 'name', 'class_name', 'level', 'league',
+            'life', 'es', 'combined_dps', 'gems', 'items'
         )
 
     def get_progress(self, instance: Character) -> float:

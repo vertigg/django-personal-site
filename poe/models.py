@@ -70,23 +70,28 @@ class Character(BaseModel):
     name = models.TextField(unique=True)
     league = models.ForeignKey(League, on_delete=models.CASCADE)
     class_name = models.TextField(max_length=30)
-    class_id = models.PositiveIntegerField(blank=True, null=True)
-    ascendancy_id = models.PositiveIntegerField(blank=True, null=True)
     level = models.PositiveIntegerField(blank=True, null=True)
-    experience = models.BigIntegerField(blank=True, null=True)
     profile = models.ForeignKey(DiscordUser, on_delete=models.CASCADE)
     expired = models.BooleanField(default=False)
     gems = models.ManyToManyField(ActiveGem)
     items = models.ManyToManyField(Item, blank=True)
-    experience_trend = models.PositiveSmallIntegerField(
-        choices=ExperienceTrend.choices,
-        default=ExperienceTrend.NO_CHANGE
-    )
+
+    # New ladder sorting method
+    level_modified_at = models.DateTimeField(auto_now_add=True)
 
     # Experimental fields
     life = models.PositiveSmallIntegerField(null=True)
     es = models.PositiveSmallIntegerField(null=True, verbose_name='Energy Shield')
     combined_dps = models.FloatField(null=True)
+
+    # Deprecated fields (Thanks GGG)
+    class_id = models.PositiveIntegerField(blank=True, null=True)
+    ascendancy_id = models.PositiveIntegerField(blank=True, null=True)
+    experience = models.BigIntegerField(blank=True, null=True)
+    experience_trend = models.PositiveSmallIntegerField(
+        choices=ExperienceTrend.choices,
+        default=ExperienceTrend.NO_CHANGE
+    )
 
     class Meta:
         verbose_name = 'Character'

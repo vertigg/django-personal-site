@@ -97,11 +97,8 @@ class LadderUpdateTask(UniqueNamedTask):
                 league_id=league_id,
                 profile_id=discord_id,
                 class_name=character.class_name,
-                class_id=character.class_id,
-                ascendancy_id=character.ascendancy_id,
                 level=character.level,
-                experience=character.experience,
-                expired=character.expired
+                expired=character.expired,
             )
             self.character_tasks.append(CharacterStatsUpdateTask.si(
                 account_name, character.name
@@ -117,21 +114,17 @@ class LadderUpdateTask(UniqueNamedTask):
             league_id = self._get_character_league_id(character.league)
             if any([
                 existing_character.league.name != character.league,
-                existing_character.experience != character.experience,
-                existing_character.ascendancy_id != character.ascendancy_id,
+                existing_character.level != character.level,
                 existing_character.expired != character.expired,
             ]):
                 logger.info('Updating %s', character.name)
-                exp_change = existing_character.get_experience_trend(character.experience)
+                if existing_character.level != character.level:
+                    existing_character.update(level_modified_at=timezone.now())
                 existing_character.update(
                     league_id=league_id,
                     class_name=character.class_name,
-                    class_id=character.class_id,
-                    ascendancy_id=character.ascendancy_id,
                     level=character.level,
-                    experience=character.experience,
                     expired=character.expired,
-                    experience_trend=exp_change
                 )
                 self.character_tasks.append(CharacterStatsUpdateTask.si(
                     account_name, existing_character.name

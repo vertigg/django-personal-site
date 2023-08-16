@@ -6,13 +6,8 @@
             <th class="text-left"><span class="ml-2">Character</span></th>
             <th class="text-left">Account</th>
             {% if show_leagues %}<th class="text-left">League</th>{% endif %}
-            <th class="text-left">Class
-                <form method="get" class="float-right">{{class_filter.form.class_id}}</form>
-            </th>
+            <th class="text-left">Class</th>
             <th>Level</th>
-            <th>Progress</th>
-            <th></th>
-            <th class="pl-3">Experience</th>
             <th>Life</th>
             <th>ES</th>
             <th><abbr title="Unhinged estimation by unconfigured PoB">DPS</abbr></th>
@@ -67,30 +62,6 @@
             </td>
             <td class="text-center">
                 {{character.level}}
-            </td>
-            {% with character|level_progress as level_progress %}
-            <td title="{{level_progress}}%">
-                <div class="relative pl-1">
-                    <div class="h-2 flex bg-gray-600 ">
-                        <div style="width:{{level_progress}}%" class="bg-cyan-500"></div>
-                    </div>
-                </div>
-            </td>
-            {% endwith %}
-            <td class="pl-2 pr-1 w-0">
-                {% if character.experience_trend == character.ExperienceTrend.UPWARD %}
-                <span title="{{character.get_experience_trend_display}}">
-                    <i class="fa-solid fa-arrow-up text-green-500 text-xs"></i>
-                </span>
-                {% endif %}
-                {% if character.experience_trend == character.ExperienceTrend.DOWNWARD %}
-                <span title="{{character.get_experience_trend_display}}">
-                    <i class="fa-solid fa-arrow-down text-red-500 text-xs"></i>
-                </span>
-                {% endif %}
-            </td>
-            <td class="text-right w-[12ch]">
-                <span class="">{{character.experience|space_separator}}</span>
             </td>
             <td class="text-center">
                 <span>{{character.life|default_if_none:""}}</span>

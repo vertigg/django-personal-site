@@ -10,8 +10,7 @@ class BaseModel(models.Model):
         abstract = True
 
     def update(self, **kwargs):
-        if kwargs:
-            for key, value in kwargs.items():
-                setattr(self, key, value)
-            update_fields = list(kwargs.keys()) + ['modified']
-            self.save(update_fields=update_fields)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        update_fields = list(kwargs.keys()) + ['modified']
+        self.save(update_fields=update_fields)

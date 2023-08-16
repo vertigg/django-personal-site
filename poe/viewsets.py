@@ -17,9 +17,9 @@ class CharacterViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Character.objects.all()
     serializer_class = CharacterSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    filter_fields = ('class_id', 'league')
+    filter_fields = ('league',)  # FIXME: Not showing in API filters
     search_fields = ('name',)
-    ordering_fields = ('level', 'experience')
+    ordering_fields = ('level', 'level_modified_at')
 
 
 class LeagueViewSet(viewsets.ReadOnlyModelViewSet):

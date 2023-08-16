@@ -9,9 +9,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
+from django.views.generic.list import ListView
 from django_filters.views import FilterView
 
-from poe.filters import PoeClassFilter, PoeSearchFilter
+from poe.filters import PoeSearchFilter
 from poe.models import Announcement, Character, League
 
 
@@ -41,7 +42,7 @@ class MainLadderView(RedirectView):
         return HttpResponseRedirect(url)
 
 
-class PoEFilterView(FilterView):
+class PoEListViewMixin:
     context_object_name = 'characters'
     model = Character
     paginate_by = 25
@@ -51,8 +52,7 @@ class PoEFilterView(FilterView):
             request.user, 'discorduser') else None
 
 
-class LadderView(PoEFilterView):
-    filterset_class = PoeClassFilter
+class LadderView(PoEListViewMixin, ListView):
     template_name = 'poe/ladder.html'
     paginate_by = 150
     active_league = None
@@ -62,7 +62,7 @@ class LadderView(PoEFilterView):
         return (
             Character.objects
             .filter(league_id=self.active_league.id)
-            .order_by('-level', '-experience')
+            .order_by('-level', 'level_modified_at')
             .prefetch_related('gems', 'items')
             .select_related('profile')
         )
@@ -70,12 +70,11 @@ class LadderView(PoEFilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_league'] = self.active_league
-        context['class_filter'] = self.filterset_class(self.request.GET, context.get('characters'))
         context['current_profile'] = self._get_current_user_profile(self.request)
         return context
 
 
-class LadderSearchView(PoEFilterView):
+class LadderSearchView(PoEListViewMixin, FilterView):
     filterset_class = PoeSearchFilter
     extra_context = {'title': 'Search results'}
     template_name = 'poe/search.html'
@@ -84,6 +83,7 @@ class LadderSearchView(PoEFilterView):
     def get_queryset(self) -> QuerySet[Any]:
         return (
             super().get_queryset()
+            .order_by('-level', 'level_modified_at')
             .prefetch_related('gems', 'items')
             .select_related('profile', 'league')
         )
