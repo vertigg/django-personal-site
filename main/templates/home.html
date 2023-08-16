@@ -9,47 +9,74 @@
         <div>
             <h1 class="text-4xl font-thin p-2 my-6">Personal projects</h1>
             <section class="flex flex-row flex-wrap gap-8 justify-center">
-                <div class="group relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
-                    <img class="flex-shrink-0" src="{% static 'main/image/bot.png' %}" alt="Tony Tornado">
-                    <div class="flex flex-col p-5 h-full">
-                        <h5 class="text-xl">Tornado Bot</h5>
-                        <p class="text-base my-1 flex-grow">Another bot for Discord, based on Rapptz/discord.py API Wrapper.</p>
-                        <div class="flex gap-1 mt-4">
-                            <a href="https://github.com/vertigg/django-personal-site/tree/master/discordbot" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">GitHub</a>
-                        </div>
-                        
-                    </div>
-                </div>
-                <div class="relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
-                    <img class="flex-shrink-0" src="{% static 'main/image/ladder.png' %}" alt="John Minotaur">
-                    <div class="flex flex-col p-5 h-full">
-                        <h5 class="text-xl">Path of Exile Ladder</h5>
-                        <p class="text-base my-1 flex-grow">Django Application which compares Path of Exile characters</p>
-                        <div class="flex gap-1 mt-4">
-                            <a href="{% url 'poe:ladder_main' %}" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Open</a>
-                            <a href="{% url 'poe:api-root' %}" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">API</a>
-                            <a href="https://github.com/vertigg/django-personal-site/tree/master/poe" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">GitHub</a>
+                <div class="group w-72 h-[22rem] rounded-md shadow-md shadow-black bg-cover hover:scale-105 transition-transform duration-200" style="background-image: url({% static 'main/image/bot.png' %});">
+                    <div class="h-full rounded-md flex flex-col justify-end p-5 bg-gradient-to-t from-black/90 via-black/60 via-40% to-transparent group-hover:via-black/80">
+                        <small class="text-xs"><i class="fa-brands fa-python mb-2"></i> Python projects</small>
+                        <h2 class="text-3xl font-thin">Tony Discord Bot</h2>
+                        <small class="text-sm mt-2 h-16">Another bot for Discord, based on Rapptz/discord.py API Wrapper.</small>
+                        <div class="h-6 mt-3 flex flex-row gap-1">
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="https://github.com/vertigg/django-personal-site/tree/master/discordbot">
+                                    <span><i class="fa-brands fa-github"></i> Github</i> </span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
-                    <img class="flex-shrink-0" src="{% static 'main/image/asteroids.png' %}" alt="Asteroids">
-                    <div class="flex flex-col p-5 h-full">
-                        <h5 class="text-xl">Asteroids Game</h5>
-                        <p class="text-base my-1 flex-grow">Small game made with Unity.</p>
-                        <div class="flex gap-1 mt-auto">
-                            <a href="{% url 'asteroids' %}" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Play</a>
+                <div class="group w-72 h-[22rem] rounded-md shadow-md shadow-black bg-cover hover:scale-105 transition-transform duration-200 bg-center" style="background-image: url({% static 'main/image/ladder.png' %});">
+                    <div class="h-full rounded-md flex flex-col justify-end p-5 bg-gradient-to-t from-black/90 via-black/60 via-40% to-transparent group-hover:via-black/80">
+                        <small class="text-xs"><i class="fa-brands fa-python mb-2"></i> Python projects</small>
+                        <h2 class="text-3xl font-thin">Path of Exile Ladder</h2>
+                        <small class="text-sm mt-2 h-16">Django Application which compares Path of Exile characters and uses Path of Building to enchance players data</small>
+                        <div class="h-6 mt-3 flex flex-row gap-1">
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="{% url 'poe:ladder_main' %}">
+                                    <i class="fa-solid fa-external-link"></i> Open</i> 
+                                </a>
+                            </div>
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="https://github.com/vertigg/django-personal-site/tree/master/poe">
+                                    <i class="fa-brands fa-github"></i> Github</i> 
+                                </a>
+                            </div>
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="{% url 'poe:api-root' %}">
+                                    <i class="fa-solid fa-plug"></i> API</i> 
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="relative flex flex-col break-words bg-gray-600 border border-black/10 shadow-sm shadow-black border-solid w-72 hover:scale-105">
-                    <img class="flex-shrink-0" src="{% static 'main/image/heist.png' %}" alt="Le Heist">
-                    <div class="flex flex-col p-5 h-full">
-                        <h5 class="text-xl">Heist Gems Price Checker</h5>
-                        <p class="text-base my-1 flex-grow">OCR solution for price checking gems in PoE Heists</p>
-                        <div class="flex gap-1 mt-auto">
-                            <a href="https://github.com/vertigg/HeistGemPriceChecker" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Github</a>
-                            <a href="https://github.com/vertigg/HeistGemPriceChecker/releases" class="p-2 px-3 bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Releases</a>
+                <div class="group w-72 h-[22rem] rounded-md shadow-md shadow-black bg-cover hover:scale-105 transition-transform duration-200 bg-right" style="background-image: url({% static 'main/image/asteroids.png' %});">
+                    <div class="h-full rounded-md flex flex-col justify-end p-5 bg-gradient-to-t from-black/90 via-black/60 via-40% to-transparent group-hover:via-black/80">
+                        <small class="text-xs"><i class="fa-brands fa-hashtag mb-2"></i> C# projects</small>
+                        <h2 class="text-3xl font-thin">Asteroids Game</h2>
+                        <small class="text-sm mt-2 h-16">Tiny arcade game made with Unity</small>
+                        <div class="h-6 mt-3 flex flex-row gap-1">
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="{% url 'asteroids' %}">
+                                    <i class="fa-solid fa-gamepad"></i> Play</i> 
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="group w-72 h-[22rem] rounded-md shadow-md shadow-black bg-cover hover:scale-105 transition-transform duration-200 bg-center" style="background-image: url({% static 'main/image/heist.png' %});">
+                    <div class="h-full rounded-md flex flex-col justify-end p-5 bg-gradient-to-t from-black/90 via-black/60 via-40% to-transparent group-hover:via-black/80">
+                        <small class="text-xs"><i class="fa-brands fa-hashtag mb-2"></i> C# projects</small>
+                        <h2 class="text-3xl font-thin">Heist Price Checker</h2>
+                        <small class="text-sm mt-2 h-16">OCR solution for price checking gems in PoE Heists</small>
+                        <div class="h-6 mt-3 flex flex-row gap-1">
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="https://github.com/vertigg/HeistGemPriceChecker">
+                                    <i class="fa-brands fa-github"></i> Github</i> 
+                                </a>
+                            </div>
+                            <div>
+                                <a class="text-sm p-1 px-2 rounded-md hover:bg-orange-500 bg-orange-500/50" href="https://github.com/vertigg/HeistGemPriceChecker/releases">
+                                    <i class="fa-brands fa-github"></i> Releases</i> 
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
