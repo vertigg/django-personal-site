@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="grid h-[80vh] items-center justify-center">
-    <div class="w-[400px] min-w-[300px] font-gotham">
+    <div class="w-[300px] sm:w-[400px] min-w-[300px] font-gotham">
         <h1 class="text-6xl font-light text-center mt-2">Sign up</h1><br>
         <form method="post">
             {% csrf_token %}
@@ -14,7 +14,7 @@
                 {{ field }}
                 {% if field.help_text %}
                 {% autoescape off %}
-                <small class="text-gray-400 text-sm">{{ field.help_text }}</small>
+                <small class="text-gray-400 text-sm block my-2">{{ field.help_text }}</small>
                 {% endautoescape %}
                 {% endif %}
                 <br>

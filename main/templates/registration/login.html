@@ -12,7 +12,7 @@
             <a href="{% url 'main:home' %}" class="bg-orange-500/90 rounded-md hover:bg-orange-600/90 text-sm">Back to reality</a>
         </div>
     {% else %}
-    <div class="w-[400px] min-w-[300px] font-gotham">
+    <div class="w-[300px] sm:w-[400px] min-w-[300px] font-gotham">
         <h1 class="text-6xl font-light text-center mb-6">Login</h1>
         <div>
             <form action="{% provider_login_url 'discord' %}" method="post">
