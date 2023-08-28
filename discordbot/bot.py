@@ -56,7 +56,7 @@ class TonyBot(Bot):
         logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
 
     async def on_presence_update(self, _, after):
-        if after.id == 174358702826979329 and after.status == discord.Status.online:
+        if after.id == 138275152415817728 and after.status == discord.Status.online:
             logger.info('Inked went online')
 
     async def on_message_delete(self, message):
