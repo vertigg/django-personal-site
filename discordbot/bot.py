@@ -30,6 +30,7 @@ class TonyBot(Bot):
         intents.members = True
         intents.messages = True
         intents.message_content = True
+        intents.presences = True
         return intents
 
     async def load_local_extensions(self) -> None:
@@ -53,6 +54,10 @@ class TonyBot(Bot):
         name = await DiscordSettings.get('game')
         await bot.change_presence(activity=discord.Game(name))
         logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
+
+    async def on_presence_update(self, _, after):
+        if after.id == 174358702826979329 and after.status == discord.Status.online:
+            logger.info('Inked went online')
 
     async def on_message_delete(self, message):
         logger.info(
