@@ -129,10 +129,6 @@ class LadderUpdateTask(UniqueNamedTask):
                 self.character_tasks.append(CharacterStatsUpdateTask.si(
                     account_name, existing_character.name
                 ))
-            else:
-                existing_character.update(
-                    experience_trend=existing_character.ExperienceTrend.NO_CHANGE
-                )
 
     def _unsub_user(self, account_name: str):
         profile = DiscordUser.objects.get(poe_profile=account_name)
