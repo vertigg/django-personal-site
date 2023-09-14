@@ -3,19 +3,6 @@
 from django.db import migrations, models
 
 
-def create_models(apps, _):
-    MarkovText = apps.get_model("discordbot", "MarkovText")
-    MarkovText.objects.create(
-        text='.',
-        last_update=None
-    )
-
-
-def remove_models(apps, _):
-    MarkovText = apps.get_model("discordbot", "MarkovText")
-    MarkovText.objects.all().delete()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -31,5 +18,4 @@ class Migration(migrations.Migration):
                 ('last_update', models.DateTimeField(blank=True, null=True)),
             ],
         ),
-        migrations.RunPython(create_models, reverse_code=remove_models)
     ]

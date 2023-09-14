@@ -3,6 +3,7 @@ from functools import cached_property
 
 import discord
 from discord.ext.commands import Bot
+
 from discordbot.config import settings
 
 logger = logging.getLogger('discord.tonybot')
@@ -37,7 +38,7 @@ class TonyBot(Bot):
         logger.info("Loading extensions...")
         for cog in self.cog_names:
             try:
-                await bot.load_extension("discordbot.cogs." + cog)
+                await self.load_extension("discordbot.cogs." + cog)
                 logger.info("'%s' extension loaded", cog)
             except (AttributeError, ImportError) as ex:
                 logger.error("%s", ex)
@@ -52,8 +53,8 @@ class TonyBot(Bot):
     async def on_ready(self):
         from discordbot.models import DiscordSettings
         name = await DiscordSettings.get('game')
-        await bot.change_presence(activity=discord.Game(name))
-        logger.info('Logged in as %s:%s', bot.user.name, bot.user.id)
+        await self.change_presence(activity=discord.Game(name))
+        logger.info('Logged in as %s:%s', self.user.name, self.user.id)
 
     async def on_presence_update(self, _, after):
         if after.id == 138275152415817728 and after.status == discord.Status.online:
@@ -66,6 +67,3 @@ class TonyBot(Bot):
         )
         if message.attachments:
             logger.info(', '.join([att.url for att in message.attachments]))
-
-
-bot = TonyBot()

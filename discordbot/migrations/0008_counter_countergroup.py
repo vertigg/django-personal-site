@@ -4,34 +4,6 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
-def create_counters(apps, schema_editor):
-    CounterGroup = apps.get_model("discordbot", "CounterGroup")
-    group = CounterGroup.objects.create(
-        name='bodycount',
-        title='Counters for Zang'
-    )
-    Counter = apps.get_model("discordbot", "Counter")
-    Counter.objects.bulk_create([
-        Counter(name='bodycount_killed',
-                value_description='Killed by Zang',
-                title='Killed by Zang',
-                group_id=1
-                ),
-        Counter(name='bodycount_saved',
-                value_description='Saved by Zang',
-                title='Saved by Zang',
-                group_id=1
-                ),
-    ])
-
-
-def remove_counters(apps, schema_editor):
-    CounterGroup = apps.get_model("discordbot", "CounterGroup")
-    Counter = apps.get_model("discordbot", "Counter")
-    Counter.objects.all().delete()
-    CounterGroup.objects.all().delete()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -65,5 +37,4 @@ class Migration(migrations.Migration):
                                             related_name='counters', to='discordbot.CounterGroup')),
             ],
         ),
-        migrations.RunPython(create_counters, reverse_code=remove_counters)
     ]
