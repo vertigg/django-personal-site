@@ -7,12 +7,6 @@ from discordbot.models import DiscordUser
 from main.models import BaseModel
 
 
-class PoeInfo(models.Model):
-    key = models.TextField(primary_key=True, blank=False, null=False, unique=True)
-    value = models.TextField(blank=True, null=True)
-    timestamp = models.DateTimeField(blank=True, null=True)
-
-
 class League(models.Model):
     id = models.AutoField(blank=True, null=False, primary_key=True)
     name = models.TextField(blank=False, null=False)

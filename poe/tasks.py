@@ -8,7 +8,7 @@ from rest_framework import status
 from config.celery import UniqueNamedTask, app, register_task
 from discordbot.models import DiscordUser
 from poe.config import settings as poe_settings
-from poe.models import Character, Item, League, PoeInfo
+from poe.models import Character, Item, League
 from poe.schema import CharacterSchema, PoBDataSchema
 from poe.utils.api import Client, PoEClientException
 from poe.utils.pob import PoBWrapper
@@ -169,18 +169,12 @@ class LadderUpdateTask(UniqueNamedTask):
                     update_data = [x for x in api_data if x.name in chars_to_update]
                     self._update_characters(update_data, poe_account)
 
-    def update_ladder_info(self):
-        PoeInfo.objects.update_or_create(key='last_update', defaults={
-            'timestamp': timezone.localtime()
-        })
-
     def run(self):
         logger.info('Starting PoE ladder update')
         self.character_tasks = []
         self.refresh_local_league_data()
         self.update_leagues()
         self.main()
-        self.update_ladder_info()
 
         if self.character_tasks:
             tasks = chain(*self.character_tasks)
