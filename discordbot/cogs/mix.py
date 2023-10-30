@@ -4,10 +4,8 @@ from typing import AnyStr
 
 from aiohttp import ClientSession
 from discord import app_commands
-from discord.channel import DMChannel, VoiceChannel
 from discord.ext import commands
 from discord.interactions import Interaction
-from discord.threads import Thread
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
 
@@ -43,10 +41,7 @@ class Mix(commands.Cog):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
             message = await self._generate_mix_message()
-            if isinstance(ctx.channel, (DMChannel, VoiceChannel, Thread)):
-                await ctx.channel.send(message)
-            else:
-                await self.bot.get_channel(settings.MIX_CHANNEL).send(message)
+            await ctx.channel.send(message)
 
     @mix.command(aliases=['add', 'фвв'])
     @mod_command
