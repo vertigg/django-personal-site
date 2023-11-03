@@ -3,6 +3,7 @@ import os
 from typing import AnyStr
 
 from aiohttp import ClientSession
+from asgiref.sync import sync_to_async
 from discord import app_commands
 from discord.ext import commands
 from discord.interactions import Interaction
@@ -86,7 +87,8 @@ class Mix(commands.Cog):
                     continue
 
                 obj = MixImage(date=now(), author_id=ctx.author.id)
-                await obj.save_image(filename, content, save=True)
+                await sync_to_async(obj.image.save)(filename, content, save=False)
+                await obj.asave()
                 added += 1
             except Exception as exc:
                 logger.error(str(exc))

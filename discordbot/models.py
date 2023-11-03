@@ -2,7 +2,6 @@ import hashlib
 import logging
 import urllib.parse as urllib
 
-from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
@@ -202,11 +201,6 @@ class DiscordImage(BaseModel):
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logger.error(exc)
         return await super().asave(force_insert, force_update, using, update_fields)
-
-    async def save_image(self, filename, content, save=True):
-        await sync_to_async(self.image.save)(filename, content, save=False)
-        if save:
-            await self.asave()  # this will call sync_to_async(self.save)
 
     def __str__(self):
         if self.image:
