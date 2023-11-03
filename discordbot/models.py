@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import urllib.parse as urllib
 
 from asgiref.sync import sync_to_async
@@ -10,9 +11,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 
+from discordbot.imgur.client import imgur_client
 from discordbot.managers import PseudoRandomManager
 from main.models import BaseModel
 
+logger = logging.getLogger('discord.models')
 User = get_user_model()
 
 
@@ -171,9 +174,15 @@ class DiscordImage(BaseModel):
     date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='images')
     checksum = models.CharField(max_length=32, editable=False, null=True)
+    url = models.URLField(blank=True, null=True)
 
     class Meta:
         abstract = True
+
+    @classmethod
+    async def is_image_exist(cls, image):
+        checksum = hashlib.md5(image.read()).hexdigest()
+        return await cls.objects.filter(checksum=checksum).aexists()
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
@@ -186,10 +195,13 @@ class DiscordImage(BaseModel):
             update_fields=update_fields
         )
 
-    @classmethod
-    async def is_image_exist(cls, image):
-        checksum = hashlib.md5(image.read()).hexdigest()
-        return await cls.objects.filter(checksum=checksum).aexists()
+    async def asave(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
+        if not self.url:
+            try:
+                self.url = await imgur_client.upload_image(self.image)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error(exc)
+        return await super().asave(force_insert, force_update, using, update_fields)
 
     async def save_image(self, filename, content, save=True):
         await sync_to_async(self.image.save)(filename, content, save=False)
@@ -216,6 +228,8 @@ class MixImage(DiscordImage):
         verbose_name_plural = 'Mix Images'
 
     def __str__(self):
+        if self.url:
+            return self.url
         if self.image:
             return urllib.urljoin(settings.DEFAULT_DOMAIN, self.image.url)
         return f'Current DiscordMixImage {self.id} does not have attached file'

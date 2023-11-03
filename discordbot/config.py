@@ -11,6 +11,11 @@ class DiscordBotLocalSettings(BaseSettings):
     MARKOV_EXCLUDE_IDS: list[int] = [223837667186442240, 345296059712405505]
     OWNER_IDS: set[int] = {121371550405361664}
 
+    IMGUR_CLIENT_ID: str
+    IMGUR_CLIENT_SECRET: str
+    IMGUR_ALBUM_HASH: str
+    IMGUR_REFRESH_TOKEN_DB_KEY: str = 'imgur_refresh_token'
+
     class Config:
         env_prefix = 'DISCORD_'
         env_file = '.env'
