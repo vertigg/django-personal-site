@@ -10,7 +10,7 @@ logger = logging.getLogger('discord.tonybot')
 
 
 class TonyBot(Bot):
-    cog_names: list[str] = ['admin', 'general', 'poe', 'markov', 'mix', 'wikipedia']
+    cog_names: list[str] = ['admin', 'general', 'markov', 'mix', 'wikipedia']
 
     def __init__(self):
         super().__init__(
