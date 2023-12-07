@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class LadderUpdateTask(UniqueNamedTask):
     leagues = {}
     league_names = set()
-    character_tasks: list[Task] = []
+    # character_tasks: list[Task] = []
 
     def __init__(self):
         self.client = Client()
@@ -100,9 +100,9 @@ class LadderUpdateTask(UniqueNamedTask):
                 level=character.level,
                 expired=character.expired,
             )
-            self.character_tasks.append(CharacterStatsUpdateTask.si(
-                account_name, character.name
-            ))
+            # self.character_tasks.append(CharacterStatsUpdateTask.si(
+            #     account_name, character.name
+            # ))
 
     def _update_characters(self, data: list[CharacterSchema], account_name: str):
         saved_characters = {
@@ -126,9 +126,9 @@ class LadderUpdateTask(UniqueNamedTask):
                     level=character.level,
                     expired=character.expired,
                 )
-                self.character_tasks.append(CharacterStatsUpdateTask.si(
-                    account_name, existing_character.name
-                ))
+                # self.character_tasks.append(CharacterStatsUpdateTask.si(
+                #     account_name, existing_character.name
+                # ))
 
     def _unsub_user(self, account_name: str):
         profile = DiscordUser.objects.get(poe_profile=account_name)
@@ -171,14 +171,14 @@ class LadderUpdateTask(UniqueNamedTask):
 
     def run(self):
         logger.info('Starting PoE ladder update')
-        self.character_tasks = []
+        # self.character_tasks = []
         self.refresh_local_league_data()
         self.update_leagues()
         self.main()
 
-        if self.character_tasks:
-            tasks = chain(*self.character_tasks)
-            tasks.apply_async()
+        # if self.character_tasks:
+        #     tasks = chain(*self.character_tasks)
+        #     tasks.apply_async()
 
         if settings.DEBUG:
             from django.db import connection
