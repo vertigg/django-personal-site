@@ -79,7 +79,7 @@ class Mix(commands.Cog):
                     response = await client.get(url)
                     content = ContentFile(await response.read())
 
-                filename = os.path.basename(url)
+                filename = os.path.basename(url.split("?")[0])
 
                 if await MixImage.is_image_exist(content):
                     errors.append(f'{url} picture already exists in DB')

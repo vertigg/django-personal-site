@@ -5,4 +5,4 @@ watch:
 	tailwindcss -i main/tailwind/input.css -o main/static/main/css/tailwind.css --watch
 
 build:
-	tailwindcss -i main/tailwind/input.css -o main/static/main/css/tailwind.css --build
+	tailwindcss -i main/tailwind/input.css -o main/static/main/css/tailwind.css --minify

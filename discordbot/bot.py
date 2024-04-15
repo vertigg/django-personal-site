@@ -60,7 +60,7 @@ class TonyBot(Bot):
         if after.id == 138275152415817728 and after.status == discord.Status.online:
             logger.info('Inked went online')
 
-    async def on_message_delete(self, message):
+    async def on_message_delete(self, message: discord.Message):
         logger.info(
             'Message deleted: Author %s, Content "%s", Attachments: %s',
             message.author.id, message.content, len(message.attachments)

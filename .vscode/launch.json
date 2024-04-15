@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Python: Current File",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
@@ -14,7 +14,7 @@
     },
     {
       "name": "Django: Ladder Update",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
       "justMyCode": false,
@@ -23,7 +23,7 @@
     },
     {
       "name": "Django: Webserver",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/manage.py",
       "args": ["runserver"],
@@ -32,7 +32,7 @@
     },
     {
       "name": "Python: Celery",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "celery",
       "console": "integratedTerminal",
@@ -42,7 +42,7 @@
     },
     {
       "name": "Discord.py: Test Bot",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "discordbot",
       "justMyCode": false,
@@ -52,7 +52,7 @@
     },
     {
       "name": "Discord.py: Main Bot",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "discordbot",
       "justMyCode": false,
