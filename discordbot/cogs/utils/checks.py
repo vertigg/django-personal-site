@@ -14,7 +14,7 @@ from discordbot.models import DiscordUser
 
 logger = logging.getLogger('discord.utils.checks')
 
-IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}
+IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}  # image/webp is not supported by imgur
 POE_PROFILE_URL = 'https://pathofexile.com/character-window/get-characters?accountName={}'
 DEFAULT_HEADERS = {
     'User-Agent': (
@@ -24,7 +24,7 @@ DEFAULT_HEADERS = {
 }
 
 
-def is_image_mimetype(content_type: str) -> bool:
+def is_allowed_image_mimetype(content_type: str) -> bool:
     return content_type in IMAGE_TYPES
 
 

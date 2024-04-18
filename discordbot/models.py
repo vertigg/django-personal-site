@@ -10,7 +10,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 
-from discordbot.imgur.client import imgur_client
 from discordbot.managers import PseudoRandomManager
 from main.models import BaseModel
 
@@ -34,10 +33,21 @@ class KeyValueModelMeta(models.base.ModelBase):
     def __delitem__(cls, key):
         return cls.objects.filter(key=key).delete()
 
-    async def set(cls, key: str, value: str):
+    def set(cls, key: str, value: str):
+        return cls.objects.update_or_create(key=key, defaults={'value': value})
+
+    async def aset(cls, key: str, value: str):
         return await cls.objects.aupdate_or_create(key=key, defaults={'value': value})
 
-    async def get(cls, key: str, default: str = None):
+    def get(cls, key: str, default: str = None) -> str:
+        try:
+            return cls.objects.get(key=key).value
+        except cls.DoesNotExist as exc:
+            if default:
+                return default
+            raise KeyError(f'There is no item with key {key}') from exc
+
+    async def aget(cls, key: str, default: str = None) -> str:
         try:
             return (await cls.objects.aget(key=key)).value
         except cls.DoesNotExist as exc:
@@ -179,9 +189,9 @@ class DiscordImage(BaseModel):
         abstract = True
 
     @classmethod
-    async def is_image_exist(cls, image):
+    def is_image_exist(cls, image):
         checksum = hashlib.md5(image.read()).hexdigest()
-        return await cls.objects.filter(checksum=checksum).aexists()
+        return cls.objects.filter(checksum=checksum).exists()
 
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
@@ -193,14 +203,6 @@ class DiscordImage(BaseModel):
             using=using,
             update_fields=update_fields
         )
-
-    async def asave(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
-        if not self.url:
-            try:
-                self.url = await imgur_client.upload_image(self.image)
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                logger.error(exc)
-        return await super().asave(force_insert, force_update, using, update_fields)
 
     def __str__(self):
         if self.image:

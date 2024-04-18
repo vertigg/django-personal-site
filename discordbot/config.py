@@ -15,6 +15,7 @@ class DiscordBotLocalSettings(BaseSettings):
     IMGUR_CLIENT_SECRET: str
     IMGUR_ALBUM_HASH: str
     IMGUR_REFRESH_TOKEN_DB_KEY: str = 'imgur_refresh_token'
+    IMGUR_ACCESS_TOKEN_DB_KEY: str = 'imgur_access_token'
 
     class Config:
         env_prefix = 'DISCORD_'

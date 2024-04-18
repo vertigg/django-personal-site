@@ -49,7 +49,7 @@ class General(commands.Cog):
     @admin_command
     async def game(self, interaction: Interaction, name: str):
         """Change bot's status"""
-        await DiscordSettings.set('game', name)
+        await DiscordSettings.aset('game', name)
         await self.bot.change_presence(activity=discord.Game(name=name))
         await interaction.response.send_message('Status changed', ephemeral=True)
 

@@ -34,7 +34,7 @@ async def sync_users(servers):
         else:
             await DiscordUser.objects.filter(id=discord_id).aupdate(avatar_url=None)
 
-    await DiscordSettings.set('cache_update', datetime.now())
+    await DiscordSettings.aset('cache_update', datetime.now())
     logger.info('Discord users table synced')
 
 

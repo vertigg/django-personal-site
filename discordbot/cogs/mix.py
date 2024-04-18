@@ -1,19 +1,16 @@
 import logging
-import os
 from typing import AnyStr
 
-from aiohttp import ClientSession
-from asgiref.sync import sync_to_async
-from discord import app_commands
+from discord import Embed, app_commands
 from discord.ext import commands
+from discord.ext.commands.context import Context
 from discord.interactions import Interaction
-from django.core.files.base import ContentFile
-from django.utils.timezone import now
 
-from discordbot.config import settings
+from discordbot.cogs.utils.formatters import fix_attachment_url
 from discordbot.models import MixImage, Wisdom
+from discordbot.tasks import process_mix_urls_async
 
-from .utils.checks import is_image_mimetype, mod_command
+from .utils.checks import mod_command
 from .utils.formatters import extract_urls
 
 logger = logging.getLogger('discord.mix')
@@ -21,6 +18,7 @@ logger = logging.getLogger('discord.mix')
 
 class Mix(commands.Cog):
     wisdom_group = app_commands.Group(name='wisdom', description='Shows deep random wisdoms')
+    UPLOAD_FILES_LIMIT = 10
 
     def __init__(self, bot):
         self.bot = bot
@@ -37,68 +35,53 @@ class Mix(commands.Cog):
             message_items.append(str(picture_url))
         return '\n'.join(message_items)
 
-    @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч', 'мікс', 'міх', 'хіх'])
+    @commands.group(aliases=['ьшч', 'Mix', 'ЬШЫ', 'MIX', 'Ьшч', 'мікс', 'міх', 'хіх', 'ьіч'])
     async def mix(self, ctx):
         """Mixes !hb and !wisdom commands"""
         if not ctx.invoked_subcommand:
             message = await self._generate_mix_message()
             await ctx.channel.send(message)
 
-    @mix.command(aliases=['add', 'фвв'])
+    @mix.command(aliases=['add', 'фвв', 'адд'])
     @mod_command
-    async def __mix_add(self, ctx, *, text: str = None):
+    async def __mix_add(self, ctx: Context, *, content: str = None):
         """Add new picture/pictures to mix from given urls or attachments"""
-        # Check if urls or attachment provided
-        if not any([text, ctx.message.attachments]):
-            await ctx.send('No urls or files provided')
-            return
-        added, errors, urls = 0, [], []
-        if text:
-            # Extract all urls from given text
-            urls.extend(extract_urls(text))
+        urls = set()
+
+        if content:
+            urls.update(extract_urls(content))
         if ctx.message.attachments:
-            urls.extend([x.url for x in ctx.message.attachments])
-        for url in urls:
-            try:
-                # Check content type by calling head for url
-                # This could fail for some types of links (e.g. Dropbox)
-                async with ClientSession(loop=self.bot.loop) as client:
-                    response = await client.head(url)
-                    if not is_image_mimetype(response.content_type):
-                        errors.append(f'{url} is not a picture')
-                        continue
+            urls.update({fix_attachment_url(x.url) for x in ctx.message.attachments})
 
-                if response.content_length >= settings.MIX_IMAGE_SIZE_LIMIT:
-                    errors.append(
-                        f'{url} exceeds allowed filesize limit of '
-                        f'{settings.MIX_IMAGE_SIZE_LIMIT_MB} MB'
-                    )
-                    continue
-                # If mimetype is okay - download file and check MD5 hash
-                async with ClientSession(loop=self.bot.loop) as client:
-                    response = await client.get(url)
-                    content = ContentFile(await response.read())
+        if not urls or len(urls) > self.UPLOAD_FILES_LIMIT:
+            if not urls:
+                message = "No urls or files were provided"
+            else:
+                message = f"No more than {self.UPLOAD_FILES_LIMIT} files/links at a time!"
+            embed = self.build_error_embed(title="Mix Upload Error", description=message)
+            await ctx.send(embed=embed)
+            return
 
-                filename = os.path.basename(url.split("?")[0])
+        result, error = await process_mix_urls_async(urls, ctx.author.id)
+        if error:
+            embed = self.build_error_embed(title="Mix Upload Error", description="Task timed out!")
+            await ctx.send(embed=embed)
+            return
 
-                if await MixImage.is_image_exist(content):
-                    errors.append(f'{url} picture already exists in DB')
-                    logger.info('%s already exists', filename)
-                    continue
+        embed = Embed(title="Mix Image Upload")
+        left_column, right_column = [], []
 
-                obj = MixImage(date=now(), author_id=ctx.author.id)
-                await sync_to_async(obj.image.save)(filename, content, save=False)
-                await obj.asave()
-                added += 1
-            except Exception as exc:
-                logger.error(str(exc))
-                errors.append(str(exc))
-        # Form a message
-        message = f'Added {added} image(s) from {len(urls)} url(s)'
-        if errors:
-            error_messages = '\n'.join(errors)
-            message = f'{message}\n```{error_messages}```'
-        await ctx.send(message)
+        for obj in result:
+            left_column.append(f"[{obj.filename}]({obj.url})")
+            if obj.valid:
+                right_column.append("✅")
+            else:
+                right_column.append(f"❌ {obj.error_message}")
+
+        embed.add_field(name="File", value="\n".join(left_column), inline=True)
+        embed.add_field(name="Result", value="\n".join(right_column), inline=True)
+
+        await ctx.send(embed=embed)
 
     @app_commands.command(name='mix', description='Generate mix image with some text')
     async def mix_generate(self, interaction: Interaction, message: str = None, is_private: bool = False):
@@ -118,6 +101,9 @@ class Mix(commands.Cog):
             return
         await Wisdom.objects.acreate(text=text, author_id=interaction.user.id)
         await interaction.response.send_message(f'{text} added', ephemeral=True)
+
+    def build_error_embed(self, title: str, description: str):
+        return Embed(title=title, color=0xed0000, description=description)
 
 
 async def setup(bot):

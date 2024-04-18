@@ -31,11 +31,11 @@ class UtilsTestCase(TestCase):
 
     def test_extract_urls(self):
         text = """
-            http://127.0.0.1/
+            http://127.0.0.1/ http://127.0.0.1/
             Hello https://test.com/somepic.jpeg,
         """
         res = extract_urls(text)
         self.assertEqual(len(res), 2)
         self.assertEqual(
-            res, ['http://127.0.0.1/', 'https://test.com/somepic.jpeg']
+            res, {'http://127.0.0.1/', 'https://test.com/somepic.jpeg'}
         )

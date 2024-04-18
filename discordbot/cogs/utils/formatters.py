@@ -1,6 +1,5 @@
 import re
 import string
-from typing import List
 from urllib.parse import urlparse
 
 IP_REGEX = re.compile(r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}')
@@ -31,8 +30,11 @@ def clean_text(text: str) -> str:
     return add_punctuation(text).strip().capitalize()
 
 
-def extract_urls(text: str) -> List[str]:
-    return [
-        urlparse(url)._replace(query='', fragment='').geturl()
-        for url in URL_REGEX.findall(text)
-    ]
+def extract_urls(text: str) -> set[str]:
+    return {urlparse(url).geturl() for url in URL_REGEX.findall(text)}
+
+
+def fix_attachment_url(discord_url: str) -> str:
+    if "&format=webp" in discord_url:
+        return discord_url.replace("&format=webp", '')
+    return discord_url
