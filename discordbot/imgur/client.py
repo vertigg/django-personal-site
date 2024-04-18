@@ -42,7 +42,7 @@ class ImgurClient:
                 db_token = DiscordSettings.get(settings.IMGUR_ACCESS_TOKEN_DB_KEY, None)
                 if not db_token:
                     raise ImproperlyConfigured("Database access token is empty")
-                cache.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, db_token)
+                cache.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, db_token, timeout=None)
             except (ImproperlyConfigured, KeyError):
                 return self.refresh()
         return token
@@ -69,7 +69,7 @@ class ImgurClient:
             raise Exception("Error getting new access token")
 
         DiscordSettings.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, token_data.access_token)
-        cache.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, token_data.access_token)
+        cache.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, token_data.access_token, timeout=None)
 
     def upload_image(self, image: bytes) -> tuple[AnyHttpUrl, Exception]:
         payload = {'album': settings.IMGUR_ALBUM_HASH}
