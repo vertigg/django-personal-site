@@ -24,7 +24,7 @@ DEFAULT_DOMAIN = os.getenv('DEFAULT_DOMAIN', 'https://verti.gg')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv('DJANGO_DEBUG', None))
+DEBUG = os.getenv('DJANGO_DEBUG') == "True"
 TESTING = 'test' in sys.argv
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
