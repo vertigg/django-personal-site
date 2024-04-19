@@ -55,7 +55,7 @@ class General(commands.Cog):
 
     @commands.hybrid_command(name='low')
     async def low(self, ctx: commands.Context) -> None:
-        await ctx.send(await DiscordLink.get('low'))
+        await ctx.send(await DiscordLink.aget('low'))
 
     @app_commands.command(name='choose', description='Chooses between multiple items')
     async def choose(self, interaction: Interaction, item_1: str, item_2: str):
@@ -63,7 +63,7 @@ class General(commands.Cog):
 
     @app_commands.command(name='friday', description="It's morbin time")
     async def friday(self, interaction: Interaction):
-        await interaction.response.send_message(await DiscordLink.get('friday'))
+        await interaction.response.send_message(await DiscordLink.aget('friday'))
 
     @app_commands.command(name='roll', description='Rolls a number in 1-100 range')
     async def roll(self, interaction: Interaction):
@@ -71,7 +71,7 @@ class General(commands.Cog):
 
     @commands.command(hidden=True)
     async def vb(self, ctx):
-        await ctx.send(await DiscordLink.get('vb', "Can't find saved link for that command"))
+        await ctx.send(await DiscordLink.aget('vb', "Can't find saved link for that command"))
 
     @app_commands.command(name="help", description="Lil' help")
     async def help(self, interaction: Interaction):

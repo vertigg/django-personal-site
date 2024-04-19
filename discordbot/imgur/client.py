@@ -4,17 +4,11 @@ from json import JSONDecodeError
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from httpx import Client, HTTPError, Response, codes
-from pydantic import AnyHttpUrl, BaseModel
 
 from discordbot.config import settings
 from discordbot.models import DiscordSettings
 
 logger = logging.getLogger('discord.imgur.client')
-
-
-class ImgurTokenPair(BaseModel):
-    refresh_token: str
-    access_token: str
 
 
 class ImgurClient:
@@ -63,15 +57,15 @@ class ImgurClient:
             raise HTTPError("Can't obtain access token")
 
         data = response.json()
-        token_data = ImgurTokenPair.validate(data)
+        access_token = data.get('access_token')
 
-        if not token_data.access_token:
+        if not access_token:
             raise Exception("Error getting new access token")
 
-        DiscordSettings.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, token_data.access_token)
-        cache.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, token_data.access_token, timeout=None)
+        DiscordSettings.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, access_token)
+        cache.set(settings.IMGUR_ACCESS_TOKEN_DB_KEY, access_token, timeout=None)
 
-    def upload_image(self, image: bytes) -> tuple[AnyHttpUrl, Exception]:
+    def upload_image(self, image: bytes) -> tuple[str, Exception]:
         payload = {'album': settings.IMGUR_ALBUM_HASH}
         files = {'image': image}
         try:
