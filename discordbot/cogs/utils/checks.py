@@ -10,6 +10,7 @@ from discord.interactions import Interaction
 from discordbot.cogs.utils.exceptions import (
     DuplicatedProfileException, PrivateProfileException
 )
+from discordbot.cogs.utils.formatters import send_error_embed
 from discordbot.models import DiscordUser
 
 logger = logging.getLogger('discord.utils.checks')
@@ -34,12 +35,6 @@ def is_youtube_link(url: str) -> bool:
     return bool(match(pattern, url))
 
 
-async def send_warning_message(context, message):
-    if isinstance(context, Interaction):
-        return await context.response.send_message(message, ephemeral=True)
-    return await context.send(message)
-
-
 def admin_command(func: FunctionType) -> FunctionType:
     """Checks if command executed by admin or bot's owner"""
     @wraps(func)
@@ -47,7 +42,7 @@ def admin_command(func: FunctionType) -> FunctionType:
         user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.message.author.id
         if await DiscordUser.is_admin(user_id):
             return await func(self, ctx, *args, **kwargs)
-        return await send_warning_message(
+        return await send_error_embed(
             ctx, f"You don't have permissions to call `{ctx.command.name}` command"
         )
     return decorated
@@ -60,7 +55,7 @@ def mod_command(func: FunctionType) -> FunctionType:
         user_id = ctx.user.id if isinstance(ctx, Interaction) else ctx.message.author.id
         if await DiscordUser.is_moderator(user_id):
             return await func(self, ctx, *args, **kwargs)
-        return await send_warning_message(
+        return await send_error_embed(
             ctx, f"You don't have permissions to call `{ctx.command.name}` command"
         )
     return decorated

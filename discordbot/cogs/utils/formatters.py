@@ -1,6 +1,11 @@
 import re
 import string
+from functools import singledispatch
 from urllib.parse import urlparse
+
+from discord import Embed
+from discord.ext.commands import Context
+from discord.interactions import Interaction
 
 IP_REGEX = re.compile(r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}')
 URL_REGEX = re.compile(
@@ -38,3 +43,19 @@ def fix_attachment_url(discord_url: str) -> str:
     if "&format=webp" in discord_url:
         return discord_url.replace("&format=webp", '')
     return discord_url
+
+
+def build_error_embed(message: str, title: str = None) -> Embed:
+    _title = title or "Error"
+    return Embed(title=_title, description=message, color=0xed0000)
+
+
+@singledispatch
+async def send_error_embed(context: Context, message: str):
+    return await context.send(embed=build_error_embed(message))
+
+
+@send_error_embed.register
+async def _(context: Interaction, message: str):
+    embed = build_error_embed(message)
+    return await context.response.send_message(embed=embed, ephemeral=True)

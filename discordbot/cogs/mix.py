@@ -11,7 +11,7 @@ from discordbot.models import MixImage, Wisdom
 from discordbot.tasks import process_mix_urls_async
 
 from .utils.checks import mod_command
-from .utils.formatters import extract_urls
+from .utils.formatters import build_error_embed, extract_urls
 
 logger = logging.getLogger('discord.mix')
 
@@ -58,13 +58,13 @@ class Mix(commands.Cog):
                 message = "No urls or files were provided"
             else:
                 message = f"No more than {self.UPLOAD_FILES_LIMIT} files/links at a time!"
-            embed = self.build_error_embed(title="Mix Upload Error", description=message)
+            embed = build_error_embed(title="Mix Upload Error", message=message)
             await ctx.send(embed=embed)
             return
 
         result, error = await process_mix_urls_async(urls, ctx.author.id)
         if error:
-            embed = self.build_error_embed(title="Mix Upload Error", description="Task timed out!")
+            embed = build_error_embed(title="Mix Upload Error", message="Task timed out!")
             await ctx.send(embed=embed)
             return
 
@@ -101,9 +101,6 @@ class Mix(commands.Cog):
             return
         await Wisdom.objects.acreate(text=text, author_id=interaction.user.id)
         await interaction.response.send_message(f'{text} added', ephemeral=True)
-
-    def build_error_embed(self, title: str, description: str):
-        return Embed(title=title, color=0xed0000, description=description)
 
 
 async def setup(bot):
