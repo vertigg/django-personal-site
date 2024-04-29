@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from os import path
 
 import magic
@@ -14,8 +13,6 @@ from discordbot.cogs.utils.http import httpx_request
 from discordbot.config import settings
 from discordbot.models import MixImage
 from discordbot.schemas import ProcessedMixImage
-
-logger = logging.getLogger('discord.imgur.tasks')
 
 
 @app.task
@@ -76,8 +73,6 @@ def process_mix_url(url: str, author_id: int):
     new_db_entry.url = imgur_url
     new_db_entry.save(update_fields=['url'])
     obj.valid = True
-
-    logging.warning(imgur_client.access_token)
 
     return obj.json()
 

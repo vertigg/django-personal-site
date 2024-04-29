@@ -20,7 +20,8 @@ logger = logging.getLogger('discord.markov')
 
 
 class Markov(commands.Cog):
-    max_sentences = 20
+    max_sentences_count = 20
+    default_sentences_count = 10
     markov_texts: dict[int, MarkovText]
     channel_locks: dict[int, bool]
 
@@ -150,6 +151,13 @@ class Markov(commands.Cog):
         await ctx.send('Markov text object is ready for this channel! '
                        'To use it - type !markov <sentences count>')
 
+    def _get_sentences_count(self, count: int) -> int:
+        if count > self.max_sentences_count:
+            return self.max_sentences_count
+        if count <= 0:
+            return self.default_sentences_count
+        return count
+
     @commands.group(invoke_without_command=True)
     @text_channels_only
     async def markov(self, ctx, *, sentences: int = 5):
@@ -160,7 +168,7 @@ class Markov(commands.Cog):
             text = self.markov_texts.get(ctx.channel.id, None)
             if not text:
                 return await self._update_from_command(ctx)
-            sentences_count = sentences if sentences <= self.max_sentences else self.max_sentences
+            sentences_count = self._get_sentences_count(sentences)
             if not ctx.invoked_subcommand and text:
                 text = ' '.join([text.make_short_sentence(250, tries=100) for x
                                  in range(sentences_count)])
@@ -175,7 +183,7 @@ class Markov(commands.Cog):
         if not self.channel_locks.get(interaction.channel_id, False):
             await interaction.response.defer(thinking=True)
             text = self.markov_texts.get(interaction.channel_id)
-            sentences_count = sentences if sentences <= self.max_sentences else self.max_sentences
+            sentences_count = self._get_sentences_count(sentences)
             result = ' '.join([text.make_short_sentence(250, tries=100) for _ in range(sentences_count)])
             await interaction.followup.send(result)
         else:
