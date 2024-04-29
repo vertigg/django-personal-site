@@ -1,9 +1,8 @@
 import logging
+import re
 from functools import wraps
-from re import match
 from types import FunctionType
 
-import aiohttp
 from discord.enums import ChannelType
 from discord.interactions import Interaction
 
@@ -11,28 +10,23 @@ from discordbot.cogs.utils.exceptions import (
     DuplicatedProfileException, PrivateProfileException
 )
 from discordbot.cogs.utils.formatters import send_error_embed
+from discordbot.cogs.utils.http import async_httpx_request
+from discordbot.config import settings
 from discordbot.models import DiscordUser
 
 logger = logging.getLogger('discord.utils.checks')
 
-IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}  # image/webp is not supported by imgur
 POE_PROFILE_URL = 'https://pathofexile.com/character-window/get-characters?accountName={}'
-DEFAULT_HEADERS = {
-    'User-Agent': (
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-        '(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
-    )
-}
+YT_LINK_PATTERN = re.compile(r'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?=]*)?')
 
 
 def is_allowed_image_mimetype(content_type: str) -> bool:
-    return content_type in IMAGE_TYPES
+    return content_type in settings.ALLOWED_IMAGE_TYPES
 
 
 def is_youtube_link(url: str) -> bool:
     """Checks if url is youtube-like"""
-    pattern = r'http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?'
-    return bool(match(pattern, url))
+    return bool(YT_LINK_PATTERN.match(url))
 
 
 def admin_command(func: FunctionType) -> FunctionType:
@@ -76,10 +70,9 @@ async def validate_poe_profile(profile_name: str) -> str | None:
         return None
     if await DiscordUser.objects.filter(poe_profile=profile_name).aexists():
         raise DuplicatedProfileException('Account is already in the system')
-
-    async with aiohttp.ClientSession(headers=DEFAULT_HEADERS) as client:
-        response = await client.options(POE_PROFILE_URL.format(profile_name))
-        if response.status != 200:
-            raise PrivateProfileException(f'"{profile_name}" account is private or does not exist')
-
-    return profile_name
+    response, exc = await async_httpx_request("OPTIONS", POE_PROFILE_URL.format(profile_name))
+    if exc:
+        logger.error(exc)
+    if exc or response.is_error:
+        raise PrivateProfileException(f'"{profile_name}" account is private or does not exist')
+    return response

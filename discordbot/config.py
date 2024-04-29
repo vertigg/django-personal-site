@@ -16,6 +16,8 @@ class DiscordBotLocalSettings(BaseSettings):
     IMGUR_ALBUM_HASH: str
     IMGUR_REFRESH_TOKEN_DB_KEY: str = 'imgur_refresh_token'
     IMGUR_ACCESS_TOKEN_DB_KEY: str = 'imgur_access_token'
+    # image/webp is not supported by imgur
+    ALLOWED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}
 
     class Config:
         env_prefix = 'DISCORD_'
