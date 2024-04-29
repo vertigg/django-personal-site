@@ -10,7 +10,7 @@ import sys
 
 import aiohttp
 import pandas as pd
-import requests
+import httpx
 from celery import states
 from discord.ext import commands
 from discord.ext.commands.context import Context

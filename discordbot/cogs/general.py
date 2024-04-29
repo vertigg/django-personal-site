@@ -1,6 +1,5 @@
 import logging
 import random
-from functools import cache
 
 import discord
 from discord import app_commands
@@ -16,6 +15,7 @@ logger = logging.getLogger('discord.general')
 
 
 class General(commands.Cog):
+    _help_embed: discord.Embed = None
 
     def __init__(self, bot):
         self.bot: commands.Bot = bot
@@ -24,16 +24,22 @@ class General(commands.Cog):
     async def cog_unload(self):
         self.update_cache_task.cancel()
 
-    @cache
-    def get_help_embed(self) -> discord.Embed:
-        embed = discord.Embed(title="Tony Bot Help")
-        embed.set_thumbnail(url="https://i.imgur.com/rHoLgGu.png")
-        embed.add_field(name="How to add new mix (image) examples", inline=False, value=(
-            "\n`!mix add <URL>`\n`!mix add <URL1> <URL2>`\n`!mix add` + any "
-            "picture attachments\n(combination of urls + attachments also works)"
-        ))
-        embed.add_field(name="How to add new wisdom (text)", inline=False, value="\n`/wisdom add <text>`")
-        return embed
+    @property
+    def help_embed(self):
+        if not self._help_embed:
+            embed = discord.Embed(title="Tony Bot Help")
+            embed.set_thumbnail(url="https://i.imgur.com/rHoLgGu.png")
+            embed.add_field(
+                name="How to add new mix (image) examples:",
+                inline=False,
+                value=(
+                    "\n`!mix add <URL>`\n`!mix add <URL1> <URL2>`\n`!mix add` + any "
+                    "picture attachments\n(combination of urls + attachments also works)"
+                )
+            )
+            embed.add_field(name="How to add new wisdom (text):", inline=False, value="\n`/wisdom add <text>`")
+            self._help_embed = embed
+        return self._help_embed
 
     @tasks.loop(hours=24, reconnect=True)
     async def update_cache(self):
@@ -75,7 +81,7 @@ class General(commands.Cog):
 
     @app_commands.command(name="help", description="Lil' help")
     async def help(self, interaction: Interaction):
-        await interaction.response.send_message(embed=self.get_help_embed())
+        await interaction.response.send_message(embed=self.help_embed)
 
 
 async def setup(bot):
