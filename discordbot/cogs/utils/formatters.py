@@ -36,7 +36,7 @@ def clean_text(text: str) -> str:
 
 
 def extract_urls(text: str) -> set[str]:
-    return {urlparse(url).geturl() for url in URL_REGEX.findall(text)}
+    return {fix_attachment_url(urlparse(url).geturl()) for url in URL_REGEX.findall(text)}
 
 
 def fix_attachment_url(discord_url: str) -> str:

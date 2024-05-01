@@ -2,6 +2,7 @@ import asyncio
 from os import path
 
 import magic
+import msgspec
 from celery import group
 from celery.result import AsyncResult
 from django.core.files.base import ContentFile
@@ -20,12 +21,13 @@ def process_mix_url(url: str, author_id: int):
     from discordbot.imgur.client import imgur_client
 
     obj = ProcessedMixImage(url=url, valid=False, filename=path.basename(url.split('?')[0]))
+    to_json = msgspec.json.Encoder().encode
 
     response, error = httpx_request("HEAD", url, retries=1)
     if error or response.is_error:
         obj.valid = False
         obj.add_error_message("Can't open provided URL")
-        return obj.json()
+        return to_json(obj)
 
     content_type = response.headers.get('content-type', 'unknown')
     is_valid_type = is_allowed_image_mimetype(content_type)
@@ -39,25 +41,25 @@ def process_mix_url(url: str, author_id: int):
 
     if not all((is_valid_type, is_valid_size)):
         obj.valid = False
-        return obj.json()
+        return to_json(obj)
 
     response, error = httpx_request("GET", url, retries=1)
     if error or response.is_error:
         obj.valid = False
         obj.add_error_message("Can't download file")
-        return obj.json()
+        return to_json(obj)
 
     if not is_allowed_image_mimetype(magic.from_buffer(response.content, mime=True)):
         obj.valid = False
         obj.add_error_message("Content-Type and filetype mismatch")
-        return obj.json()
+        return to_json(obj)
 
     content = ContentFile(response.content)
 
     if MixImage.is_image_exist(content):
         obj.add_error_message("Image already exists in database")
         obj.valid = False
-        return obj.json()
+        return to_json(obj)
 
     new_db_entry = MixImage(date=now(), author_id=author_id)
     new_db_entry.image.save(obj.filename, content, save=True)
@@ -68,13 +70,13 @@ def process_mix_url(url: str, author_id: int):
         obj.add_error_message("Imgur upload failed")
         obj.valid = False
         new_db_entry.delete()
-        return obj.json()
+        return to_json(obj)
 
     new_db_entry.url = imgur_url
     new_db_entry.save(update_fields=['url'])
     obj.valid = True
 
-    return obj.json()
+    return to_json(obj)
 
 
 @app.task
@@ -94,6 +96,7 @@ async def process_mix_urls_async(urls: list[str], author_id: int) -> tuple[list[
     result = group([process_mix_url.s(url, author_id) for url in urls]).apply_async()
     try:
         await asyncio.wait_for(wait_result_ready(result), timeout=60)
-        return [ProcessedMixImage.parse_raw(x) for x in result.get()], None
+        decoder = msgspec.json.Decoder(ProcessedMixImage)
+        return [decoder.decode(x) for x in result.get()], None
     except asyncio.TimeoutError as exc:
         return [], exc

@@ -2,12 +2,11 @@ from datetime import timedelta
 
 import msgspec
 from django.utils.text import Truncator
-from human_readable import time_delta
-from pydantic import AnyHttpUrl, BaseModel
+from humanize import precisedelta
 
 
-class ProcessedMixImage(BaseModel):
-    url: AnyHttpUrl
+class ProcessedMixImage(msgspec.Struct):
+    url: str
     valid: bool
     filename: str = None
     errors: list[str] = []
@@ -41,7 +40,7 @@ class OrderBody(msgspec.Struct):
     reward: OrderReward
 
     def __str__(self) -> str:
-        return f"{self.brief}\n\n{self.description}"
+        return f"**{self.description}**\n\n{self.brief}"
 
 
 class MajorOrder(msgspec.Struct):
@@ -49,8 +48,10 @@ class MajorOrder(msgspec.Struct):
     setting: OrderBody
 
     def __str__(self) -> str:
+        expires_delta = timedelta(seconds=self.expires_in)
+        expires_msg = precisedelta(expires_delta, minimum_unit="hours", format="%0.0f")
         return "\n\n".join([
             str(self.setting),
             str(self.setting.reward),
-            f"Order expires in: **{time_delta(timedelta(seconds=self.expires_in))}**"
+            f"Order expires in: **{expires_msg}**"
         ])
