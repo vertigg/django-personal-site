@@ -15,9 +15,7 @@ services:
       - ./media:/app/media
       - ./data.db:/app/data.db
     restart: unless-stopped
-    env_file:
-      - path: .env.docker
-        required: true
+    env_file: .env.docker
 
   redis:
     image: redis:7.2-alpine
@@ -28,9 +26,7 @@ services:
     image: homesite
     container_name: celery
     command: ["celery", "-A", "config.celery_app", "worker", "-l", "info", "-c", "4"]
-    env_file:
-      - path: .env.docker
-        required: true
+    env_file: .env.docker
     volumes:
       - ./static:/app/static
       - ./media:/app/media
@@ -43,9 +39,7 @@ services:
     image: homesite
     container_name: beat
     command: ["celery", "-A", "config.celery_app", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
-    env_file:
-      - path: .env.docker
-        required: true
+    env_file: .env.docker
     volumes:
       - ./data.db:/app/data.db
     restart: always
@@ -59,6 +53,4 @@ services:
       - ./static:/app/static
       - ./media:/app/media
     restart: always
-    env_file:
-      - path: .env.docker
-        required: true
+    env_file: .env.docker
