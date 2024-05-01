@@ -1,15 +1,24 @@
 version: "3"
 services:
+  caddy:
+    image: caddy:2.7-alpine
+    container_name: "caddy"
+    restart: always
+    ports:
+      - "9000:80"
+    volumes:
+      - $PWD/docker/Caddyfile:/etc/caddy/Caddyfile
+      - $PWD/static:/var/www/static
+      - $PWD/media:/var/www/media
+
   web:
     image: homesite
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: web
     command:
       [sh, -c, "gunicorn --capture-output --enable-stdio-inheritance --bind 0.0.0.0:9000 --workers 2 config.wsgi"]
-    ports:
-      - 9000:9000
     volumes:
       - ./static:/app/static
       - ./media:/app/media

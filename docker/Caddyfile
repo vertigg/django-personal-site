@@ -1,0 +1,17 @@
+http://hideout.local, http://192.168.2.100, http://localhost, https://epicvertigo.xyz {
+    handle_path /static/* {
+        root * /var/www/static/
+        encode gzip
+        file_server
+    }
+
+    handle_path /media/* {
+        root * /var/www/media/
+        encode gzip
+        file_server
+    }
+
+    handle {
+        reverse_proxy web:9000
+    } 
+}

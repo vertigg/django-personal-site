@@ -298,3 +298,4 @@ books/
 recap
 TODO
 token.json
+.env.docker
