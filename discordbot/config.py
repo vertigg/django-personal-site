@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DiscordBotLocalSettings(BaseSettings):
@@ -17,11 +17,9 @@ class DiscordBotLocalSettings(BaseSettings):
     IMGUR_REFRESH_TOKEN_DB_KEY: str = 'imgur_refresh_token'
     IMGUR_ACCESS_TOKEN_DB_KEY: str = 'imgur_access_token'
     # image/webp is not supported by imgur
-    ALLOWED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg"}
+    ALLOWED_IMAGE_TYPES: set[str] = {"image/png", "image/jpeg", "image/jpg"}
 
-    class Config:
-        env_prefix = 'DISCORD_'
-        env_file = '.env'
+    model_config = SettingsConfigDict(env_file='.env', env_prefix='DISCORD_', extra='ignore')
 
 
 settings = DiscordBotLocalSettings()

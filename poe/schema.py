@@ -12,7 +12,7 @@ class CharacterSchema(BaseModel):
     class_name: str = Field(alias='class')
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
 
 
 class LeagueSchema(BaseModel):

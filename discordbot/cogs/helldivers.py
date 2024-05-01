@@ -1,10 +1,10 @@
 import logging
 
-import msgspec
 from discord import Embed, app_commands
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from discord.interactions import Interaction
+from pydantic import TypeAdapter, ValidationError
 
 from discordbot.cogs.utils.checks import admin_command
 from discordbot.cogs.utils.formatters import send_error_embed
@@ -20,7 +20,7 @@ class Helldivers(commands.Cog):
 
     def __init__(self, bot) -> None:
         self.bot: commands.Bot = bot
-        self.decoder = msgspec.json.Decoder(list[MajorOrder])
+        self.adapter = TypeAdapter(list[MajorOrder])
 
     @property
     def default_headers(self) -> dict[str, str]:
@@ -46,8 +46,8 @@ class Helldivers(commands.Cog):
             return await send_error_embed(interaction, "Can't fetch orders at this time")
 
         try:
-            tasks = msgspec.json.decode(resp.content, type=list[MajorOrder])
-        except msgspec.ValidationError:
+            tasks = self.adapter.validate_json(resp.content)
+        except ValidationError:
             return await send_error_embed(interaction, "Can't parse HD2 server response")
 
         embed = Embed(title="Major Orders").set_thumbnail(url=self.thumbnail_url)
