@@ -1,4 +1,4 @@
-FROM python:3.10.5-buster
+FROM python:3.10.13-slim-bullseye
 LABEL name=homesite-project version=dev maintainer="Vertig <vertigo.spy@gmail.com>"
 ENV PYTHONUNBUFFERED 1
 RUN locale-gen C.UTF-8 || true
@@ -11,15 +11,11 @@ RUN apt update \
     python-dev \
     && mkdir /app
 
-RUN git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
-
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . /app
-RUN python /app/manage.py migrate
-RUN python /app/manage.py collectstatic --noinput
-
-ENV DJANGO_DEBUG=true
+# RUN python /app/manage.py migrate
+# RUN python /app/manage.py collectstatic --noinput

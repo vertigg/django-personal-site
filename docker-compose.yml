@@ -1,24 +1,64 @@
 version: "3"
 services:
-  app:
-    build: .
-    container_name: homesite-app
+  web:
+    image: homesite
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web
     command:
-      [sh, -c, "gunicorn --bind 0.0.0.0:9000 config.wsgi:application"]
+      [sh, -c, "gunicorn --capture-output --enable-stdio-inheritance --bind 0.0.0.0:9000 --workers 2 config.wsgi"]
     ports:
       - 9000:9000
     volumes:
       - ./static:/app/static
+      - ./media:/app/media
       - ./data.db:/app/data.db
-      - ./logs:/app/logs
     restart: unless-stopped
+    env_file:
+      - path: .env.docker
+        required: true
 
-  bot:
-    build: .
-    container_name: homesite-bot
-    command: [sh, -c, "python discordbot/bot.py"]
+  redis:
+    image: redis:7.2-alpine
+    container_name: "redis"
+    restart: always
+
+  celery:
+    image: homesite
+    container_name: celery
+    command: ["celery", "-A", "config.celery_app", "worker", "-l", "info", "-c", "4"]
+    env_file:
+      - path: .env.docker
+        required: true
+    volumes:
+      - ./static:/app/static
+      - ./media:/app/media
+      - ./data.db:/app/data.db
+    restart: always
+    depends_on:
+      - redis
+
+  beat:
+    image: homesite
+    container_name: beat
+    command: ["celery", "-A", "config.celery_app", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+    env_file:
+      - path: .env.docker
+        required: true
     volumes:
       - ./data.db:/app/data.db
-      - ./discordbot:/app/discordbot
-      - ./logs:/app/logs
     restart: always
+
+  bot:
+    image: homesite
+    container_name: tony-bot
+    command: [sh, -c, "python -m discordbot"]
+    volumes:
+      - ./data.db:/app/data.db
+      - ./static:/app/static
+      - ./media:/app/media
+    restart: always
+    env_file:
+      - path: .env.docker
+        required: true

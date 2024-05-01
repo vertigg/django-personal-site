@@ -1,0 +1,8 @@
+.git
+.vscode
+recap
+node_modules
+.venv
+static
+media
+data.db
