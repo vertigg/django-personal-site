@@ -20,7 +20,7 @@ pydantic-settings==2.2.1
 python-dotenv==1.0.0
 python-magic==0.4.27
 redis
-requests==2.32.0
+requests==2.32.3
 requests-ratelimiter==0.4.0
 sentry-sdk>=1.28.1
 wikipedia==1.4.0
