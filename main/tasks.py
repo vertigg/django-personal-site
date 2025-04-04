@@ -87,9 +87,11 @@ class HTTPMonitorTask(Task):
         return f"{self.PREFIX}_{hsh}"
 
     def send_telegram_message(self, url: str, text: str):
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage"
+        telegram_url = (
+            f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage"
+        )
         response = self._client.post(
-            url,
+            telegram_url,
             data={
                 "chat_id": settings.TELEGRAM_CHAT_ID,
                 "text": f"Change detected on {url}.\n{text}",
