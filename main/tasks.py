@@ -109,7 +109,7 @@ class HTTPMonitorTask(Task):
         element = soup.select_one(selector)
 
         if not element:
-            logger.warning("%s element wasn't found on %s", selector, url)
+            logger.error("%s element wasn't found on %s", selector, url)
             return
 
         key = self.make_result_key(url)
