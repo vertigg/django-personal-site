@@ -82,8 +82,7 @@ class HTTPMonitorTask(Task):
         self._client = Client(headers=settings.DEFAULT_HEADERS, timeout=30)
         super().__init__()
 
-    @property
-    def _result_key(self, url: str) -> str:
+    def make_result_key(self, url: str) -> str:
         hsh = hashlib.sha256(url.encode("utf-8")).hexdigest()
         return f"{self.PREFIX}_{hsh}"
 
@@ -111,15 +110,16 @@ class HTTPMonitorTask(Task):
             logger.warning("%s element wasn't found on %s", selector, url)
             return
 
+        key = self.make_result_key(url)
         text = element.get_text(strip=True)
-        cached = cache.get(self._result_key)
+        cached = cache.get(key, url)
 
         if cached is None:
             logger.debug("First visit for %s", url)
-            cache.set(self._result_key, text, timeout=None)
+            cache.set(key, text, timeout=None)
         elif cached != text:
             logger.info("Change detected on %s, notifying", url)
-            cache.set(self._result_key, text, timeout=None)
+            cache.set(key, text, timeout=None)
             self.send_telegram_message(url, text)
         else:
             logger.debug("No change detected")
