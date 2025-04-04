@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import random
 import re
@@ -75,13 +76,16 @@ class GenerateBlacklistTask(Task):
 
 @register_task
 class HTTPMonitorTask(Task):
+    PREFIX = "web_monitor_task"
+
     def __init__(self):
         self._client = Client(headers=settings.DEFAULT_HEADERS, timeout=30)
         super().__init__()
 
     @property
-    def _result_key(self) -> str:
-        return self.__name__
+    def _result_key(self, url: str) -> str:
+        hsh = hashlib.sha256(url.encode("utf-8")).hexdigest()
+        return f"{self.PREFIX}_{hsh}"
 
     def send_telegram_message(self, url: str, text: str):
         url = f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage"
