@@ -92,7 +92,7 @@ class HTTPMonitorTask(Task):
             url,
             data={
                 "chat_id": settings.TELEGRAM_CHAT_ID,
-                "message": f"Change detected on {url}.\n{text}",
+                "text": f"Change detected on {url}.\n{text}",
             },
         )
         response.raise_for_status()
@@ -119,7 +119,7 @@ class HTTPMonitorTask(Task):
             cache.set(key, text, timeout=None)
         elif cached != text:
             logger.info("Change detected on %s, notifying", url)
-            cache.set(key, text, timeout=None)
             self.send_telegram_message(url, text)
+            cache.set(key, text, timeout=None)
         else:
             logger.debug("No change detected")
