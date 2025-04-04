@@ -4,40 +4,52 @@ import re
 from datetime import datetime, timedelta
 
 import requests
+from bs4 import BeautifulSoup as Soup
 from celery import Task
-from config.celery import register_task
+from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.cache import cache
+from httpx import Client
 
+from config.celery import register_task
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("main.tasks")
 
 
 @register_task
 class GenerateBlacklistTask(Task):
     """Generates blacklist IP for Rion"""
+
     padding = 40
-    separator = '#' * padding
-    pattern = re.compile(r'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(?:\/[0-9]{1,2})?')
-    filepath = staticfiles_storage.path('blacklist.txt')
+    separator = "#" * padding
+    pattern = re.compile(
+        r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(?:\/[0-9]{1,2})?"
+    )
+    filepath = staticfiles_storage.path("blacklist.txt")
     urls = [
-        'https://www.spamhaus.org/drop/drop.txt',
-        'https://www.spamhaus.org/drop/edrop.txt',
-        'https://sslbl.abuse.ch/blacklist/sslipblacklist.txt',
+        "https://www.spamhaus.org/drop/drop.txt",
+        "https://www.spamhaus.org/drop/edrop.txt",
+        "https://sslbl.abuse.ch/blacklist/sslipblacklist.txt",
     ]
 
     def _center_text(self, text: str) -> str:
-        return f'#{text.center(self.padding - 2, " ")}#'
+        return f"#{text.center(self.padding - 2, ' ')}#"
 
     @property
     def random_title(self) -> str:
-        return random.choice(['PepeLaugh', 'WeirdChamp', 'monkaShake'])
+        return random.choice(["PepeLaugh", "WeirdChamp", "monkaShake"])
 
     def generate_header(self) -> str:
-        return '\n'.join(map(self._center_text, [
-            f'{self.random_title} IP list',
-            f'Fetched {datetime.now()}',
-            f'Next {datetime.now() + timedelta(days=1)}',
-        ]))
+        return "\n".join(
+            map(
+                self._center_text,
+                [
+                    f"{self.random_title} IP list",
+                    f"Fetched {datetime.now()}",
+                    f"Next {datetime.now() + timedelta(days=1)}",
+                ],
+            )
+        )
 
     def run(self, *args, **options):
         ip_list = []
@@ -45,13 +57,65 @@ class GenerateBlacklistTask(Task):
             try:
                 response = requests.get(url, timeout=30)
                 if not response.ok:
-                    raise Exception(f'Response returned with status {response.status_code}')
+                    raise Exception(
+                        f"Response returned with status {response.status_code}"
+                    )
                 ip_list.extend(self.pattern.findall(response.text))
             except Exception as exc:
                 logger.error(
-                    'Could not fetch IP data from %s. Error details: %s', url, exc
+                    "Could not fetch IP data from %s. Error details: %s", url, exc
                 )
         ip_list = sorted(set(ip_list))
-        with open(self.filepath, 'w', encoding='utf-8') as f:
-            f.writelines('\n'.join([self.separator, self.generate_header(), self.separator]))
-            f.writelines([f'\n{address}' for address in ip_list])
+        with open(self.filepath, "w", encoding="utf-8") as f:
+            f.writelines(
+                "\n".join([self.separator, self.generate_header(), self.separator])
+            )
+            f.writelines([f"\n{address}" for address in ip_list])
+
+
+@register_task
+class HTTPMonitorTask(Task):
+    def __init__(self):
+        self._client = Client(headers=settings.DEFAULT_HEADERS, timeout=30)
+        super().__init__()
+
+    @property
+    def _result_key(self) -> str:
+        return self.__name__
+
+    def send_telegram_message(self, url: str, text: str):
+        url = f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage"
+        response = self._client.post(
+            url,
+            data={
+                "chat_id": settings.TELEGRAM_CHAT_ID,
+                "message": f"Change detected on {url}.\n{text}",
+            },
+        )
+        response.raise_for_status()
+
+    def run(self, url: str, selector: str, *args, **kwargs):
+        logging.info("Starting %s task", self.__name__)
+
+        resp = self._client.get(url)
+        resp.raise_for_status()
+
+        soup = Soup(resp.text, features="html.parser")
+        element = soup.select_one(selector)
+
+        if not element:
+            logger.warning("%s element wasn't found on %s", selector, url)
+            return
+
+        text = element.get_text(strip=True)
+        cached = cache.get(self._result_key)
+
+        if cached is None:
+            logger.debug("First visit for %s", url)
+            cache.set(self._result_key, text, timeout=None)
+        elif cached != text:
+            logger.info("Change detected on %s, notifying", url)
+            cache.set(self._result_key, text, timeout=None)
+            self.send_telegram_message(url, text)
+        else:
+            logger.debug("No change detected")
