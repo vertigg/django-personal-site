@@ -3,9 +3,11 @@ import logging
 import random
 import re
 from datetime import datetime, timedelta
+from functools import cached_property
 
 import requests
 from bs4 import BeautifulSoup as Soup
+from bs4 import Tag
 from celery import Task
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -82,6 +84,12 @@ class HTTPMonitorTask(Task):
         self._client = Client(headers=settings.DEFAULT_HEADERS, timeout=30)
         super().__init__()
 
+    @cached_property
+    def tag_sentinel(self) -> Tag:
+        t = Tag(name="span", attrs={})
+        t.string = "Missing element"
+        return t
+
     def make_result_key(self, url: str) -> str:
         hsh = hashlib.sha256(url.encode("utf-8")).hexdigest()
         return f"{self.PREFIX}_{hsh}"
@@ -99,7 +107,9 @@ class HTTPMonitorTask(Task):
         )
         response.raise_for_status()
 
-    def run(self, url: str, selector: str, *args, **kwargs):
+    def run(
+        self, url: str, selector: str, allow_missing_tags: bool = False, *args, **kwargs
+    ):
         logging.info("Starting %s task", self.__name__)
 
         resp = self._client.get(url)
@@ -109,8 +119,11 @@ class HTTPMonitorTask(Task):
         element = soup.select_one(selector)
 
         if not element:
-            logger.error("%s element wasn't found on %s", selector, url)
-            return
+            if allow_missing_tags:
+                element = self.tag_sentinel
+            else:
+                logger.error("%s element wasn't found on %s", selector, url)
+                return
 
         key = self.make_result_key(url)
         text = element.get_text(strip=True)
