@@ -29,7 +29,6 @@ def fetch_glycemic_data():
             GlycemicData(
                 time=int(entry["time"]),
                 glycemic=float(entry["glycemic"]),
-                range=entry.get("range"),
             )
         )
 
