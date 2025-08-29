@@ -1,8 +1,6 @@
 import logging
 
-from httpx import (
-    AsyncClient, AsyncHTTPTransport, Client, HTTPTransport, Response
-)
+from httpx import AsyncClient, AsyncHTTPTransport, Client, HTTPTransport, Response
 
 logger = logging.getLogger('discord.cogs.utils.http')
 
@@ -12,11 +10,12 @@ DEFAULT_HEADERS = {
 
 
 def httpx_request(
-        method: str,
-        url: str,
-        headers: dict = None,
-        data: dict = None,
-        retries: int = 5
+    method: str,
+    url: str,
+    headers: dict = None,
+    data: dict = None,
+    params: dict = None,
+    retries: int = 5,
 ) -> tuple[Response, Exception]:
     """Generic synchronous httpx request"""
     try:
@@ -27,6 +26,7 @@ def httpx_request(
                 headers=headers or DEFAULT_HEADERS,
                 timeout=30,
                 data=data,
+                params=params,
                 follow_redirects=False,
             )
             return response, None
@@ -36,11 +36,12 @@ def httpx_request(
 
 
 async def async_httpx_request(
-        method: str,
-        url: str,
-        headers: dict = None,
-        data: dict = None,
-        retries: int = 5
+    method: str,
+    url: str,
+    headers: dict = None,
+    data: dict = None,
+    params: dict = None,
+    retries: int = 5,
 ) -> tuple[Response, Exception]:
     """Generic asynchronous httpx request"""
     try:
@@ -51,6 +52,7 @@ async def async_httpx_request(
                 headers=headers or DEFAULT_HEADERS,
                 timeout=30,
                 data=data,
+                params=params,
                 follow_redirects=False,
             )
             return response, None
