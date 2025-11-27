@@ -1,7 +1,7 @@
 aiohttp==3.10.11
 celery==5.3.1
 discord.py==2.4.0
-Django==4.2.18
+Django==4.2.26
 django-allauth==0.54.0
 django-celery-beat==2.5.0
 django-dbbackup==4.0.2
