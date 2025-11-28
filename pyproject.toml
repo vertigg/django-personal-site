@@ -5,10 +5,10 @@ description = "Personal website and Discord bot"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aiohttp==3.10.11",
+    "aiohttp==3.12.14",
     "celery==5.3.1",
     "discord-py==2.4.0",
-    "django==4.2.18",
+    "django==4.2.26",
     "django-allauth==0.54.0",
     "django-celery-beat==2.5.0",
     "django-dbbackup==4.0.2",
@@ -27,7 +27,7 @@ dependencies = [
     "python-dotenv==1.0.0",
     "python-magic==0.4.27",
     "redis>=7.1.0",
-    "requests==2.32.3",
+    "requests==2.32.4",
     "requests-ratelimiter==0.4.0",
     "sentry-sdk>=1.28.1",
     "wikipedia==1.4.0",
@@ -36,6 +36,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ipdb>=0.13.13",
+    "ipykernel>=7.1.0",
 ]
 
 [tool.ruff.format]
