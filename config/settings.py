@@ -32,12 +32,15 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
 if not DEBUG:
     sentry_sdk.init(
         dsn=os.getenv('SENTRY_DSN'),
-        integrations=[DjangoIntegration(), AioHttpIntegration()]
+        integrations=[DjangoIntegration(), AioHttpIntegration()],
     )
 
 LOGIN_REDIRECT_URL = 'main:home'
 LOGIN_URL = 'main:login'
-INTERNAL_IPS = ('127.0.0.1', 'localhost',)
+INTERNAL_IPS = (
+    '127.0.0.1',
+    'localhost',
+)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') or INTERNAL_IPS
 SOCIALACCOUNT_ADAPTER = "main.adapters.CustomDiscordAccountAdapter"
 
@@ -66,6 +69,9 @@ INSTALLED_APPS = [
     'django_celery_beat',
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append('debug_toolbar')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -85,12 +91,9 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+        'rest_framework.throttling.UserRateThrottle',
     ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '10/minute'
-    }
+    'DEFAULT_THROTTLE_RATES': {'anon': '100/day', 'user': '10/minute'},
 }
 
 ROOT_URLCONF = 'config.urls'
@@ -132,7 +135,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'data.db',
-        'TEST_NAME': BASE_DIR / 'test.db'
+        'TEST_NAME': BASE_DIR / 'test.db',
     }
 }
 
@@ -195,10 +198,9 @@ LOGGING = {
     'formatters': {
         'verbose': {
             'format': (
-                '[%(asctime)s] [%(levelname)s] [%(name)s:%(funcName)s] '
-                '%(message)s'
+                '[%(asctime)s] [%(levelname)s] [%(name)s:%(funcName)s] %(message)s'
             ),
-            'datefmt': '%Y-%m-%d %H:%M:%S'
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
     'handlers': {
@@ -208,11 +210,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False
-        },
+        'django': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }
 
@@ -227,9 +225,7 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": REDIS_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient"
-        },
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
     }
 }
 
