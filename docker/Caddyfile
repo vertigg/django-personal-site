@@ -25,6 +25,6 @@ http://hideout.local, http://192.168.2.100, http://localhost {
     }
 
     handle {
-        reverse_proxy web:9000
+        reverse_proxy django:9000
     } 
 }
