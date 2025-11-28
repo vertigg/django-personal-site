@@ -1,7 +1,7 @@
 services:
   caddy:
-    image: caddy:2.7-alpine
-    container_name: "caddy-homesite"
+    image: caddy:2.10-alpine
+    container_name: "caddy"
     restart: always
     ports:
       - "9000:80"
@@ -10,12 +10,12 @@ services:
       - $PWD/static:/var/www/static
       - $PWD/media:/var/www/media
 
-  web:
-    image: homesite
+  django:
+    image: django-base:latest
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: web
+    container_name: django
     command:
       [sh, -c, "gunicorn --capture-output --enable-stdio-inheritance --bind 0.0.0.0:9000 --workers 2 config.wsgi"]
     volumes:
@@ -31,7 +31,7 @@ services:
     restart: always
 
   celery:
-    image: homesite
+    image: django-base:latest
     container_name: celery
     command: ["celery", "-A", "config.celery_app", "worker", "-l", "info", "-c", "4"]
     env_file: .env.docker
@@ -44,7 +44,7 @@ services:
       - redis
 
   beat:
-    image: homesite
+    image: django-base:latest
     container_name: beat
     command: ["celery", "-A", "config.celery_app", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
     env_file: .env.docker
@@ -53,8 +53,8 @@ services:
     restart: always
 
   bot:
-    image: homesite
-    container_name: tony-bot
+    image: django-base:latest
+    container_name: bot
     command: [sh, -c, "python -m discordbot"]
     volumes:
       - ./data.db:/app/data.db

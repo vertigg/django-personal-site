@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'discordbot.apps.DiscordbotConfig',
     'poe.apps.PoeConfig',
-    'apps.glycemic.apps.GlycemicConfig',
     'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
