@@ -1,28 +1,22 @@
-FROM python:3.12.8-slim-bullseye
+FROM python:3.12-slim-bookworm AS builder 
 LABEL name=homesite-project version=dev maintainer="Vertig <vertigo.spy@gmail.com>"
-ENV PYTHONUNBUFFERED 1
-RUN locale-gen C.UTF-8 || true
-ENV LANG=C.UTF-8
-
-RUN apt update \
-    && apt install -y --no-install-recommends \
-    g++ \
-    gcc \
-    python-dev \
-    curl \
-    ca-certificates \
-    libmagic1 \
-    && mkdir /app
-
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-ENV PATH="/root/.local/bin/:$PATH"
-
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --no-install-project
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev
 
-COPY requirements.txt .
-RUN uv pip install --system -r requirements.txt
 
-COPY . /app
+FROM python:3.12-slim-bookworm AS runtime
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 
+RUN apt update && apt install -y --no-install-recommends libmagic1
+WORKDIR /app
+COPY --from=builder /app /app
+
 # RUN python /app/manage.py migrate
 # RUN python /app/manage.py collectstatic --noinput
