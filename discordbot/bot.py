@@ -13,10 +13,11 @@ class TonyBot(Bot):
     cog_names: list[str] = ['admin', 'general', 'markov', 'mix', 'wikipedia', 'helldivers']
 
     def __init__(self):
+        intents = self.get_bot_intents()
         super().__init__(
             command_prefix='!',
             description='Super duper halal bot for clowans. List of commands below',
-            intents=self.get_bot_intents(),
+            intents=intents,
             owner_ids=settings.OWNER_IDS
         )
 
@@ -66,4 +67,4 @@ class TonyBot(Bot):
             message.author.id, message.content, len(message.attachments)
         )
         if message.attachments:
-            logger.info(', '.join([att.url for att in message.attachments]))
+            logger.info(', '.join(att.url for att in message.attachments))
