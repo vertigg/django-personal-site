@@ -8,7 +8,7 @@ dependencies = [
     "aiohttp==3.12.14",
     "celery==5.5.3",
     "discord-py==2.6.4",
-    "django==5.2.8",
+    "django==4.2.27",
     "django-allauth>=65",
     "django-celery-beat>=2.5.0",
     "django-dbbackup==4.0.2",
