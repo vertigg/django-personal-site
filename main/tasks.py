@@ -94,7 +94,7 @@ class HTTPMonitorTask(Task):
         hsh = hashlib.sha256(url.encode("utf-8")).hexdigest()
         return f"{self.PREFIX}_{hsh}"
 
-    def send_telegram_message(self, url: str, text: str):
+    def send_telegram_message(self, url: str, current: str, prev: str):
         telegram_url = (
             f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage"
         )
@@ -102,7 +102,7 @@ class HTTPMonitorTask(Task):
             telegram_url,
             data={
                 "chat_id": settings.TELEGRAM_CHAT_ID,
-                "text": f"Change detected on {url}.\n{text}",
+                "text": f"Change detected on {url}.\nFrom {prev} to {current}",
             },
         )
         response.raise_for_status()
@@ -126,15 +126,15 @@ class HTTPMonitorTask(Task):
                 return
 
         key = self.make_result_key(url)
-        text = element.get_text(strip=True)
+        value = element.get_text(strip=True)
         cached = cache.get(key, url)
 
         if cached is None:
             logger.debug("First visit for %s", url)
-            cache.set(key, text, timeout=None)
-        elif cached != text:
+            cache.set(key, value, timeout=None)
+        elif cached != value:
             logger.info("Change detected on %s, notifying", url)
-            self.send_telegram_message(url, text)
-            cache.set(key, text, timeout=None)
+            self.send_telegram_message(url, value, cached)
+            cache.set(key, value, timeout=None)
         else:
             logger.debug("No change detected")
